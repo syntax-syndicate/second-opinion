@@ -345,15 +345,20 @@ class SecondOpinionServer:
             return [TextContent(type="text", text="OpenAI client not configured. Please set OPENAI_API_KEY environment variable.")]
         
         try:
-            response = self.openai_client.chat.completions.create(
-                model=model,
-                messages=[
+            # Use max_completion_tokens for o4-mini and other o-series models
+            token_param = "max_completion_tokens" if model.startswith("o") else "max_tokens"
+            
+            kwargs = {
+                "model": model,
+                "messages": [
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=temperature,
-                max_tokens=max_tokens
-            )
+                "temperature": temperature,
+                token_param: max_tokens
+            }
+            
+            response = self.openai_client.chat.completions.create(**kwargs)
             
             result = f"**OpenAI {model} Opinion:**\n\n{response.choices[0].message.content}"
             return [TextContent(type="text", text=result)]
