@@ -446,7 +446,7 @@ class SecondOpinionServer:
             return [TextContent(type="text", text="Gemini client not configured.")]
         
         if models is None:
-            models = ["gemini-2.0-flash-001", "gemini-2.5-pro-experimental"]
+            models = ["gemini-2.0-flash-001", "gemini-2.5-flash-preview-05-20"]
         
         results = []
         results.append("## Gemini Model Comparison\n")
