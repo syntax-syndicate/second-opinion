@@ -68,6 +68,8 @@ class SecondOpinionServer:
         # Initialize API clients
         self.openai_client = None
         self.gemini_client = None
+        self.grok_client = None
+        self.claude_client = None
         
         self._setup_clients()
         self._setup_handlers()
