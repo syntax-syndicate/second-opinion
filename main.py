@@ -273,11 +273,172 @@ class SecondOpinionServer:
                     )
                 ])
             
-            if self.openai_client and self.gemini_client:
+            if self.grok_client:
+                tools.extend([
+                    Tool(
+                        name="get_grok_opinion",
+                        description="Get a second opinion from a Grok model (xAI)",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to get an opinion on"
+                                },
+                                "model": {
+                                    "type": "string",
+                                    "description": "Grok model to use",
+                                    "enum": [
+                                        "grok-3",
+                                        "grok-2",
+                                        "grok-beta"
+                                    ],
+                                    "default": "grok-3"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature for response randomness (0.0-2.0)",
+                                    "minimum": 0.0,
+                                    "maximum": 2.0,
+                                    "default": 0.7
+                                },
+                                "max_tokens": {
+                                    "type": "integer",
+                                    "description": "Maximum tokens in response",
+                                    "default": 1000
+                                },
+                                "system_prompt": {
+                                    "type": "string",
+                                    "description": "Optional system prompt to guide the response",
+                                    "default": "You are providing a thoughtful second opinion. Be concise but thorough."
+                                }
+                            },
+                            "required": ["prompt"]
+                        }
+                    ),
+                    Tool(
+                        name="compare_grok_models",
+                        description="Get opinions from multiple Grok models for comparison",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to compare across models"
+                                },
+                                "models": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "enum": [
+                                            "grok-3",
+                                            "grok-2",
+                                            "grok-beta"
+                                        ]
+                                    },
+                                    "description": "List of Grok models to compare",
+                                    "default": ["grok-3", "grok-2"]
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "default": 0.7
+                                }
+                            },
+                            "required": ["prompt"]
+                        }
+                    )
+                ])
+            
+            if self.claude_client:
+                tools.extend([
+                    Tool(
+                        name="get_claude_opinion",
+                        description="Get a second opinion from a Claude model (Anthropic)",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to get an opinion on"
+                                },
+                                "model": {
+                                    "type": "string",
+                                    "description": "Claude model to use",
+                                    "enum": [
+                                        "claude-4-opus-20250522",
+                                        "claude-4-sonnet-20250522",
+                                        "claude-3-7-sonnet-20250224",
+                                        "claude-3-5-sonnet-20241022"
+                                    ],
+                                    "default": "claude-4-sonnet-20250522"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature for response randomness (0.0-1.0)",
+                                    "minimum": 0.0,
+                                    "maximum": 1.0,
+                                    "default": 0.7
+                                },
+                                "max_tokens": {
+                                    "type": "integer",
+                                    "description": "Maximum tokens in response",
+                                    "default": 1000
+                                },
+                                "system_prompt": {
+                                    "type": "string",
+                                    "description": "Optional system prompt to guide the response",
+                                    "default": "You are providing a thoughtful second opinion. Be concise but thorough."
+                                }
+                            },
+                            "required": ["prompt"]
+                        }
+                    ),
+                    Tool(
+                        name="compare_claude_models",
+                        description="Get opinions from multiple Claude models for comparison",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to compare across models"
+                                },
+                                "models": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "string",
+                                        "enum": [
+                                            "claude-4-opus-20250522",
+                                            "claude-4-sonnet-20250522",
+                                            "claude-3-7-sonnet-20250224",
+                                            "claude-3-5-sonnet-20241022"
+                                        ]
+                                    },
+                                    "description": "List of Claude models to compare",
+                                    "default": ["claude-4-opus-20250522", "claude-4-sonnet-20250522"]
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "default": 0.7
+                                }
+                            },
+                            "required": ["prompt"]
+                        }
+                    )
+                ])
+            
+            # Cross-platform comparison tools
+            available_providers = []
+            if self.openai_client: available_providers.append("OpenAI")
+            if self.gemini_client: available_providers.append("Gemini")
+            if self.grok_client: available_providers.append("Grok")
+            if self.claude_client: available_providers.append("Claude")
+            
+            if len(available_providers) >= 2:
                 tools.append(
                     Tool(
                         name="cross_platform_comparison",
-                        description="Get opinions from both OpenAI and Gemini models for cross-platform comparison",
+                        description=f"Get opinions from multiple AI platforms for cross-platform comparison. Available: {', '.join(available_providers)}",
                         inputSchema={
                             "type": "object",
                             "properties": {
@@ -287,20 +448,23 @@ class SecondOpinionServer:
                                 },
                                 "openai_model": {
                                     "type": "string",
-                                    "enum": [
-                                        "o4-mini",
-                                        "gpt-4.1",
-                                        "gpt-4o"
-                                    ],
+                                    "enum": ["o4-mini", "gpt-4.1", "gpt-4o"],
                                     "default": "gpt-4.1"
                                 },
                                 "gemini_model": {
                                     "type": "string",
-                                    "enum": [
-                                        "gemini-2.0-flash-001",
-                                        "gemini-2.5-flash-preview-05-20"
-                                    ],
+                                    "enum": ["gemini-2.0-flash-001", "gemini-2.5-flash-preview-05-20"],
                                     "default": "gemini-2.0-flash-001"
+                                },
+                                "grok_model": {
+                                    "type": "string",
+                                    "enum": ["grok-3", "grok-2", "grok-beta"],
+                                    "default": "grok-3"
+                                },
+                                "claude_model": {
+                                    "type": "string",
+                                    "enum": ["claude-4-opus-20250522", "claude-4-sonnet-20250522", "claude-3-7-sonnet-20250224"],
+                                    "default": "claude-4-sonnet-20250522"
                                 },
                                 "temperature": {
                                     "type": "number",
@@ -321,10 +485,18 @@ class SecondOpinionServer:
                     return await self._get_openai_opinion(**arguments)
                 elif name == "get_gemini_opinion":
                     return await self._get_gemini_opinion(**arguments)
+                elif name == "get_grok_opinion":
+                    return await self._get_grok_opinion(**arguments)
+                elif name == "get_claude_opinion":
+                    return await self._get_claude_opinion(**arguments)
                 elif name == "compare_openai_models":
                     return await self._compare_openai_models(**arguments)
                 elif name == "compare_gemini_models":
                     return await self._compare_gemini_models(**arguments)
+                elif name == "compare_grok_models":
+                    return await self._compare_grok_models(**arguments)
+                elif name == "compare_claude_models":
+                    return await self._compare_claude_models(**arguments)
                 elif name == "cross_platform_comparison":
                     return await self._cross_platform_comparison(**arguments)
                 else:
@@ -334,8 +506,8 @@ class SecondOpinionServer:
                 return [TextContent(type="text", text=f"Error: {str(e)}")]
     
     async def _get_openai_opinion(
-        self, 
-        prompt: str, 
+        self,
+        prompt: str,
         model: str = "gpt-4.1",
         temperature: float = 0.7,
         max_tokens: int = 1000,
@@ -406,6 +578,62 @@ class SecondOpinionServer:
             
         except Exception as e:
             return [TextContent(type="text", text=f"Gemini API Error: {str(e)}")]
+    
+    async def _get_grok_opinion(
+        self,
+        prompt: str,
+        model: str = "grok-3",
+        temperature: float = 0.7,
+        max_tokens: int = 1000,
+        system_prompt: str = "You are providing a thoughtful second opinion. Be concise but thorough."
+    ) -> Sequence[TextContent]:
+        if not self.grok_client:
+            return [TextContent(type="text", text="Grok client not configured. Please set GROK_API_KEY environment variable.")]
+        
+        try:
+            response = self.grok_client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+            
+            result = f"**Grok {model} Opinion:**\n\n{response.choices[0].message.content}"
+            return [TextContent(type="text", text=result)]
+            
+        except Exception as e:
+            return [TextContent(type="text", text=f"Grok API Error: {str(e)}")]
+    
+    async def _get_claude_opinion(
+        self,
+        prompt: str,
+        model: str = "claude-4-sonnet-20250522",
+        temperature: float = 0.7,
+        max_tokens: int = 1000,
+        system_prompt: str = "You are providing a thoughtful second opinion. Be concise but thorough."
+    ) -> Sequence[TextContent]:
+        if not self.claude_client:
+            return [TextContent(type="text", text="Claude client not configured. Please set CLAUDE_API_KEY environment variable.")]
+        
+        try:
+            response = self.claude_client.messages.create(
+                model=model,
+                max_tokens=max_tokens,
+                temperature=temperature,
+                system=system_prompt,
+                messages=[
+                    {"role": "user", "content": prompt}
+                ]
+            )
+            
+            result = f"**Claude {model} Opinion:**\n\n{response.content[0].text}"
+            return [TextContent(type="text", text=result)]
+            
+        except Exception as e:
+            return [TextContent(type="text", text=f"Claude API Error: {str(e)}")]
     
     async def _compare_openai_models(
         self,
@@ -494,11 +722,81 @@ class SecondOpinionServer:
         
         return [TextContent(type="text", text="\n".join(results))]
     
+    async def _compare_grok_models(
+        self,
+        prompt: str,
+        models: List[str] = None,
+        temperature: float = 0.7
+    ) -> Sequence[TextContent]:
+        if not self.grok_client:
+            return [TextContent(type="text", text="Grok client not configured.")]
+        
+        if models is None:
+            models = ["grok-3", "grok-2"]
+        
+        results = []
+        results.append("## Grok Model Comparison\n")
+        
+        for model in models:
+            try:
+                response = self.grok_client.chat.completions.create(
+                    model=model,
+                    messages=[
+                        {"role": "system", "content": "Provide a thoughtful analysis. Be concise but thorough."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=temperature,
+                    max_tokens=800
+                )
+                
+                results.append(f"### {model}\n{response.choices[0].message.content}\n")
+                
+            except Exception as e:
+                results.append(f"### {model}\n❌ Error: {str(e)}\n")
+        
+        return [TextContent(type="text", text="\n".join(results))]
+    
+    async def _compare_claude_models(
+        self,
+        prompt: str,
+        models: List[str] = None,
+        temperature: float = 0.7
+    ) -> Sequence[TextContent]:
+        if not self.claude_client:
+            return [TextContent(type="text", text="Claude client not configured.")]
+        
+        if models is None:
+            models = ["claude-4-opus-20250522", "claude-4-sonnet-20250522"]
+        
+        results = []
+        results.append("## Claude Model Comparison\n")
+        
+        for model in models:
+            try:
+                response = self.claude_client.messages.create(
+                    model=model,
+                    max_tokens=800,
+                    temperature=temperature,
+                    system="Provide a thoughtful analysis. Be concise but thorough.",
+                    messages=[
+                        {"role": "user", "content": prompt}
+                    ]
+                )
+                
+                results.append(f"### {model}\n{response.content[0].text}\n")
+                
+            except Exception as e:
+                results.append(f"### {model}\n❌ Error: {str(e)}\n")
+        
+        return [TextContent(type="text", text="\n".join(results))]
+    
     async def _cross_platform_comparison(
         self,
         prompt: str,
         openai_model: str = "gpt-4.1",
         gemini_model: str = "gemini-2.0-flash-001",
+        grok_model: str = "grok-3",
+        claude_model: str = "claude-4-sonnet-20250522",
         temperature: float = 0.7
     ) -> Sequence[TextContent]:
         results = []
@@ -507,15 +805,18 @@ class SecondOpinionServer:
         # Get OpenAI opinion
         if self.openai_client:
             try:
-                openai_response = self.openai_client.chat.completions.create(
-                    model=openai_model,
-                    messages=[
+                token_param = "max_completion_tokens" if openai_model.startswith("o") else "max_tokens"
+                kwargs = {
+                    "model": openai_model,
+                    "messages": [
                         {"role": "system", "content": "Provide a thoughtful analysis. Be concise but thorough."},
                         {"role": "user", "content": prompt}
                     ],
-                    temperature=temperature,
-                    max_tokens=800
-                )
+                    "temperature": temperature,
+                    token_param: 800
+                }
+                
+                openai_response = self.openai_client.chat.completions.create(**kwargs)
                 results.append(f"### OpenAI ({openai_model})\n{openai_response.choices[0].message.content}\n")
             except Exception as e:
                 results.append(f"### OpenAI ({openai_model})\n❌ Error: {str(e)}\n")
@@ -555,6 +856,42 @@ class SecondOpinionServer:
         else:
             results.append("### Gemini\n❌ Not configured\n")
         
+        # Get Grok opinion
+        if self.grok_client:
+            try:
+                grok_response = self.grok_client.chat.completions.create(
+                    model=grok_model,
+                    messages=[
+                        {"role": "system", "content": "Provide a thoughtful analysis. Be concise but thorough."},
+                        {"role": "user", "content": prompt}
+                    ],
+                    temperature=temperature,
+                    max_tokens=800
+                )
+                results.append(f"### Grok ({grok_model})\n{grok_response.choices[0].message.content}\n")
+            except Exception as e:
+                results.append(f"### Grok ({grok_model})\n❌ Error: {str(e)}\n")
+        else:
+            results.append("### Grok\n❌ Not configured\n")
+        
+        # Get Claude opinion
+        if self.claude_client:
+            try:
+                claude_response = self.claude_client.messages.create(
+                    model=claude_model,
+                    max_tokens=800,
+                    temperature=temperature,
+                    system="Provide a thoughtful analysis. Be concise but thorough.",
+                    messages=[
+                        {"role": "user", "content": prompt}
+                    ]
+                )
+                results.append(f"### Claude ({claude_model})\n{claude_response.content[0].text}\n")
+            except Exception as e:
+                results.append(f"### Claude ({claude_model})\n❌ Error: {str(e)}\n")
+        else:
+            results.append("### Claude\n❌ Not configured\n")
+        
         return [TextContent(type="text", text="\n".join(results))]
 
 def main():
@@ -565,6 +902,10 @@ def main():
         required_vars.append("OPENAI_API_KEY")
     if not os.getenv("GEMINI_API_KEY"):
         required_vars.append("GEMINI_API_KEY")
+    if not os.getenv("GROK_API_KEY"):
+        required_vars.append("GROK_API_KEY")
+    if not os.getenv("CLAUDE_API_KEY"):
+        required_vars.append("CLAUDE_API_KEY")
     
     if required_vars:
         print("⚠️  Warning: Missing environment variables:", file=sys.stderr)
