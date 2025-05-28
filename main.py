@@ -47,6 +47,16 @@ except ImportError:
         GEMINI_AVAILABLE = False
         print("Gemini API not available. Install with: pip install google-generativeai", file=sys.stderr)
 
+# Anthropic Claude imports
+CLAUDE_AVAILABLE = False
+try:
+    import anthropic
+    CLAUDE_AVAILABLE = True
+    print("Anthropic Claude SDK available", file=sys.stderr)
+except ImportError:
+    CLAUDE_AVAILABLE = False
+    print("Claude API not available. Install with: pip install anthropic", file=sys.stderr)
+
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
