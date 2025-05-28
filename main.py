@@ -257,11 +257,11 @@ class SecondOpinionServer:
                                         "type": "string",
                                         "enum": [
                                             "gemini-2.0-flash-001",
-                                            "gemini-2.5-pro-experimental"
+                                            "gemini-2.5-flash-preview-05-20"
                                         ]
                                     },
                                     "description": "List of Gemini models to compare",
-                                    "default": ["gemini-2.0-flash-001", "gemini-2.5-pro-experimental"]
+                                    "default": ["gemini-2.0-flash-001", "gemini-2.5-flash-preview-05-20"]
                                 },
                                 "temperature": {
                                     "type": "number",
