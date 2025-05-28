@@ -1,0 +1,10 @@
+# Second Opinion MCP Server Requirements
+
+# MCP Framework
+mcp
+
+# OpenAI API
+openai
+
+# Gemini API
+google-genai
