@@ -98,6 +98,28 @@ class SecondOpinionServer:
                 logger.warning("Gemini API not available - install google-generativeai")
             else:
                 logger.warning("GEMINI_API_KEY not found - Gemini features disabled")
+        
+        # Grok setup (xAI API - compatible with OpenAI SDK)
+        grok_api_key = os.getenv("GROK_API_KEY")
+        if grok_api_key:
+            self.grok_client = openai.OpenAI(
+                api_key=grok_api_key,
+                base_url="https://api.x.ai/v1"
+            )
+            logger.info("Grok client initialized")
+        else:
+            logger.warning("GROK_API_KEY not found - Grok features disabled")
+        
+        # Claude setup
+        claude_api_key = os.getenv("CLAUDE_API_KEY")
+        if claude_api_key and CLAUDE_AVAILABLE:
+            self.claude_client = anthropic.Anthropic(api_key=claude_api_key)
+            logger.info("Claude client initialized")
+        else:
+            if not CLAUDE_AVAILABLE:
+                logger.warning("Claude API not available - install anthropic")
+            else:
+                logger.warning("CLAUDE_API_KEY not found - Claude features disabled")
     
     def _setup_handlers(self):
         """Set up MCP handlers"""
