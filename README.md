@@ -36,8 +36,8 @@ This MCP server allows Claude to consult other AI models for different perspecti
 
    * **OpenAI**: Get your key at [platform.openai.com](https://platform.openai.com/api-keys)
    * **Gemini**: Get your key at [aistudio.google.com](https://aistudio.google.com/app/apikey)
-   * **Grok**: Get your key at [x.ai](https://x.ai/team/api-keys)
-   * **Claude**: Get your key at [anthropic.com](https://console.anthropic.com/settings/keys))
+   * **Grok**: Get your key at [x.ai](https://x.ai/api)
+   * **Claude**: Get your key at [anthropic.com](https://console.anthropic.com/settings/keys)
 
 4. **Configure Claude Desktop**
 
