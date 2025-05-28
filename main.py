@@ -424,15 +424,20 @@ class SecondOpinionServer:
         
         for model in models:
             try:
-                response = self.openai_client.chat.completions.create(
-                    model=model,
-                    messages=[
+                # Use max_completion_tokens for o-series models
+                token_param = "max_completion_tokens" if model.startswith("o") else "max_tokens"
+                
+                kwargs = {
+                    "model": model,
+                    "messages": [
                         {"role": "system", "content": "Provide a thoughtful analysis. Be concise but thorough."},
                         {"role": "user", "content": prompt}
                     ],
-                    temperature=temperature,
-                    max_tokens=800
-                )
+                    "temperature": temperature,
+                    token_param: 800
+                }
+                
+                response = self.openai_client.chat.completions.create(**kwargs)
                 
                 results.append(f"### {model}\n{response.choices[0].message.content}\n")
                 
