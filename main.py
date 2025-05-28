@@ -2,6 +2,7 @@
 """
 Second Opinion MCP Server
 Allows AI models to get second opinions from other AI models (OpenAI, Gemini, Grok, Claude)
+Features conversation history and collaborative prompting
 """
 
 import asyncio
@@ -10,6 +11,7 @@ import os
 import sys
 from typing import Any, Dict, List, Optional, Sequence
 import logging
+from collections import defaultdict
 
 # MCP imports
 from mcp.server import Server
@@ -71,6 +73,17 @@ class SecondOpinionServer:
         self.grok_client = None
         self.claude_client = None
         
+        # Conversation history storage
+        # Format: {platform_model: [conversation_history]}
+        self.conversation_histories = defaultdict(list)
+        
+        # Collaborative system prompt
+        self.collaborative_system_prompt = """You are an AI assistant working in a collaborative environment with Claude (an Anthropic AI) and other AI models to help users. Claude is coordinating this collaboration and has sent you this message as part of a multi-AI consultation. 
+
+Your role is to provide your unique perspective and expertise to help answer the user's question. You're part of a team of AI assistants, each bringing different strengths and viewpoints. Be thoughtful, helpful, and concise in your response, as your input will be combined with responses from other AI models to give the user a comprehensive answer.
+
+Remember that you're working together with Claude and other AIs to provide the best possible assistance to the user."""
+        
         self._setup_clients()
         self._setup_handlers()
     
@@ -121,6 +134,49 @@ class SecondOpinionServer:
             else:
                 logger.warning("CLAUDE_API_KEY not found - Claude features disabled")
     
+    def _get_conversation_key(self, platform: str, model: str) -> str:
+        """Generate a key for conversation history storage"""
+        return f"{platform}_{model}"
+    
+    def _add_to_conversation_history(self, key: str, role: str, content: str):
+        """Add a message to conversation history"""
+        self.conversation_histories[key].append({"role": role, "content": content})
+        
+        # Keep only last 10 exchanges (20 messages) to manage memory
+        if len(self.conversation_histories[key]) > 20:
+            self.conversation_histories[key] = self.conversation_histories[key][-20:]
+    
+    def _get_openai_messages(self, key: str, prompt: str, system_prompt: str = None) -> List[Dict]:
+        """Build OpenAI messages array with conversation history"""
+        messages = []
+        
+        # Add system prompt
+        if system_prompt:
+            messages.append({"role": "system", "content": system_prompt})
+        else:
+            messages.append({"role": "system", "content": self.collaborative_system_prompt})
+        
+        # Add conversation history
+        messages.extend(self.conversation_histories[key])
+        
+        # Add current prompt
+        messages.append({"role": "user", "content": prompt})
+        
+        return messages
+    
+    def _get_gemini_history_and_prompt(self, key: str, prompt: str):
+        """Build Gemini conversation history and current prompt"""
+        history = []
+        
+        # Convert conversation history to Gemini format
+        for msg in self.conversation_histories[key]:
+            if msg["role"] == "user":
+                history.append({"role": "user", "parts": [msg["content"]]})
+            elif msg["role"] == "assistant":
+                history.append({"role": "model", "parts": [msg["content"]]})
+        
+        return history, prompt
+    
     def _setup_handlers(self):
         """Set up MCP handlers"""
         
@@ -165,7 +221,12 @@ class SecondOpinionServer:
                                 "system_prompt": {
                                     "type": "string",
                                     "description": "Optional system prompt to guide the response",
-                                    "default": "You are providing a thoughtful second opinion. Be concise but thorough."
+                                    "default": ""
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
                                 }
                             },
                             "required": ["prompt"]
@@ -236,6 +297,11 @@ class SecondOpinionServer:
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
                                     "default": 1000
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
                                 }
                             },
                             "required": ["prompt"]
@@ -310,7 +376,12 @@ class SecondOpinionServer:
                                 "system_prompt": {
                                     "type": "string",
                                     "description": "Optional system prompt to guide the response",
-                                    "default": "You are providing a thoughtful second opinion. Be concise but thorough."
+                                    "default": ""
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
                                 }
                             },
                             "required": ["prompt"]
@@ -387,7 +458,12 @@ class SecondOpinionServer:
                                 "system_prompt": {
                                     "type": "string",
                                     "description": "Optional system prompt to guide the response",
-                                    "default": "You are providing a thoughtful second opinion. Be concise but thorough."
+                                    "default": ""
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
                                 }
                             },
                             "required": ["prompt"]
@@ -476,6 +552,42 @@ class SecondOpinionServer:
                     )
                 )
             
+            # Add conversation management tools
+            tools.append(
+                Tool(
+                    name="list_conversation_histories",
+                    description="List all active conversation histories with AI models",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {},
+                        "required": []
+                    }
+                )
+            )
+            
+            tools.append(
+                Tool(
+                    name="clear_conversation_history",
+                    description="Clear conversation history for a specific AI model or all models",
+                    inputSchema={
+                        "type": "object",
+                        "properties": {
+                            "platform": {
+                                "type": "string",
+                                "description": "Platform to clear (openai, gemini, grok, claude, or 'all')",
+                                "enum": ["openai", "gemini", "grok", "claude", "all"]
+                            },
+                            "model": {
+                                "type": "string",
+                                "description": "Specific model to clear (optional, clears all models for platform if not specified)",
+                                "default": ""
+                            }
+                        },
+                        "required": ["platform"]
+                    }
+                )
+            )
+            
             return tools
         
         @self.app.call_tool()
@@ -499,6 +611,10 @@ class SecondOpinionServer:
                     return await self._compare_claude_models(**arguments)
                 elif name == "cross_platform_comparison":
                     return await self._cross_platform_comparison(**arguments)
+                elif name == "list_conversation_histories":
+                    return await self._list_conversation_histories()
+                elif name == "clear_conversation_history":
+                    return await self._clear_conversation_history(**arguments)
                 else:
                     return [TextContent(type="text", text=f"Unknown tool: {name}")]
             except Exception as e:
@@ -511,28 +627,40 @@ class SecondOpinionServer:
         model: str = "gpt-4.1",
         temperature: float = 0.7,
         max_tokens: int = 1000,
-        system_prompt: str = "You are providing a thoughtful second opinion. Be concise but thorough."
+        system_prompt: str = "",
+        reset_conversation: bool = False
     ) -> Sequence[TextContent]:
         if not self.openai_client:
             return [TextContent(type="text", text="OpenAI client not configured. Please set OPENAI_API_KEY environment variable.")]
         
         try:
+            conversation_key = self._get_conversation_key("openai", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
+            # Build messages with conversation history
+            messages = self._get_openai_messages(conversation_key, prompt, system_prompt)
+            
             # Use max_completion_tokens for o4-mini and other o-series models
             token_param = "max_completion_tokens" if model.startswith("o") else "max_tokens"
             
             kwargs = {
                 "model": model,
-                "messages": [
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": prompt}
-                ],
+                "messages": messages,
                 "temperature": temperature,
                 token_param: max_tokens
             }
             
             response = self.openai_client.chat.completions.create(**kwargs)
+            response_content = response.choices[0].message.content
             
-            result = f"**OpenAI {model} Opinion:**\n\n{response.choices[0].message.content}"
+            # Add to conversation history
+            self._add_to_conversation_history(conversation_key, "user", prompt)
+            self._add_to_conversation_history(conversation_key, "assistant", response_content)
+            
+            result = f"**OpenAI {model} Opinion:**\n\n{response_content}"
             return [TextContent(type="text", text=result)]
             
         except Exception as e:
@@ -543,35 +671,70 @@ class SecondOpinionServer:
         prompt: str,
         model: str = "gemini-2.0-flash-001",
         temperature: float = 0.7,
-        max_output_tokens: int = 1000
+        max_output_tokens: int = 1000,
+        reset_conversation: bool = False
     ) -> Sequence[TextContent]:
         if not self.gemini_client:
             return [TextContent(type="text", text="Gemini client not configured. Please set GEMINI_API_KEY environment variable.")]
         
         try:
+            conversation_key = self._get_conversation_key("gemini", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
             if USE_NEW_SDK:
+                # Build conversation history for new SDK
+                history, current_prompt = self._get_gemini_history_and_prompt(conversation_key, prompt)
+                
                 config = genai_types.GenerateContentConfig(
                     temperature=temperature,
-                    max_output_tokens=max_output_tokens
+                    max_output_tokens=max_output_tokens,
+                    system_instruction=self.collaborative_system_prompt
                 )
                 
-                response = self.gemini_client.models.generate_content(
+                # Create chat with history
+                chat = self.gemini_client.chats.create(
                     model=model,
-                    contents=prompt,
-                    config=config
+                    config=config,
+                    history=history
                 )
+                
+                response = chat.send_message(current_prompt)
                 result_text = response.text
             else:
                 # Using old SDK
-                model_obj = self.gemini_client.GenerativeModel(model)
-                response = model_obj.generate_content(
-                    prompt,
-                    generation_config={
-                        "temperature": temperature,
-                        "max_output_tokens": max_output_tokens
-                    }
+                model_obj = self.gemini_client.GenerativeModel(
+                    model,
+                    system_instruction=self.collaborative_system_prompt
                 )
+                
+                # Build conversation history for old SDK
+                history, current_prompt = self._get_gemini_history_and_prompt(conversation_key, prompt)
+                
+                if history:
+                    chat = model_obj.start_chat(history=history)
+                    response = chat.send_message(
+                        current_prompt,
+                        generation_config={
+                            "temperature": temperature,
+                            "max_output_tokens": max_output_tokens
+                        }
+                    )
+                else:
+                    response = model_obj.generate_content(
+                        current_prompt,
+                        generation_config={
+                            "temperature": temperature,
+                            "max_output_tokens": max_output_tokens
+                        }
+                    )
                 result_text = response.text
+            
+            # Add to conversation history
+            self._add_to_conversation_history(conversation_key, "user", prompt)
+            self._add_to_conversation_history(conversation_key, "assistant", result_text)
             
             result = f"**Gemini {model} Opinion:**\n\n{result_text}"
             return [TextContent(type="text", text=result)]
@@ -585,23 +748,36 @@ class SecondOpinionServer:
         model: str = "grok-3",
         temperature: float = 0.7,
         max_tokens: int = 1000,
-        system_prompt: str = "You are providing a thoughtful second opinion. Be concise but thorough."
+        system_prompt: str = "",
+        reset_conversation: bool = False
     ) -> Sequence[TextContent]:
         if not self.grok_client:
             return [TextContent(type="text", text="Grok client not configured. Please set GROK_API_KEY environment variable.")]
         
         try:
+            conversation_key = self._get_conversation_key("grok", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
+            # Build messages with conversation history
+            messages = self._get_openai_messages(conversation_key, prompt, system_prompt)
+            
             response = self.grok_client.chat.completions.create(
                 model=model,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": prompt}
-                ],
+                messages=messages,
                 temperature=temperature,
                 max_tokens=max_tokens
             )
             
-            result = f"**Grok {model} Opinion:**\n\n{response.choices[0].message.content}"
+            response_content = response.choices[0].message.content
+            
+            # Add to conversation history
+            self._add_to_conversation_history(conversation_key, "user", prompt)
+            self._add_to_conversation_history(conversation_key, "assistant", response_content)
+            
+            result = f"**Grok {model} Opinion:**\n\n{response_content}"
             return [TextContent(type="text", text=result)]
             
         except Exception as e:
@@ -613,23 +789,45 @@ class SecondOpinionServer:
         model: str = "claude-4-sonnet-20250522",
         temperature: float = 0.7,
         max_tokens: int = 1000,
-        system_prompt: str = "You are providing a thoughtful second opinion. Be concise but thorough."
+        system_prompt: str = "",
+        reset_conversation: bool = False
     ) -> Sequence[TextContent]:
         if not self.claude_client:
             return [TextContent(type="text", text="Claude client not configured. Please set CLAUDE_API_KEY environment variable.")]
         
         try:
+            conversation_key = self._get_conversation_key("claude", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
+            # Build messages with conversation history (Claude format)
+            messages = []
+            for msg in self.conversation_histories[conversation_key]:
+                messages.append({"role": msg["role"], "content": msg["content"]})
+            
+            # Add current prompt
+            messages.append({"role": "user", "content": prompt})
+            
+            # Use custom system prompt or default collaborative prompt
+            final_system_prompt = system_prompt if system_prompt else self.collaborative_system_prompt
+            
             response = self.claude_client.messages.create(
                 model=model,
                 max_tokens=max_tokens,
                 temperature=temperature,
-                system=system_prompt,
-                messages=[
-                    {"role": "user", "content": prompt}
-                ]
+                system=final_system_prompt,
+                messages=messages
             )
             
-            result = f"**Claude {model} Opinion:**\n\n{response.content[0].text}"
+            response_content = response.content[0].text
+            
+            # Add to conversation history
+            self._add_to_conversation_history(conversation_key, "user", prompt)
+            self._add_to_conversation_history(conversation_key, "assistant", response_content)
+            
+            result = f"**Claude {model} Opinion:**\n\n{response_content}"
             return [TextContent(type="text", text=result)]
             
         except Exception as e:
@@ -652,22 +850,27 @@ class SecondOpinionServer:
         
         for model in models:
             try:
+                conversation_key = self._get_conversation_key("openai", model)
+                messages = self._get_openai_messages(conversation_key, prompt)
+                
                 # Use max_completion_tokens for o-series models
                 token_param = "max_completion_tokens" if model.startswith("o") else "max_tokens"
                 
                 kwargs = {
                     "model": model,
-                    "messages": [
-                        {"role": "system", "content": "Provide a thoughtful analysis. Be concise but thorough."},
-                        {"role": "user", "content": prompt}
-                    ],
+                    "messages": messages,
                     "temperature": temperature,
                     token_param: 800
                 }
                 
                 response = self.openai_client.chat.completions.create(**kwargs)
+                response_content = response.choices[0].message.content
                 
-                results.append(f"### {model}\n{response.choices[0].message.content}\n")
+                # Add to conversation history
+                self._add_to_conversation_history(conversation_key, "user", prompt)
+                self._add_to_conversation_history(conversation_key, "assistant", response_content)
+                
+                results.append(f"### {model}\n{response_content}\n")
                 
             except Exception as e:
                 results.append(f"### {model}\n❌ Error: {str(e)}\n")
@@ -691,29 +894,62 @@ class SecondOpinionServer:
         
         for model in models:
             try:
+                conversation_key = self._get_conversation_key("gemini", model)
+                
                 if USE_NEW_SDK:
+                    history, current_prompt = self._get_gemini_history_and_prompt(conversation_key, prompt)
+                    
                     config = genai_types.GenerateContentConfig(
                         temperature=temperature,
-                        max_output_tokens=800
+                        max_output_tokens=800,
+                        system_instruction=self.collaborative_system_prompt
                     )
                     
-                    response = self.gemini_client.models.generate_content(
-                        model=model,
-                        contents=prompt,
-                        config=config
-                    )
+                    if history:
+                        chat = self.gemini_client.chats.create(
+                            model=model,
+                            config=config,
+                            history=history
+                        )
+                        response = chat.send_message(current_prompt)
+                    else:
+                        response = self.gemini_client.models.generate_content(
+                            model=model,
+                            contents=current_prompt,
+                            config=config
+                        )
                     result_text = response.text
                 else:
                     # Using old SDK
-                    model_obj = self.gemini_client.GenerativeModel(model)
-                    response = model_obj.generate_content(
-                        prompt,
-                        generation_config={
-                            "temperature": temperature,
-                            "max_output_tokens": 800
-                        }
+                    model_obj = self.gemini_client.GenerativeModel(
+                        model,
+                        system_instruction=self.collaborative_system_prompt
                     )
+                    
+                    history, current_prompt = self._get_gemini_history_and_prompt(conversation_key, prompt)
+                    
+                    if history:
+                        chat = model_obj.start_chat(history=history)
+                        response = chat.send_message(
+                            current_prompt,
+                            generation_config={
+                                "temperature": temperature,
+                                "max_output_tokens": 800
+                            }
+                        )
+                    else:
+                        response = model_obj.generate_content(
+                            current_prompt,
+                            generation_config={
+                                "temperature": temperature,
+                                "max_output_tokens": 800
+                            }
+                        )
                     result_text = response.text
+                
+                # Add to conversation history
+                self._add_to_conversation_history(conversation_key, "user", prompt)
+                self._add_to_conversation_history(conversation_key, "assistant", result_text)
                 
                 results.append(f"### {model}\n{result_text}\n")
                 
@@ -739,17 +975,23 @@ class SecondOpinionServer:
         
         for model in models:
             try:
+                conversation_key = self._get_conversation_key("grok", model)
+                messages = self._get_openai_messages(conversation_key, prompt)
+                
                 response = self.grok_client.chat.completions.create(
                     model=model,
-                    messages=[
-                        {"role": "system", "content": "Provide a thoughtful analysis. Be concise but thorough."},
-                        {"role": "user", "content": prompt}
-                    ],
+                    messages=messages,
                     temperature=temperature,
                     max_tokens=800
                 )
                 
-                results.append(f"### {model}\n{response.choices[0].message.content}\n")
+                response_content = response.choices[0].message.content
+                
+                # Add to conversation history
+                self._add_to_conversation_history(conversation_key, "user", prompt)
+                self._add_to_conversation_history(conversation_key, "assistant", response_content)
+                
+                results.append(f"### {model}\n{response_content}\n")
                 
             except Exception as e:
                 results.append(f"### {model}\n❌ Error: {str(e)}\n")
@@ -773,17 +1015,31 @@ class SecondOpinionServer:
         
         for model in models:
             try:
+                conversation_key = self._get_conversation_key("claude", model)
+                
+                # Build messages with conversation history
+                messages = []
+                for msg in self.conversation_histories[conversation_key]:
+                    messages.append({"role": msg["role"], "content": msg["content"]})
+                
+                # Add current prompt
+                messages.append({"role": "user", "content": prompt})
+                
                 response = self.claude_client.messages.create(
                     model=model,
                     max_tokens=800,
                     temperature=temperature,
-                    system="Provide a thoughtful analysis. Be concise but thorough.",
-                    messages=[
-                        {"role": "user", "content": prompt}
-                    ]
+                    system=self.collaborative_system_prompt,
+                    messages=messages
                 )
                 
-                results.append(f"### {model}\n{response.content[0].text}\n")
+                response_content = response.content[0].text
+                
+                # Add to conversation history
+                self._add_to_conversation_history(conversation_key, "user", prompt)
+                self._add_to_conversation_history(conversation_key, "assistant", response_content)
+                
+                results.append(f"### {model}\n{response_content}\n")
                 
             except Exception as e:
                 results.append(f"### {model}\n❌ Error: {str(e)}\n")
@@ -805,19 +1061,25 @@ class SecondOpinionServer:
         # Get OpenAI opinion
         if self.openai_client:
             try:
+                conversation_key = self._get_conversation_key("openai", openai_model)
+                messages = self._get_openai_messages(conversation_key, prompt)
+                
                 token_param = "max_completion_tokens" if openai_model.startswith("o") else "max_tokens"
                 kwargs = {
                     "model": openai_model,
-                    "messages": [
-                        {"role": "system", "content": "Provide a thoughtful analysis. Be concise but thorough."},
-                        {"role": "user", "content": prompt}
-                    ],
+                    "messages": messages,
                     "temperature": temperature,
                     token_param: 800
                 }
                 
                 openai_response = self.openai_client.chat.completions.create(**kwargs)
-                results.append(f"### OpenAI ({openai_model})\n{openai_response.choices[0].message.content}\n")
+                response_content = openai_response.choices[0].message.content
+                
+                # Add to conversation history
+                self._add_to_conversation_history(conversation_key, "user", prompt)
+                self._add_to_conversation_history(conversation_key, "assistant", response_content)
+                
+                results.append(f"### OpenAI ({openai_model})\n{response_content}\n")
             except Exception as e:
                 results.append(f"### OpenAI ({openai_model})\n❌ Error: {str(e)}\n")
         else:
@@ -826,29 +1088,62 @@ class SecondOpinionServer:
         # Get Gemini opinion
         if self.gemini_client:
             try:
+                conversation_key = self._get_conversation_key("gemini", gemini_model)
+                
                 if USE_NEW_SDK:
+                    history, current_prompt = self._get_gemini_history_and_prompt(conversation_key, prompt)
+                    
                     config = genai_types.GenerateContentConfig(
                         temperature=temperature,
-                        max_output_tokens=800
+                        max_output_tokens=800,
+                        system_instruction=self.collaborative_system_prompt
                     )
                     
-                    gemini_response = self.gemini_client.models.generate_content(
-                        model=gemini_model,
-                        contents=prompt,
-                        config=config
-                    )
-                    result_text = gemini_response.text
+                    if history:
+                        chat = self.gemini_client.chats.create(
+                            model=gemini_model,
+                            config=config,
+                            history=history
+                        )
+                        response = chat.send_message(current_prompt)
+                    else:
+                        response = self.gemini_client.models.generate_content(
+                            model=gemini_model,
+                            contents=current_prompt,
+                            config=config
+                        )
+                    result_text = response.text
                 else:
                     # Using old SDK
-                    model_obj = self.gemini_client.GenerativeModel(gemini_model)
-                    gemini_response = model_obj.generate_content(
-                        prompt,
-                        generation_config={
-                            "temperature": temperature,
-                            "max_output_tokens": 800
-                        }
+                    model_obj = self.gemini_client.GenerativeModel(
+                        gemini_model,
+                        system_instruction=self.collaborative_system_prompt
                     )
-                    result_text = gemini_response.text
+                    
+                    history, current_prompt = self._get_gemini_history_and_prompt(conversation_key, prompt)
+                    
+                    if history:
+                        chat = model_obj.start_chat(history=history)
+                        response = chat.send_message(
+                            current_prompt,
+                            generation_config={
+                                "temperature": temperature,
+                                "max_output_tokens": 800
+                            }
+                        )
+                    else:
+                        response = model_obj.generate_content(
+                            current_prompt,
+                            generation_config={
+                                "temperature": temperature,
+                                "max_output_tokens": 800
+                            }
+                        )
+                    result_text = response.text
+                
+                # Add to conversation history
+                self._add_to_conversation_history(conversation_key, "user", prompt)
+                self._add_to_conversation_history(conversation_key, "assistant", result_text)
                 
                 results.append(f"### Gemini ({gemini_model})\n{result_text}\n")
             except Exception as e:
@@ -859,16 +1154,23 @@ class SecondOpinionServer:
         # Get Grok opinion
         if self.grok_client:
             try:
+                conversation_key = self._get_conversation_key("grok", grok_model)
+                messages = self._get_openai_messages(conversation_key, prompt)
+                
                 grok_response = self.grok_client.chat.completions.create(
                     model=grok_model,
-                    messages=[
-                        {"role": "system", "content": "Provide a thoughtful analysis. Be concise but thorough."},
-                        {"role": "user", "content": prompt}
-                    ],
+                    messages=messages,
                     temperature=temperature,
                     max_tokens=800
                 )
-                results.append(f"### Grok ({grok_model})\n{grok_response.choices[0].message.content}\n")
+                
+                response_content = grok_response.choices[0].message.content
+                
+                # Add to conversation history
+                self._add_to_conversation_history(conversation_key, "user", prompt)
+                self._add_to_conversation_history(conversation_key, "assistant", response_content)
+                
+                results.append(f"### Grok ({grok_model})\n{response_content}\n")
             except Exception as e:
                 results.append(f"### Grok ({grok_model})\n❌ Error: {str(e)}\n")
         else:
@@ -877,22 +1179,80 @@ class SecondOpinionServer:
         # Get Claude opinion
         if self.claude_client:
             try:
+                conversation_key = self._get_conversation_key("claude", claude_model)
+                
+                # Build messages with conversation history
+                messages = []
+                for msg in self.conversation_histories[conversation_key]:
+                    messages.append({"role": msg["role"], "content": msg["content"]})
+                
+                # Add current prompt
+                messages.append({"role": "user", "content": prompt})
+                
                 claude_response = self.claude_client.messages.create(
                     model=claude_model,
                     max_tokens=800,
                     temperature=temperature,
-                    system="Provide a thoughtful analysis. Be concise but thorough.",
-                    messages=[
-                        {"role": "user", "content": prompt}
-                    ]
+                    system=self.collaborative_system_prompt,
+                    messages=messages
                 )
-                results.append(f"### Claude ({claude_model})\n{claude_response.content[0].text}\n")
+                
+                response_content = claude_response.content[0].text
+                
+                # Add to conversation history
+                self._add_to_conversation_history(conversation_key, "user", prompt)
+                self._add_to_conversation_history(conversation_key, "assistant", response_content)
+                
+                results.append(f"### Claude ({claude_model})\n{response_content}\n")
             except Exception as e:
                 results.append(f"### Claude ({claude_model})\n❌ Error: {str(e)}\n")
         else:
             results.append("### Claude\n❌ Not configured\n")
         
         return [TextContent(type="text", text="\n".join(results))]
+    
+    async def _list_conversation_histories(self) -> Sequence[TextContent]:
+        """List all active conversation histories"""
+        if not self.conversation_histories:
+            return [TextContent(type="text", text="No active conversation histories.")]
+        
+        result = "## Active Conversation Histories\n\n"
+        
+        for key, history in self.conversation_histories.items():
+            if history:  # Only show keys with actual conversation data
+                platform, model = key.split("_", 1)
+                message_count = len(history)
+                result += f"**{platform.title()} - {model}**: {message_count} messages\n"
+        
+        if result == "## Active Conversation Histories\n\n":
+            result += "No conversation histories with messages found."
+        
+        return [TextContent(type="text", text=result)]
+    
+    async def _clear_conversation_history(self, platform: str, model: str = "") -> Sequence[TextContent]:
+        """Clear conversation history for specified platform/model"""
+        if platform == "all":
+            self.conversation_histories.clear()
+            return [TextContent(type="text", text="✅ Cleared all conversation histories.")]
+        
+        if model:
+            # Clear specific model
+            key = self._get_conversation_key(platform, model)
+            if key in self.conversation_histories:
+                del self.conversation_histories[key]
+                return [TextContent(type="text", text=f"✅ Cleared conversation history for {platform} {model}.")]
+            else:
+                return [TextContent(type="text", text=f"No conversation history found for {platform} {model}.")]
+        else:
+            # Clear all models for platform
+            keys_to_remove = [key for key in self.conversation_histories.keys() if key.startswith(f"{platform}_")]
+            for key in keys_to_remove:
+                del self.conversation_histories[key]
+            
+            if keys_to_remove:
+                return [TextContent(type="text", text=f"✅ Cleared all conversation histories for {platform} ({len(keys_to_remove)} models).")]
+            else:
+                return [TextContent(type="text", text=f"No conversation histories found for {platform}.")]
 
 def main():
     """Main entry point"""
