@@ -171,9 +171,9 @@ Remember that you're working together with Claude and other AIs to provide the b
         # Convert conversation history to Gemini format
         for msg in self.conversation_histories[key]:
             if msg["role"] == "user":
-                history.append({"role": "user", "parts": [msg["content"]]})
+                history.append({"role": "user", "parts": [{"text": msg["content"]}]})
             elif msg["role"] == "assistant":
-                history.append({"role": "model", "parts": [msg["content"]]})
+                history.append({"role": "model", "parts": [{"text": msg["content"]}]})
         
         return history, prompt
     
