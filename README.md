@@ -127,7 +127,11 @@ Start multi-AI discussions where models can see and respond to each other's inpu
 **HuggingFace** (800,000+ models available)
 * `meta-llama/Llama-3.3-70B-Instruct` - Meta's latest Llama model
 * `microsoft/DialoGPT-large` - Conversational AI
-* `Qwen/Qwen2.5-72B-Instruct` - Alibaba's powerful model
+* `microsoft/phi-4` - Microsoft's efficient reasoning model
+* `deepseek-ai/DeepSeek-R1-0528-Qwen3-8B` - DeepSeek reasoning model 
+* `google/gemma-3-27b-it` - Google's Gemma instruction-tuned model
+* `Qwen/Qwen3-235B-A22B` - Alibaba's massive 235B parameter model
+* `mistralai/Mistral-7B-Instruct-v0.3` - Mistral's instruction model
 * *Any model on HuggingFace Hub that supports text generation*
 
 **DeepSeek**
