@@ -26,6 +26,7 @@ from mcp.types import (
 
 # AI API imports
 import openai
+import requests
 
 # Gemini API imports - handle both possible installations gracefully
 GEMINI_AVAILABLE = False
