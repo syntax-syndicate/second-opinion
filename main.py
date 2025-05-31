@@ -136,6 +136,25 @@ Remember that you're working together with Claude and other AIs to provide the b
                 logger.warning("Claude API not available - install anthropic")
             else:
                 logger.warning("CLAUDE_API_KEY not found - Claude features disabled")
+        
+        # HuggingFace setup
+        huggingface_api_key = os.getenv("HUGGINGFACE_API_KEY")
+        if huggingface_api_key:
+            self.huggingface_client = huggingface_api_key  # Store the API key
+            logger.info("HuggingFace client initialized")
+        else:
+            logger.warning("HUGGINGFACE_API_KEY not found - HuggingFace features disabled")
+        
+        # DeepSeek setup (uses OpenAI SDK with different base URL)
+        deepseek_api_key = os.getenv("DEEPSEEK_API_KEY")
+        if deepseek_api_key:
+            self.deepseek_client = openai.OpenAI(
+                api_key=deepseek_api_key,
+                base_url="https://api.deepseek.com"
+            )
+            logger.info("DeepSeek client initialized")
+        else:
+            logger.warning("DEEPSEEK_API_KEY not found - DeepSeek features disabled")
     
     def _get_conversation_key(self, platform: str, model: str) -> str:
         """Generate a key for conversation history storage"""
