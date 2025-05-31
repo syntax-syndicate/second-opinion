@@ -73,6 +73,8 @@ class SecondOpinionServer:
         self.gemini_client = None
         self.grok_client = None
         self.claude_client = None
+        self.huggingface_client = None  # Will use requests for HF API
+        self.deepseek_client = None
         
         # Conversation history storage
         # Format: {platform_model: [conversation_history]}
