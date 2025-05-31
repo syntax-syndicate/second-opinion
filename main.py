@@ -1169,7 +1169,11 @@ Remember that you're working together with Claude and other AIs to provide the b
                     "meta-llama/Llama-3.3-70B-Instruct",
                     "meta-llama/Llama-3.1-8B-Instruct", 
                     "microsoft/DialoGPT-large",
-                    "mistralai/Mistral-7B-Instruct-v0.3"
+                    "mistralai/Mistral-7B-Instruct-v0.3",
+                    "microsoft/phi-4",
+                    "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
+                    "google/gemma-3-27b-it",
+                    "Qwen/Qwen3-235B-A22B"
                 ]
                 
                 error_msg = f"HuggingFace Error with {model}: {last_error}\n\n"
