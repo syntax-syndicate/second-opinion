@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 Second Opinion MCP Server
-Allows AI models to get second opinions from other AI models (OpenAI, Gemini, Grok, Claude)
-Features conversation history and collaborative prompting
+Allows AI models to get second opinions from other AI models (OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek)
+Features conversation history, collaborative prompting, and group discussions
 """
 
 import asyncio
@@ -73,7 +73,7 @@ class SecondOpinionServer:
         self.gemini_client = None
         self.grok_client = None
         self.claude_client = None
-        self.huggingface_client = None  # Will use requests for HF API
+        self.huggingface_api_key = None
         self.deepseek_client = None
         
         # Conversation history storage
@@ -140,7 +140,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         # HuggingFace setup
         huggingface_api_key = os.getenv("HUGGINGFACE_API_KEY")
         if huggingface_api_key:
-            self.huggingface_client = huggingface_api_key  # Store the API key
+            self.huggingface_api_key = huggingface_api_key
             logger.info("HuggingFace client initialized")
         else:
             logger.warning("HUGGINGFACE_API_KEY not found - HuggingFace features disabled")
@@ -238,7 +238,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 1000
+                                    "default": 4000
                                 },
                                 "system_prompt": {
                                     "type": "string",
@@ -318,7 +318,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_output_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 1000
+                                    "default": 4000
                                 },
                                 "reset_conversation": {
                                     "type": "boolean",
@@ -378,6 +378,8 @@ Remember that you're working together with Claude and other AIs to provide the b
                                     "description": "Grok model to use",
                                     "enum": [
                                         "grok-3",
+                                        "grok-3-thinking",
+                                        "grok-3-mini",
                                         "grok-2",
                                         "grok-beta"
                                     ],
@@ -393,7 +395,13 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 1000
+                                    "default": 4000
+                                },
+                                "reasoning_effort": {
+                                    "type": "string",
+                                    "description": "Reasoning effort for thinking models (low/high)",
+                                    "enum": ["low", "high"],
+                                    "default": "low"
                                 },
                                 "system_prompt": {
                                     "type": "string",
@@ -425,6 +433,8 @@ Remember that you're working together with Claude and other AIs to provide the b
                                         "type": "string",
                                         "enum": [
                                             "grok-3",
+                                            "grok-3-thinking",
+                                            "grok-3-mini",
                                             "grok-2",
                                             "grok-beta"
                                         ]
@@ -475,7 +485,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 1000
+                                    "default": 4000
                                 },
                                 "system_prompt": {
                                     "type": "string",
@@ -525,12 +535,105 @@ Remember that you're working together with Claude and other AIs to provide the b
                     )
                 ])
             
+            # HuggingFace tools
+            if self.huggingface_api_key:
+                tools.append(
+                    Tool(
+                        name="get_huggingface_opinion",
+                        description="Get a second opinion from any HuggingFace model via Inference API",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to get an opinion on"
+                                },
+                                "model": {
+                                    "type": "string",
+                                    "description": "HuggingFace model to use (e.g., 'microsoft/DialoGPT-large', 'meta-llama/Llama-3.3-70B-Instruct')",
+                                    "default": "meta-llama/Llama-3.3-70B-Instruct"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature for response randomness (0.0-2.0)",
+                                    "minimum": 0.0,
+                                    "maximum": 2.0,
+                                    "default": 0.7
+                                },
+                                "max_tokens": {
+                                    "type": "integer",
+                                    "description": "Maximum tokens in response",
+                                    "default": 4000
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
+                                }
+                            },
+                            "required": ["prompt", "model"]
+                        }
+                    )
+                )
+            
+            # DeepSeek tools
+            if self.deepseek_client:
+                tools.extend([
+                    Tool(
+                        name="get_deepseek_opinion",
+                        description="Get a second opinion from a DeepSeek model",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to get an opinion on"
+                                },
+                                "model": {
+                                    "type": "string",
+                                    "description": "DeepSeek model to use",
+                                    "enum": [
+                                        "deepseek-chat",
+                                        "deepseek-reasoner"
+                                    ],
+                                    "default": "deepseek-chat"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature for response randomness (0.0-2.0)",
+                                    "minimum": 0.0,
+                                    "maximum": 2.0,
+                                    "default": 0.7
+                                },
+                                "max_tokens": {
+                                    "type": "integer",
+                                    "description": "Maximum tokens in response",
+                                    "default": 4000
+                                },
+                                "system_prompt": {
+                                    "type": "string",
+                                    "description": "Optional system prompt to guide the response",
+                                    "default": ""
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
+                                }
+                            },
+                            "required": ["prompt"]
+                        }
+                    )
+                ])
+            
             # Cross-platform comparison tools
             available_providers = []
             if self.openai_client: available_providers.append("OpenAI")
             if self.gemini_client: available_providers.append("Gemini")
             if self.grok_client: available_providers.append("Grok")
             if self.claude_client: available_providers.append("Claude")
+            if self.huggingface_api_key: available_providers.append("HuggingFace")
+            if self.deepseek_client: available_providers.append("DeepSeek")
             
             if len(available_providers) >= 2:
                 tools.append(
@@ -556,7 +659,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 },
                                 "grok_model": {
                                     "type": "string",
-                                    "enum": ["grok-3", "grok-2", "grok-beta"],
+                                    "enum": ["grok-3", "grok-3-thinking", "grok-2", "grok-beta"],
                                     "default": "grok-3"
                                 },
                                 "claude_model": {
@@ -564,12 +667,73 @@ Remember that you're working together with Claude and other AIs to provide the b
                                     "enum": ["claude-4-opus-20250522", "claude-4-sonnet-20250522", "claude-3-7-sonnet-20250224"],
                                     "default": "claude-4-sonnet-20250522"
                                 },
+                                "huggingface_model": {
+                                    "type": "string",
+                                    "default": "meta-llama/Llama-3.3-70B-Instruct"
+                                },
+                                "deepseek_model": {
+                                    "type": "string",
+                                    "enum": ["deepseek-chat", "deepseek-reasoner"],
+                                    "default": "deepseek-chat"
+                                },
                                 "temperature": {
                                     "type": "number",
                                     "default": 0.7
                                 }
                             },
                             "required": ["prompt"]
+                        }
+                    )
+                )
+            
+            # Group discussion feature
+            if len(available_providers) >= 3:
+                tools.append(
+                    Tool(
+                        name="group_discussion",
+                        description=f"Start a group discussion between multiple AI models where each can see what others said. Available: {', '.join(available_providers)}",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "topic": {
+                                    "type": "string",
+                                    "description": "The topic or question for group discussion"
+                                },
+                                "participants": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "platform": {
+                                                "type": "string",
+                                                "enum": ["openai", "gemini", "grok", "claude", "huggingface", "deepseek"]
+                                            },
+                                            "model": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "required": ["platform", "model"]
+                                    },
+                                    "description": "List of AI models to participate in discussion",
+                                    "default": [
+                                        {"platform": "openai", "model": "gpt-4.1"},
+                                        {"platform": "claude", "model": "claude-4-sonnet-20250522"},
+                                        {"platform": "gemini", "model": "gemini-2.0-flash-001"}
+                                    ]
+                                },
+                                "rounds": {
+                                    "type": "integer",
+                                    "description": "Number of discussion rounds",
+                                    "minimum": 1,
+                                    "maximum": 5,
+                                    "default": 2
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "default": 0.7
+                                }
+                            },
+                            "required": ["topic"]
                         }
                     )
                 )
@@ -596,8 +760,8 @@ Remember that you're working together with Claude and other AIs to provide the b
                         "properties": {
                             "platform": {
                                 "type": "string",
-                                "description": "Platform to clear (openai, gemini, grok, claude, or 'all')",
-                                "enum": ["openai", "gemini", "grok", "claude", "all"]
+                                "description": "Platform to clear (openai, gemini, grok, claude, huggingface, deepseek, or 'all')",
+                                "enum": ["openai", "gemini", "grok", "claude", "huggingface", "deepseek", "all"]
                             },
                             "model": {
                                 "type": "string",
@@ -623,6 +787,10 @@ Remember that you're working together with Claude and other AIs to provide the b
                     return await self._get_grok_opinion(**arguments)
                 elif name == "get_claude_opinion":
                     return await self._get_claude_opinion(**arguments)
+                elif name == "get_huggingface_opinion":
+                    return await self._get_huggingface_opinion(**arguments)
+                elif name == "get_deepseek_opinion":
+                    return await self._get_deepseek_opinion(**arguments)
                 elif name == "compare_openai_models":
                     return await self._compare_openai_models(**arguments)
                 elif name == "compare_gemini_models":
@@ -633,6 +801,8 @@ Remember that you're working together with Claude and other AIs to provide the b
                     return await self._compare_claude_models(**arguments)
                 elif name == "cross_platform_comparison":
                     return await self._cross_platform_comparison(**arguments)
+                elif name == "group_discussion":
+                    return await self._group_discussion(**arguments)
                 elif name == "list_conversation_histories":
                     return await self._list_conversation_histories()
                 elif name == "clear_conversation_history":
@@ -648,7 +818,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "gpt-4.1",
         temperature: float = 0.7,
-        max_tokens: int = 1000,
+        max_tokens: int = 4000,
         system_prompt: str = "",
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
@@ -693,7 +863,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "gemini-2.0-flash-001",
         temperature: float = 0.7,
-        max_output_tokens: int = 1000,
+        max_output_tokens: int = 4000,
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
         if not self.gemini_client:
@@ -769,7 +939,8 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "grok-3",
         temperature: float = 0.7,
-        max_tokens: int = 1000,
+        max_tokens: int = 4000,
+        reasoning_effort: str = "low",
         system_prompt: str = "",
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
@@ -786,12 +957,19 @@ Remember that you're working together with Claude and other AIs to provide the b
             # Build messages with conversation history
             messages = self._get_openai_messages(conversation_key, prompt, system_prompt)
             
-            response = self.grok_client.chat.completions.create(
-                model=model,
-                messages=messages,
-                temperature=temperature,
-                max_tokens=max_tokens
-            )
+            # Prepare request parameters
+            request_params = {
+                "model": model,
+                "messages": messages,
+                "temperature": temperature,
+                "max_tokens": max_tokens
+            }
+            
+            # Add reasoning_effort for thinking models (grok-3-mini and grok-3-thinking)
+            if model in ["grok-3-mini", "grok-3-thinking"]:
+                request_params["reasoning_effort"] = reasoning_effort
+            
+            response = self.grok_client.chat.completions.create(**request_params)
             
             response_content = response.choices[0].message.content
             
@@ -810,7 +988,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "claude-4-sonnet-20250522",
         temperature: float = 0.7,
-        max_tokens: int = 1000,
+        max_tokens: int = 4000,
         system_prompt: str = "",
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
@@ -855,6 +1033,267 @@ Remember that you're working together with Claude and other AIs to provide the b
         except Exception as e:
             return [TextContent(type="text", text=f"Claude API Error: {str(e)}")]
     
+    async def _get_huggingface_opinion(
+        self,
+        prompt: str,
+        model: str,
+        temperature: float = 0.7,
+        max_tokens: int = 4000,
+        reset_conversation: bool = False
+    ) -> Sequence[TextContent]:
+        if not self.huggingface_api_key:
+            return [TextContent(type="text", text="HuggingFace client not configured. Please set HUGGINGFACE_API_KEY environment variable.")]
+        
+        try:
+            conversation_key = self._get_conversation_key("huggingface", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
+            # Build messages with conversation history
+            messages = self._get_openai_messages(conversation_key, prompt)
+            
+            # HuggingFace Inference API endpoint
+            api_url = f"https://api-inference.huggingface.co/models/{model}"
+            
+            headers = {
+                "Authorization": f"Bearer {self.huggingface_api_key}",
+                "Content-Type": "application/json",
+            }
+            
+            # Try chat completion format first
+            payload = {
+                "inputs": {
+                    "messages": messages,
+                    "temperature": temperature,
+                    "max_tokens": max_tokens
+                },
+                "parameters": {
+                    "temperature": temperature,
+                    "max_new_tokens": max_tokens,
+                    "return_full_text": False
+                }
+            }
+            
+            response = requests.post(api_url, headers=headers, json=payload)
+            
+            if response.status_code == 200:
+                result_data = response.json()
+                
+                # Handle different response formats
+                if isinstance(result_data, list) and len(result_data) > 0:
+                    if "generated_text" in result_data[0]:
+                        response_content = result_data[0]["generated_text"]
+                    else:
+                        response_content = str(result_data[0])
+                elif isinstance(result_data, dict):
+                    if "generated_text" in result_data:
+                        response_content = result_data["generated_text"]
+                    elif "choices" in result_data and len(result_data["choices"]) > 0:
+                        response_content = result_data["choices"][0]["message"]["content"]
+                    else:
+                        response_content = str(result_data)
+                else:
+                    response_content = str(result_data)
+                
+                # Clean up response if it includes the original prompt
+                if prompt in response_content:
+                    response_content = response_content.replace(prompt, "").strip()
+                
+            else:
+                # If chat format fails, try simple text generation
+                simple_payload = {
+                    "inputs": prompt,
+                    "parameters": {
+                        "temperature": temperature,
+                        "max_new_tokens": max_tokens,
+                        "return_full_text": False
+                    }
+                }
+                
+                response = requests.post(api_url, headers=headers, json=simple_payload)
+                
+                if response.status_code == 200:
+                    result_data = response.json()
+                    
+                    if isinstance(result_data, list) and len(result_data) > 0:
+                        response_content = result_data[0].get("generated_text", str(result_data[0]))
+                    else:
+                        response_content = str(result_data)
+                else:
+                    return [TextContent(type="text", text=f"HuggingFace API Error: {response.status_code} - {response.text}")]
+            
+            # Add to conversation history
+            self._add_to_conversation_history(conversation_key, "user", prompt)
+            self._add_to_conversation_history(conversation_key, "assistant", response_content)
+            
+            result = f"**HuggingFace {model} Opinion:**\n\n{response_content}"
+            return [TextContent(type="text", text=result)]
+            
+        except Exception as e:
+            return [TextContent(type="text", text=f"HuggingFace API Error: {str(e)}")]
+    
+    async def _get_deepseek_opinion(
+        self,
+        prompt: str,
+        model: str = "deepseek-chat",
+        temperature: float = 0.7,
+        max_tokens: int = 4000,
+        system_prompt: str = "",
+        reset_conversation: bool = False
+    ) -> Sequence[TextContent]:
+        if not self.deepseek_client:
+            return [TextContent(type="text", text="DeepSeek client not configured. Please set DEEPSEEK_API_KEY environment variable.")]
+        
+        try:
+            conversation_key = self._get_conversation_key("deepseek", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
+            # Build messages with conversation history
+            messages = self._get_openai_messages(conversation_key, prompt, system_prompt)
+            
+            response = self.deepseek_client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+            
+            response_content = response.choices[0].message.content
+            
+            # Add to conversation history
+            self._add_to_conversation_history(conversation_key, "user", prompt)
+            self._add_to_conversation_history(conversation_key, "assistant", response_content)
+            
+            result = f"**DeepSeek {model} Opinion:**\n\n{response_content}"
+            return [TextContent(type="text", text=result)]
+            
+        except Exception as e:
+            return [TextContent(type="text", text=f"DeepSeek API Error: {str(e)}")]
+    
+    async def _group_discussion(
+        self,
+        topic: str,
+        participants: List[Dict[str, str]] = None,
+        rounds: int = 2,
+        temperature: float = 0.7
+    ) -> Sequence[TextContent]:
+        """Start a group discussion between multiple AI models"""
+        
+        if participants is None:
+            participants = [
+                {"platform": "openai", "model": "gpt-4.1"},
+                {"platform": "claude", "model": "claude-4-sonnet-20250522"},
+                {"platform": "gemini", "model": "gemini-2.0-flash-001"}
+            ]
+        
+        # Validate participants
+        valid_participants = []
+        for participant in participants:
+            platform = participant["platform"]
+            model = participant["model"]
+            
+            if platform == "openai" and self.openai_client:
+                valid_participants.append(participant)
+            elif platform == "gemini" and self.gemini_client:
+                valid_participants.append(participant)
+            elif platform == "grok" and self.grok_client:
+                valid_participants.append(participant)
+            elif platform == "claude" and self.claude_client:
+                valid_participants.append(participant)
+            elif platform == "huggingface" and self.huggingface_api_key:
+                valid_participants.append(participant)
+            elif platform == "deepseek" and self.deepseek_client:
+                valid_participants.append(participant)
+        
+        if len(valid_participants) < 2:
+            return [TextContent(type="text", text="Need at least 2 valid participants for group discussion.")]
+        
+        # Track discussion history
+        discussion_history = []
+        
+        results = []
+        results.append(f"## 🎭 AI Group Discussion: {topic}\n")
+        results.append(f"**Participants:** {', '.join([f\"{p['platform']}/{p['model']}\" for p in valid_participants])}\n")
+        
+        for round_num in range(rounds):
+            results.append(f"\n### Round {round_num + 1}\n")
+            
+            for i, participant in enumerate(valid_participants):
+                platform = participant["platform"]
+                model = participant["model"]
+                
+                # Build context for this participant
+                context_prompt = f"Topic for discussion: {topic}\n\n"
+                
+                if discussion_history:
+                    context_prompt += "Previous discussion:\n"
+                    for entry in discussion_history:
+                        context_prompt += f"- **{entry['participant']}**: {entry['response']}\n"
+                    context_prompt += "\n"
+                
+                if round_num == 0:
+                    context_prompt += f"You are participating in round {round_num + 1} of {rounds}. Please share your thoughts on this topic (keep it concise, around 2-3 sentences)."
+                else:
+                    context_prompt += f"This is round {round_num + 1} of {rounds}. Please respond to the previous discussion and add your perspective (keep it concise, around 2-3 sentences)."
+                
+                # Get response from this participant
+                try:
+                    if platform == "openai":
+                        response = await self._get_openai_opinion(
+                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                        )
+                    elif platform == "gemini":
+                        response = await self._get_gemini_opinion(
+                            context_prompt, model=model, temperature=temperature, max_output_tokens=500
+                        )
+                    elif platform == "grok":
+                        response = await self._get_grok_opinion(
+                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                        )
+                    elif platform == "claude":
+                        response = await self._get_claude_opinion(
+                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                        )
+                    elif platform == "huggingface":
+                        response = await self._get_huggingface_opinion(
+                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                        )
+                    elif platform == "deepseek":
+                        response = await self._get_deepseek_opinion(
+                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                        )
+                    
+                    if response and len(response) > 0:
+                        participant_name = f"{platform.title()}-{model}"
+                        response_text = response[0].text
+                        
+                        # Clean up the response (remove the header we added)
+                        if f"**{platform.title()}" in response_text:
+                            response_text = response_text.split("Opinion:**\n\n", 1)[-1]
+                        
+                        # Add to discussion history
+                        discussion_history.append({
+                            "participant": participant_name,
+                            "response": response_text,
+                            "round": round_num + 1
+                        })
+                        
+                        results.append(f"**{participant_name}:** {response_text}\n")
+                    else:
+                        results.append(f"**{platform.title()}-{model}:** ❌ No response\n")
+                        
+                except Exception as e:
+                    results.append(f"**{platform.title()}-{model}:** ❌ Error: {str(e)}\n")
+        
+        results.append(f"\n---\n*Discussion completed with {len(valid_participants)} participants over {rounds} rounds*")
+        
+        return [TextContent(type="text", text="\n".join(results))]
+    
     async def _compare_openai_models(
         self,
         prompt: str,
@@ -882,7 +1321,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                     "model": model,
                     "messages": messages,
                     "temperature": temperature,
-                    token_param: 800
+                    token_param: 2000
                 }
                 
                 response = self.openai_client.chat.completions.create(**kwargs)
@@ -923,7 +1362,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                     
                     config = genai_types.GenerateContentConfig(
                         temperature=temperature,
-                        max_output_tokens=800,
+                        max_output_tokens=2000,
                         system_instruction=self.collaborative_system_prompt
                     )
                     
@@ -956,7 +1395,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                             current_prompt,
                             generation_config={
                                 "temperature": temperature,
-                                "max_output_tokens": 800
+                                "max_output_tokens": 2000
                             }
                         )
                     else:
@@ -964,7 +1403,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                             current_prompt,
                             generation_config={
                                 "temperature": temperature,
-                                "max_output_tokens": 800
+                                "max_output_tokens": 2000
                             }
                         )
                     result_text = response.text
@@ -1000,12 +1439,18 @@ Remember that you're working together with Claude and other AIs to provide the b
                 conversation_key = self._get_conversation_key("grok", model)
                 messages = self._get_openai_messages(conversation_key, prompt)
                 
-                response = self.grok_client.chat.completions.create(
-                    model=model,
-                    messages=messages,
-                    temperature=temperature,
-                    max_tokens=800
-                )
+                request_params = {
+                    "model": model,
+                    "messages": messages,
+                    "temperature": temperature,
+                    "max_tokens": 2000
+                }
+                
+                # Add reasoning_effort for thinking models
+                if model in ["grok-3-mini", "grok-3-thinking"]:
+                    request_params["reasoning_effort"] = "low"
+                
+                response = self.grok_client.chat.completions.create(**request_params)
                 
                 response_content = response.choices[0].message.content
                 
@@ -1049,7 +1494,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                 
                 response = self.claude_client.messages.create(
                     model=model,
-                    max_tokens=800,
+                    max_tokens=2000,
                     temperature=temperature,
                     system=self.collaborative_system_prompt,
                     messages=messages
@@ -1075,6 +1520,8 @@ Remember that you're working together with Claude and other AIs to provide the b
         gemini_model: str = "gemini-2.0-flash-001",
         grok_model: str = "grok-3",
         claude_model: str = "claude-4-sonnet-20250522",
+        huggingface_model: str = "meta-llama/Llama-3.3-70B-Instruct",
+        deepseek_model: str = "deepseek-chat",
         temperature: float = 0.7
     ) -> Sequence[TextContent]:
         results = []
@@ -1091,7 +1538,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                     "model": openai_model,
                     "messages": messages,
                     "temperature": temperature,
-                    token_param: 800
+                    token_param: 2000
                 }
                 
                 openai_response = self.openai_client.chat.completions.create(**kwargs)
@@ -1117,7 +1564,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                     
                     config = genai_types.GenerateContentConfig(
                         temperature=temperature,
-                        max_output_tokens=800,
+                        max_output_tokens=2000,
                         system_instruction=self.collaborative_system_prompt
                     )
                     
@@ -1150,7 +1597,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                             current_prompt,
                             generation_config={
                                 "temperature": temperature,
-                                "max_output_tokens": 800
+                                "max_output_tokens": 2000
                             }
                         )
                     else:
@@ -1158,7 +1605,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                             current_prompt,
                             generation_config={
                                 "temperature": temperature,
-                                "max_output_tokens": 800
+                                "max_output_tokens": 2000
                             }
                         )
                     result_text = response.text
@@ -1179,12 +1626,18 @@ Remember that you're working together with Claude and other AIs to provide the b
                 conversation_key = self._get_conversation_key("grok", grok_model)
                 messages = self._get_openai_messages(conversation_key, prompt)
                 
-                grok_response = self.grok_client.chat.completions.create(
-                    model=grok_model,
-                    messages=messages,
-                    temperature=temperature,
-                    max_tokens=800
-                )
+                request_params = {
+                    "model": grok_model,
+                    "messages": messages,
+                    "temperature": temperature,
+                    "max_tokens": 2000
+                }
+                
+                # Add reasoning_effort for thinking models
+                if grok_model in ["grok-3-mini", "grok-3-thinking"]:
+                    request_params["reasoning_effort"] = "low"
+                
+                grok_response = self.grok_client.chat.completions.create(**request_params)
                 
                 response_content = grok_response.choices[0].message.content
                 
@@ -1213,7 +1666,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                 
                 claude_response = self.claude_client.messages.create(
                     model=claude_model,
-                    max_tokens=800,
+                    max_tokens=2000,
                     temperature=temperature,
                     system=self.collaborative_system_prompt,
                     messages=messages
@@ -1230,6 +1683,42 @@ Remember that you're working together with Claude and other AIs to provide the b
                 results.append(f"### Claude ({claude_model})\n❌ Error: {str(e)}\n")
         else:
             results.append("### Claude\n❌ Not configured\n")
+        
+        # Get HuggingFace opinion
+        if self.huggingface_api_key:
+            try:
+                hf_response = await self._get_huggingface_opinion(
+                    prompt, huggingface_model, temperature, 2000
+                )
+                response_content = hf_response[0].text
+                
+                # Clean up the response
+                if f"**HuggingFace" in response_content:
+                    response_content = response_content.split("Opinion:**\n\n", 1)[-1]
+                
+                results.append(f"### HuggingFace ({huggingface_model})\n{response_content}\n")
+            except Exception as e:
+                results.append(f"### HuggingFace ({huggingface_model})\n❌ Error: {str(e)}\n")
+        else:
+            results.append("### HuggingFace\n❌ Not configured\n")
+        
+        # Get DeepSeek opinion
+        if self.deepseek_client:
+            try:
+                ds_response = await self._get_deepseek_opinion(
+                    prompt, deepseek_model, temperature, 2000
+                )
+                response_content = ds_response[0].text
+                
+                # Clean up the response
+                if f"**DeepSeek" in response_content:
+                    response_content = response_content.split("Opinion:**\n\n", 1)[-1]
+                
+                results.append(f"### DeepSeek ({deepseek_model})\n{response_content}\n")
+            except Exception as e:
+                results.append(f"### DeepSeek ({deepseek_model})\n❌ Error: {str(e)}\n")
+        else:
+            results.append("### DeepSeek\n❌ Not configured\n")
         
         return [TextContent(type="text", text="\n".join(results))]
     
@@ -1288,6 +1777,10 @@ def main():
         required_vars.append("GROK_API_KEY")
     if not os.getenv("CLAUDE_API_KEY"):
         required_vars.append("CLAUDE_API_KEY")
+    if not os.getenv("HUGGINGFACE_API_KEY"):
+        required_vars.append("HUGGINGFACE_API_KEY")
+    if not os.getenv("DEEPSEEK_API_KEY"):
+        required_vars.append("DEEPSEEK_API_KEY")
     
     if required_vars:
         print("⚠️  Warning: Missing environment variables:", file=sys.stderr)
@@ -1305,7 +1798,7 @@ def main():
         async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
             init_options = InitializationOptions(
                 server_name="second-opinion",
-                server_version="1.0.0",
+                server_version="2.0.0",
                 capabilities={}
             )
             await server.app.run(read_stream, write_stream, init_options)
