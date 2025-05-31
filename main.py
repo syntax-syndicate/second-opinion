@@ -1051,9 +1051,6 @@ Remember that you're working together with Claude and other AIs to provide the b
             if reset_conversation:
                 self.conversation_histories[conversation_key] = []
             
-            # Build messages with conversation history
-            messages = self._get_openai_messages(conversation_key, prompt)
-            
             # HuggingFace Inference API endpoint
             api_url = f"https://api-inference.huggingface.co/models/{model}"
             
@@ -1062,67 +1059,126 @@ Remember that you're working together with Claude and other AIs to provide the b
                 "Content-Type": "application/json",
             }
             
-            # Try chat completion format first
-            payload = {
-                "inputs": {
-                    "messages": messages,
-                    "temperature": temperature,
-                    "max_tokens": max_tokens
-                },
-                "parameters": {
-                    "temperature": temperature,
-                    "max_new_tokens": max_tokens,
-                    "return_full_text": False
-                }
-            }
+            # Build conversation context for instruction models
+            conversation_context = ""
+            for msg in self.conversation_histories[conversation_key]:
+                if msg["role"] == "user":
+                    conversation_context += f"User: {msg['content']}\n"
+                elif msg["role"] == "assistant":
+                    conversation_context += f"Assistant: {msg['content']}\n"
             
-            response = requests.post(api_url, headers=headers, json=payload)
-            
-            if response.status_code == 200:
-                result_data = response.json()
-                
-                # Handle different response formats
-                if isinstance(result_data, list) and len(result_data) > 0:
-                    if "generated_text" in result_data[0]:
-                        response_content = result_data[0]["generated_text"]
-                    else:
-                        response_content = str(result_data[0])
-                elif isinstance(result_data, dict):
-                    if "generated_text" in result_data:
-                        response_content = result_data["generated_text"]
-                    elif "choices" in result_data and len(result_data["choices"]) > 0:
-                        response_content = result_data["choices"][0]["message"]["content"]
-                    else:
-                        response_content = str(result_data)
+            # Different approaches based on model type
+            if "instruct" in model.lower() or "chat" in model.lower() or "dialog" in model.lower():
+                # For instruction/chat models, use a more structured prompt
+                if conversation_context:
+                    full_prompt = f"{conversation_context}User: {prompt}\nAssistant:"
                 else:
-                    response_content = str(result_data)
-                
-                # Clean up response if it includes the original prompt
-                if prompt in response_content:
-                    response_content = response_content.replace(prompt, "").strip()
-                
+                    full_prompt = f"User: {prompt}\nAssistant:"
             else:
-                # If chat format fails, try simple text generation
-                simple_payload = {
-                    "inputs": prompt,
+                # For base models, use simple continuation
+                if conversation_context:
+                    full_prompt = f"{conversation_context}{prompt}"
+                else:
+                    full_prompt = prompt
+            
+            # Try multiple payload formats for better compatibility
+            payloads_to_try = [
+                # Format 1: Inference API standard
+                {
+                    "inputs": full_prompt,
                     "parameters": {
                         "temperature": temperature,
-                        "max_new_tokens": max_tokens,
-                        "return_full_text": False
+                        "max_new_tokens": min(max_tokens, 2048),  # Many models have token limits
+                        "return_full_text": False,
+                        "do_sample": True,
+                        "top_p": 0.9,
+                        "stop": ["User:", "Human:", "\n\n"]
                     }
+                },
+                # Format 2: Simple format
+                {
+                    "inputs": full_prompt,
+                    "parameters": {
+                        "max_new_tokens": min(max_tokens, 1024),
+                        "temperature": temperature
+                    }
+                },
+                # Format 3: Minimal format
+                {
+                    "inputs": full_prompt
                 }
-                
-                response = requests.post(api_url, headers=headers, json=simple_payload)
-                
-                if response.status_code == 200:
-                    result_data = response.json()
+            ]
+            
+            response_content = None
+            last_error = None
+            
+            for i, payload in enumerate(payloads_to_try):
+                try:
+                    response = requests.post(api_url, headers=headers, json=payload, timeout=30)
                     
-                    if isinstance(result_data, list) and len(result_data) > 0:
-                        response_content = result_data[0].get("generated_text", str(result_data[0]))
+                    if response.status_code == 200:
+                        result_data = response.json()
+                        
+                        # Handle different response formats
+                        if isinstance(result_data, list) and len(result_data) > 0:
+                            if "generated_text" in result_data[0]:
+                                response_content = result_data[0]["generated_text"]
+                            elif "text" in result_data[0]:
+                                response_content = result_data[0]["text"]
+                            else:
+                                response_content = str(result_data[0])
+                        elif isinstance(result_data, dict):
+                            if "generated_text" in result_data:
+                                response_content = result_data["generated_text"]
+                            elif "text" in result_data:
+                                response_content = result_data["text"]
+                            else:
+                                response_content = str(result_data)
+                        else:
+                            response_content = str(result_data)
+                        
+                        # Clean up response
+                        if response_content:
+                            # Remove the input prompt if it's included
+                            if full_prompt in response_content:
+                                response_content = response_content.replace(full_prompt, "").strip()
+                            
+                            # Remove common prefixes
+                            prefixes_to_remove = ["Assistant:", "AI:", "Bot:", "Response:"]
+                            for prefix in prefixes_to_remove:
+                                if response_content.startswith(prefix):
+                                    response_content = response_content[len(prefix):].strip()
+                        
+                        break  # Success! Exit the retry loop
+                        
+                    elif response.status_code == 503:
+                        last_error = f"Model {model} is loading. Please try again in a few moments."
+                        if i == len(payloads_to_try) - 1:  # Last attempt
+                            return [TextContent(type="text", text=f"HuggingFace Model Loading: {last_error}")]
                     else:
-                        response_content = str(result_data)
-                else:
-                    return [TextContent(type="text", text=f"HuggingFace API Error: {response.status_code} - {response.text}")]
+                        last_error = f"HTTP {response.status_code}: {response.text}"
+                        
+                except requests.exceptions.Timeout:
+                    last_error = f"Request timeout for model {model}"
+                except Exception as e:
+                    last_error = str(e)
+            
+            if not response_content:
+                # Check if model exists and suggest alternatives
+                suggestions = [
+                    "meta-llama/Llama-3.3-70B-Instruct",
+                    "meta-llama/Llama-3.1-8B-Instruct", 
+                    "microsoft/DialoGPT-large",
+                    "mistralai/Mistral-7B-Instruct-v0.3"
+                ]
+                
+                error_msg = f"HuggingFace Error with {model}: {last_error}\n\n"
+                error_msg += "**Try these working models instead:**\n"
+                for suggestion in suggestions:
+                    error_msg += f"- {suggestion}\n"
+                error_msg += "\n**Tip:** Many models need to 'warm up' - try again in 30 seconds!"
+                
+                return [TextContent(type="text", text=error_msg)]
             
             # Add to conversation history
             self._add_to_conversation_history(conversation_key, "user", prompt)
