@@ -1218,7 +1218,8 @@ Remember that you're working together with Claude and other AIs to provide the b
         
         results = []
         results.append(f"## 🎭 AI Group Discussion: {topic}\n")
-        results.append(f"**Participants:** {', '.join([f\"{p['platform']}/{p['model']}\" for p in valid_participants])}\n")
+        participant_list = ', '.join([f"{p['platform']}/{p['model']}" for p in valid_participants])
+        results.append(f"**Participants:** {participant_list}\n")
         
         for round_num in range(rounds):
             results.append(f"\n### Round {round_num + 1}\n")
