@@ -870,6 +870,10 @@ Remember that you're working together with Claude and other AIs to provide the b
                     return await self._get_huggingface_opinion(**arguments)
                 elif name == "get_deepseek_opinion":
                     return await self._get_deepseek_opinion(**arguments)
+                elif name == "get_openrouter_opinion":
+                    return await self._get_openrouter_opinion(**arguments)
+                elif name == "list_openrouter_models":
+                    return await self._list_openrouter_models(**arguments)
                 elif name == "compare_openai_models":
                     return await self._compare_openai_models(**arguments)
                 elif name == "compare_gemini_models":
