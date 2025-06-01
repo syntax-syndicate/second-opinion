@@ -105,7 +105,8 @@ Start multi-AI discussions where models can see and respond to each other's inpu
            "GROK_API_KEY": "your_grok_key_here",
            "CLAUDE_API_KEY": "your_claude_key_here",
            "HUGGINGFACE_API_KEY": "your_huggingface_key_here",
-           "DEEPSEEK_API_KEY": "your_deepseek_key_here"
+           "DEEPSEEK_API_KEY": "your_deepseek_key_here",
+           "OPENROUTER_API_KEY": "your_openrouter_key_here"
          }
        }
      }
