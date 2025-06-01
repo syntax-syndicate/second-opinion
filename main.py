@@ -707,6 +707,7 @@ Remember that you're working together with Claude and other AIs to provide the b
             if self.claude_client: available_providers.append("Claude")
             if self.huggingface_api_key: available_providers.append("HuggingFace")
             if self.deepseek_client: available_providers.append("DeepSeek")
+            if self.openrouter_client: available_providers.append("OpenRouter")
             
             if len(available_providers) >= 2:
                 tools.append(
