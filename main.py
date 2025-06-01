@@ -750,6 +750,11 @@ Remember that you're working together with Claude and other AIs to provide the b
                                     "enum": ["deepseek-chat", "deepseek-reasoner"],
                                     "default": "deepseek-chat"
                                 },
+                                "openrouter_model": {
+                                    "type": "string",
+                                    "description": "OpenRouter model to use (e.g., 'anthropic/claude-3-5-sonnet', 'openai/gpt-4')",
+                                    "default": "anthropic/claude-3-5-sonnet"
+                                },
                                 "temperature": {
                                     "type": "number",
                                     "default": 0.7
