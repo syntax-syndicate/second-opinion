@@ -1,6 +1,6 @@
 # Second Opinion MCP
 
-Get instant second opinions from multiple AI models (OpenAI, Gemini, Grok, Claude, HuggingFace & DeepSeek) directly within Claude conversations.
+Get instant second opinions from multiple AI models (OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek & OpenRouter) directly within Claude conversations.
 
 ## 🚀 What it does
 
@@ -10,10 +10,25 @@ This MCP server allows Claude to consult other AI models for different perspecti
 * **Creative writing** - Get diverse style feedback  
 * **Problem solving** - Validate logic and reasoning
 * **Cross-model analysis** - See how different AIs tackle the same task
-* **Group discussions** - Host AI debates with multiple models
+* **Group discussions** - Host AI debates with multiple models (now with 2+ models!)
 * **Custom model access** - Use any HuggingFace model via Inference API
+* **300+ OpenRouter models** - Access any model through OpenRouter's unified API
 
 ## ✨ New Features
+
+### 🌐 OpenRouter Integration (NEW!)
+Access 300+ AI models through OpenRouter's unified API including:
+- `anthropic/claude-3-5-sonnet` - Latest Claude 3.5 Sonnet
+- `openai/gpt-4` - GPT-4 via OpenRouter
+- `meta-llama/llama-3.1-405b-instruct` - Massive 405B Llama model
+- `google/gemini-pro-1.5` - Gemini Pro 1.5
+- *Any model available on OpenRouter*
+
+### 🎭 Improved Group Discussions
+- **Reduced requirements**: Now works with just 2+ models (previously required 3+)
+- **OpenRouter support**: Include any OpenRouter model in discussions
+- **HuggingFace standardization**: Automatically uses Llama 3.3 70B for group discussions
+- **Better participant filtering**: Only uses available models automatically
 
 ### 🤖 HuggingFace Integration
 Access any of the 800,000+ models on HuggingFace Hub via their Inference API. Use cutting-edge open source models like:
