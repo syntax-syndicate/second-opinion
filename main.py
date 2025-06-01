@@ -840,7 +840,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                             "platform": {
                                 "type": "string",
                                 "description": "Platform to clear (openai, gemini, grok, claude, huggingface, deepseek, or 'all')",
-                                "enum": ["openai", "gemini", "grok", "claude", "huggingface", "deepseek", "all"]
+                                "enum": ["openai", "gemini", "grok", "claude", "huggingface", "deepseek", "openrouter", "all"]
                             },
                             "model": {
                                 "type": "string",
