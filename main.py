@@ -2084,6 +2084,8 @@ def main():
         required_vars.append("HUGGINGFACE_API_KEY")
     if not os.getenv("DEEPSEEK_API_KEY"):
         required_vars.append("DEEPSEEK_API_KEY")
+    if not os.getenv("OPENROUTER_API_KEY"):
+        required_vars.append("OPENROUTER_API_KEY")
     
     if required_vars:
         print("⚠️  Warning: Missing environment variables:", file=sys.stderr)
