@@ -1445,6 +1445,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         except Exception as e:
             return [TextContent(type="text", text=f"Error fetching OpenRouter models: {str(e)}")]
     
+    async def _group_discussion(
         self,
         topic: str,
         participants: List[Dict[str, str]] = None,
