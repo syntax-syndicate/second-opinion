@@ -1318,7 +1318,133 @@ Remember that you're working together with Claude and other AIs to provide the b
         except Exception as e:
             return [TextContent(type="text", text=f"DeepSeek API Error: {str(e)}")]
     
-    async def _group_discussion(
+    async def _get_openrouter_opinion(
+        self,
+        prompt: str,
+        model: str,
+        temperature: float = 0.7,
+        max_tokens: int = 4000,
+        system_prompt: str = "",
+        reset_conversation: bool = False
+    ) -> Sequence[TextContent]:
+        if not self.openrouter_client:
+            return [TextContent(type="text", text="OpenRouter client not configured. Please set OPENROUTER_API_KEY environment variable.")]
+        
+        try:
+            conversation_key = self._get_conversation_key("openrouter", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
+            # Build messages with conversation history
+            messages = self._get_openai_messages(conversation_key, prompt, system_prompt)
+            
+            response = self.openrouter_client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+            
+            response_content = response.choices[0].message.content
+            
+            # Add to conversation history
+            self._add_to_conversation_history(conversation_key, "user", prompt)
+            self._add_to_conversation_history(conversation_key, "assistant", response_content)
+            
+            result = f"**OpenRouter {model} Opinion:**\n\n{response_content}"
+            return [TextContent(type="text", text=result)]
+            
+        except Exception as e:
+            return [TextContent(type="text", text=f"OpenRouter API Error: {str(e)}")]
+    
+    async def _list_openrouter_models(
+        self,
+        filter_by: str = ""
+    ) -> Sequence[TextContent]:
+        if not self.openrouter_client:
+            return [TextContent(type="text", text="OpenRouter client not configured. Please set OPENROUTER_API_KEY environment variable.")]
+        
+        try:
+            # Use the models endpoint to get available models
+            response = requests.get(
+                "https://openrouter.ai/api/v1/models",
+                headers={
+                    "Authorization": f"Bearer {self.openrouter_client.api_key}",
+                    "Content-Type": "application/json"
+                }
+            )
+            
+            if response.status_code != 200:
+                return [TextContent(type="text", text=f"Failed to fetch OpenRouter models: HTTP {response.status_code}")]
+            
+            models_data = response.json()
+            models = models_data.get("data", [])
+            
+            if not models:
+                return [TextContent(type="text", text="No models found in OpenRouter response.")]
+            
+            # Filter models if requested
+            if filter_by:
+                filtered_models = []
+                for model in models:
+                    model_id = model.get("id", "")
+                    if filter_by.lower() in model_id.lower():
+                        filtered_models.append(model)
+                models = filtered_models
+            
+            # Format the response
+            result = f"## OpenRouter Models ({len(models)} available)\n\n"
+            
+            if filter_by:
+                result += f"**Filter:** {filter_by}\n\n"
+            
+            # Group models by provider
+            providers = {}
+            for model in models:
+                model_id = model.get("id", "")
+                if "/" in model_id:
+                    provider = model_id.split("/")[0]
+                    if provider not in providers:
+                        providers[provider] = []
+                    providers[provider].append(model)
+                else:
+                    if "other" not in providers:
+                        providers["other"] = []
+                    providers["other"].append(model)
+            
+            # Display models by provider
+            for provider, provider_models in sorted(providers.items()):
+                result += f"### {provider.title()}\n"
+                for model in provider_models[:10]:  # Limit to first 10 per provider to avoid huge responses
+                    model_id = model.get("id", "Unknown")
+                    model_name = model.get("name", model_id)
+                    pricing = model.get("pricing", {})
+                    
+                    # Format pricing info if available
+                    pricing_info = ""
+                    if pricing:
+                        prompt_price = pricing.get("prompt", "")
+                        completion_price = pricing.get("completion", "")
+                        if prompt_price and completion_price:
+                            pricing_info = f" (${prompt_price}/1M tokens input, ${completion_price}/1M tokens output)"
+                    
+                    result += f"- **{model_id}** - {model_name}{pricing_info}\n"
+                
+                if len(provider_models) > 10:
+                    result += f"- ... and {len(provider_models) - 10} more {provider} models\n"
+                result += "\n"
+            
+            # Add usage tip
+            result += "**Usage:** Use the exact model ID (e.g., 'anthropic/claude-3-5-sonnet') with the get_openrouter_opinion tool.\n"
+            result += "**Popular models:** anthropic/claude-3-5-sonnet, openai/gpt-4, meta-llama/llama-3.1-405b-instruct, google/gemini-pro-1.5\n"
+            
+            return [TextContent(type="text", text=result)]
+            
+        except Exception as e:
+            return [TextContent(type="text", text=f"Error fetching OpenRouter models: {str(e)}")]
+    
         self,
         topic: str,
         participants: List[Dict[str, str]] = None,
