@@ -1460,11 +1460,16 @@ Remember that you're working together with Claude and other AIs to provide the b
                 {"platform": "gemini", "model": "gemini-2.0-flash-001"}
             ]
         
-        # Validate participants
+        # Validate participants and filter to only available ones
         valid_participants = []
         for participant in participants:
             platform = participant["platform"]
             model = participant["model"]
+            
+            # Force HuggingFace to use Llama 3.3 70B Instruct for group discussions
+            if platform == "huggingface":
+                model = "meta-llama/Llama-3.3-70B-Instruct"
+                participant = {"platform": platform, "model": model}
             
             if platform == "openai" and self.openai_client:
                 valid_participants.append(participant)
@@ -1477,6 +1482,8 @@ Remember that you're working together with Claude and other AIs to provide the b
             elif platform == "huggingface" and self.huggingface_api_key:
                 valid_participants.append(participant)
             elif platform == "deepseek" and self.deepseek_client:
+                valid_participants.append(participant)
+            elif platform == "openrouter" and self.openrouter_client:
                 valid_participants.append(participant)
         
         if len(valid_participants) < 2:
