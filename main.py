@@ -2005,6 +2005,26 @@ Remember that you're working together with Claude and other AIs to provide the b
         
         return [TextContent(type="text", text="\n".join(results))]
     
+        # Get OpenRouter opinion
+        if self.openrouter_client:
+            try:
+                or_response = await self._get_openrouter_opinion(
+                    prompt, openrouter_model, temperature, 2000
+                )
+                response_content = or_response[0].text
+                
+                # Clean up the response
+                if f"**OpenRouter" in response_content:
+                    response_content = response_content.split("Opinion:**\\n\\n", 1)[-1]
+                
+                results.append(f"### OpenRouter ({openrouter_model})\\n{response_content}\\n")
+            except Exception as e:
+                results.append(f"### OpenRouter ({openrouter_model})\\n❌ Error: {str(e)}\\n")
+        else:
+            results.append("### OpenRouter\\n❌ Not configured\\n")
+        
+        return [TextContent(type="text", text="\\n".join(results))]
+    
     async def _list_conversation_histories(self) -> Sequence[TextContent]:
         """List all active conversation histories"""
         if not self.conversation_histories:
