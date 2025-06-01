@@ -638,6 +638,67 @@ Remember that you're working together with Claude and other AIs to provide the b
                     )
                 ])
             
+            # OpenRouter tools
+            if self.openrouter_client:
+                tools.extend([
+                    Tool(
+                        name="get_openrouter_opinion",
+                        description="Get a second opinion from any OpenRouter model (300+ models available)",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to get an opinion on"
+                                },
+                                "model": {
+                                    "type": "string",
+                                    "description": "OpenRouter model to use (e.g., 'anthropic/claude-3-5-sonnet', 'openai/gpt-4', 'meta-llama/llama-3.1-405b-instruct')",
+                                    "default": "anthropic/claude-3-5-sonnet"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature for response randomness (0.0-2.0)",
+                                    "minimum": 0.0,
+                                    "maximum": 2.0,
+                                    "default": 0.7
+                                },
+                                "max_tokens": {
+                                    "type": "integer",
+                                    "description": "Maximum tokens in response",
+                                    "default": 4000
+                                },
+                                "system_prompt": {
+                                    "type": "string",
+                                    "description": "Optional system prompt to guide the response",
+                                    "default": ""
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
+                                }
+                            },
+                            "required": ["prompt", "model"]
+                        }
+                    ),
+                    Tool(
+                        name="list_openrouter_models",
+                        description="List all available OpenRouter models (300+ models from various providers)",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "filter_by": {
+                                    "type": "string",
+                                    "description": "Filter models by provider (e.g., 'openai', 'anthropic', 'meta-llama', 'google')",
+                                    "default": ""
+                                }
+                            },
+                            "required": []
+                        }
+                    )
+                ])
+            
             # Cross-platform comparison tools
             available_providers = []
             if self.openai_client: available_providers.append("OpenAI")
