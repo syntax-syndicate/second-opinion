@@ -75,6 +75,7 @@ class SecondOpinionServer:
         self.claude_client = None
         self.huggingface_api_key = None
         self.deepseek_client = None
+        self.openrouter_client = None
         
         # Conversation history storage
         # Format: {platform_model: [conversation_history]}
