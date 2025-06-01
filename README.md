@@ -155,6 +155,15 @@ Start multi-AI discussions where models can see and respond to each other's inpu
 * `deepseek-chat` - DeepSeek-V3 for general tasks
 * `deepseek-reasoner` - DeepSeek-R1 for advanced reasoning
 
+**OpenRouter** (300+ models available)
+* `anthropic/claude-3-5-sonnet` - Latest Claude 3.5 Sonnet
+* `openai/gpt-4` - GPT-4 via OpenRouter  
+* `meta-llama/llama-3.1-405b-instruct` - Massive 405B Llama model
+* `google/gemini-pro-1.5` - Gemini Pro 1.5
+* `mistralai/mistral-large-2407` - Mistral Large
+* `qwen/qwen-2.5-72b-instruct` - Qwen 2.5 72B
+* *Browse all 300+ models with the `list_openrouter_models` tool*
+
 ## 💡 Usage Examples
 
 Once configured, ask Claude things like:
