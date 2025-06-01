@@ -1544,6 +1544,10 @@ Remember that you're working together with Claude and other AIs to provide the b
                         response = await self._get_deepseek_opinion(
                             context_prompt, model=model, temperature=temperature, max_tokens=500
                         )
+                    elif platform == "openrouter":
+                        response = await self._get_openrouter_opinion(
+                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                        )
                     
                     if response and len(response) > 0:
                         participant_name = f"{platform.title()}-{model}"
