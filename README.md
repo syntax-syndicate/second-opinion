@@ -260,6 +260,14 @@ Your API keys stay private on your machine. The MCP server only sends model resp
 
 **Model not available**: Check if the HuggingFace model supports text generation or chat completion
 
+## 🚀 What's New in v2.1
+
+- ✅ **OpenRouter Integration**: Access 300+ AI models through unified API
+- ✅ **Improved Group Discussions**: Now works with just 2+ models (previously 3+)
+- ✅ **Smarter HuggingFace**: Auto-uses Llama 3.3 70B for group discussions
+- ✅ **Better Model Discovery**: Browse OpenRouter's entire model catalog
+- ✅ **Enhanced Participant Filtering**: Only includes available models automatically
+
 ## 🚀 What's New in v2.0
 
 - ✅ **HuggingFace Integration**: Access 800,000+ open source models
