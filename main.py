@@ -156,6 +156,17 @@ Remember that you're working together with Claude and other AIs to provide the b
             logger.info("DeepSeek client initialized")
         else:
             logger.warning("DEEPSEEK_API_KEY not found - DeepSeek features disabled")
+        
+        # OpenRouter setup (uses OpenAI SDK with OpenRouter base URL)
+        openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
+        if openrouter_api_key:
+            self.openrouter_client = openai.OpenAI(
+                api_key=openrouter_api_key,
+                base_url="https://openrouter.ai/api/v1"
+            )
+            logger.info("OpenRouter client initialized")
+        else:
+            logger.warning("OPENROUTER_API_KEY not found - OpenRouter features disabled")
     
     def _get_conversation_key(self, platform: str, model: str) -> str:
         """Generate a key for conversation history storage"""
