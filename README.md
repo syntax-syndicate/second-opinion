@@ -87,6 +87,7 @@ Start multi-AI discussions where models can see and respond to each other's inpu
    * **Claude**: Get your key at [anthropic.com](https://console.anthropic.com/settings/keys)
    * **HuggingFace**: Get your key at [huggingface.co](https://huggingface.co/settings/tokens)
    * **DeepSeek**: Get your key at [deepseek.com](https://api-docs.deepseek.com/)
+   * **OpenRouter**: Get your key at [openrouter.ai](https://openrouter.ai/keys)
 
 4. **Configure Claude Desktop**
 
