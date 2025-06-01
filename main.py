@@ -468,12 +468,12 @@ Remember that you're working together with Claude and other AIs to provide the b
                                     "type": "string",
                                     "description": "Claude model to use",
                                     "enum": [
-                                        "claude-4-opus-20250522",
-                                        "claude-4-sonnet-20250522",
+                                        "claude-4-opus-20250514",
+                                        "claude-4-sonnet-20250514",
                                         "claude-3-7-sonnet-20250224",
                                         "claude-3-5-sonnet-20241022"
                                     ],
-                                    "default": "claude-4-sonnet-20250522"
+                                    "default": "claude-4-sonnet-20250514"
                                 },
                                 "temperature": {
                                     "type": "number",
@@ -516,14 +516,14 @@ Remember that you're working together with Claude and other AIs to provide the b
                                     "items": {
                                         "type": "string",
                                         "enum": [
-                                            "claude-4-opus-20250522",
-                                            "claude-4-sonnet-20250522",
+                                            "claude-4-opus-20250514",
+                                            "claude-4-sonnet-20250514",
                                             "claude-3-7-sonnet-20250224",
                                             "claude-3-5-sonnet-20241022"
                                         ]
                                     },
                                     "description": "List of Claude models to compare",
-                                    "default": ["claude-4-opus-20250522", "claude-4-sonnet-20250522"]
+                                    "default": ["claude-4-opus-20250514", "claude-4-sonnet-20250514"]
                                 },
                                 "temperature": {
                                     "type": "number",
@@ -664,8 +664,8 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 },
                                 "claude_model": {
                                     "type": "string",
-                                    "enum": ["claude-4-opus-20250522", "claude-4-sonnet-20250522", "claude-3-7-sonnet-20250224"],
-                                    "default": "claude-4-sonnet-20250522"
+                                    "enum": ["claude-4-opus-20250514", "claude-4-sonnet-20250514", "claude-3-7-sonnet-20250224"],
+                                    "default": "claude-4-sonnet-20250514"
                                 },
                                 "huggingface_model": {
                                     "type": "string",
@@ -717,7 +717,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                     "description": "List of AI models to participate in discussion",
                                     "default": [
                                         {"platform": "openai", "model": "gpt-4.1"},
-                                        {"platform": "claude", "model": "claude-4-sonnet-20250522"},
+                                        {"platform": "claude", "model": "claude-4-sonnet-20250514"},
                                         {"platform": "gemini", "model": "gemini-2.0-flash-001"}
                                     ]
                                 },
@@ -986,7 +986,7 @@ Remember that you're working together with Claude and other AIs to provide the b
     async def _get_claude_opinion(
         self,
         prompt: str,
-        model: str = "claude-4-sonnet-20250522",
+        model: str = "claude-4-sonnet-20250514",
         temperature: float = 0.7,
         max_tokens: int = 4000,
         system_prompt: str = "",
@@ -1247,7 +1247,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         if participants is None:
             participants = [
                 {"platform": "openai", "model": "gpt-4.1"},
-                {"platform": "claude", "model": "claude-4-sonnet-20250522"},
+                {"platform": "claude", "model": "claude-4-sonnet-20250514"},
                 {"platform": "gemini", "model": "gemini-2.0-flash-001"}
             ]
         
@@ -1536,7 +1536,7 @@ Remember that you're working together with Claude and other AIs to provide the b
             return [TextContent(type="text", text="Claude client not configured.")]
         
         if models is None:
-            models = ["claude-4-opus-20250522", "claude-4-sonnet-20250522"]
+            models = ["claude-4-opus-20250514", "claude-4-sonnet-20250514"]
         
         results = []
         results.append("## Claude Model Comparison\n")
@@ -1580,7 +1580,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         openai_model: str = "gpt-4.1",
         gemini_model: str = "gemini-2.0-flash-001",
         grok_model: str = "grok-3",
-        claude_model: str = "claude-4-sonnet-20250522",
+        claude_model: str = "claude-4-sonnet-20250514",
         huggingface_model: str = "meta-llama/Llama-3.3-70B-Instruct",
         deepseek_model: str = "deepseek-chat",
         temperature: float = 0.7
