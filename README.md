@@ -178,6 +178,12 @@ Once configured, ask Claude things like:
 
 > "What does DeepSeek-reasoner think about this math problem?"
 
+> "Get an opinion from anthropic/claude-3-5-sonnet on OpenRouter"
+
+> "List all available OpenRouter models from Anthropic"
+
+> "Start a group discussion about AI ethics with GPT-4.1, Claude-4, and meta-llama/llama-3.1-405b-instruct on OpenRouter"
+
 > "Start a group discussion about AI ethics with GPT-4.1, Claude-4, Gemini, and DeepSeek"
 
 > "Cross-platform comparison of this algorithm across all available models"
