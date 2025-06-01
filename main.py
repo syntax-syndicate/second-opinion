@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Second Opinion MCP Server
-Allows AI models to get second opinions from other AI models (OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek)
+Allows AI models to get second opinions from other AI models (OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek, OpenRouter)
 Features conversation history, collaborative prompting, and group discussions
 """
 
