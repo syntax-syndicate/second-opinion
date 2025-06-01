@@ -120,7 +120,7 @@ Start multi-AI discussions where models can see and respond to each other's inpu
 
 **Claude**
 * `claude-4-opus-20250514` - Most advanced Claude model
-* `claude-sonnet-4-20250514` - Versatile model for general tasks
+* `claude-4-sonnet-20250514` - Versatile model for general tasks
 * `claude-3-7-sonnet-20250224` - Stable and reliable
 * `claude-3-5-sonnet-20241022` - Efficient, lighter model
 
