@@ -201,8 +201,8 @@ Once configured, ask Claude things like:
 * **`compare_claude_models`** - Compare multiple Claude models
 
 ### Cross-Platform Features
-* **`cross_platform_comparison`** - Compare across OpenAI, Gemini, Grok, Claude, HuggingFace & DeepSeek
-* **`group_discussion`** - Multi-round discussions between AI models with shared context
+* **`cross_platform_comparison`** - Compare across OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek & OpenRouter
+* **`group_discussion`** - Multi-round discussions between AI models with shared context (now supports 2+ models)
 
 ### Conversation Management
 * **`list_conversation_histories`** - See active conversation threads
