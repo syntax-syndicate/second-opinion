@@ -1803,6 +1803,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         claude_model: str = "claude-4-sonnet-20250514",
         huggingface_model: str = "meta-llama/Llama-3.3-70B-Instruct",
         deepseek_model: str = "deepseek-chat",
+        openrouter_model: str = "anthropic/claude-3-5-sonnet",
         temperature: float = 0.7
     ) -> Sequence[TextContent]:
         results = []
