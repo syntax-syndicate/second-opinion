@@ -62,7 +62,7 @@ Start multi-AI discussions where models can see and respond to each other's inpu
 
 * Python 3.8+
 * Claude Desktop
-* API keys for any combination of: OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek
+* API keys for any combination of: OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek, OpenRouter
 
 ## 🛠️ Installation
 
