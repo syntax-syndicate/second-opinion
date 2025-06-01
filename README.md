@@ -191,6 +191,8 @@ Once configured, ask Claude things like:
 * **`get_claude_opinion`** - Get opinion from any Claude model
 * **`get_huggingface_opinion`** - Get opinion from any HuggingFace model
 * **`get_deepseek_opinion`** - Get opinion from DeepSeek models
+* **`get_openrouter_opinion`** - Get opinion from any OpenRouter model (300+ available)
+* **`list_openrouter_models`** - Browse all available OpenRouter models
 
 ### Model Comparisons  
 * **`compare_openai_models`** - Compare multiple OpenAI models
