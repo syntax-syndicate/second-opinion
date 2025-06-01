@@ -766,7 +766,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                 )
             
             # Group discussion feature
-            if len(available_providers) >= 3:
+            if len(available_providers) >= 2:
                 tools.append(
                     Tool(
                         name="group_discussion",
@@ -785,7 +785,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                         "properties": {
                                             "platform": {
                                                 "type": "string",
-                                                "enum": ["openai", "gemini", "grok", "claude", "huggingface", "deepseek"]
+                                                "enum": ["openai", "gemini", "grok", "claude", "huggingface", "deepseek", "openrouter"]
                                             },
                                             "model": {
                                                 "type": "string"
