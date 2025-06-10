@@ -1,6 +1,6 @@
 # Second Opinion MCP
 
-Get instant second opinions from multiple AI models (OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek & OpenRouter) directly within Claude conversations.
+Get instant second opinions from multiple AI models (OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek, Mistral, Together AI, Cohere, Groq Fast & Perplexity) directly within Claude conversations.
 
 ## 🚀 What it does
 
@@ -10,31 +10,29 @@ This MCP server allows Claude to consult other AI models for different perspecti
 * **Creative writing** - Get diverse style feedback  
 * **Problem solving** - Validate logic and reasoning
 * **Cross-model analysis** - See how different AIs tackle the same task
-* **Group discussions** - Host AI debates with multiple models (now with 2+ models!)
+* **Group discussions** - Host AI debates with multiple models
 * **Custom model access** - Use any HuggingFace model via Inference API
-* **300+ OpenRouter models** - Access any model through OpenRouter's unified API
 
-## ✨ New Features
+## ✨ Version 3.0 Features & Improvements
 
-### 🌐 OpenRouter Integration (NEW!)
-Access 300+ AI models through OpenRouter's unified API including:
-- `anthropic/claude-3-5-sonnet` - Latest Claude 3.5 Sonnet
-- `openai/gpt-4` - GPT-4 via OpenRouter
-- `meta-llama/llama-3.1-405b-instruct` - Massive 405B Llama model
-- `google/gemini-pro-1.5` - Gemini Pro 1.5
-- *Any model available on OpenRouter*
+### 🚀 Major Bug Fixes
+- **Fixed HuggingFace Models**: Completely rebuilt HuggingFace integration with advanced retry logic, better model format detection, and comprehensive error handling
+- **Fixed Gemini Blank Responses**: Enhanced Gemini conversation handling to prevent empty responses in long chats with smart fallback and retry mechanisms
+- **Improved Error Handling**: Better error messages with helpful suggestions for troubleshooting
 
-### 🎭 Improved Group Discussions
-- **Reduced requirements**: Now works with just 2+ models (previously required 3+)
-- **OpenRouter support**: Include any OpenRouter model in discussions
-- **HuggingFace standardization**: Automatically uses Llama 3.3 70B for group discussions
-- **Better participant filtering**: Only uses available models automatically
+### 🆕 New AI Platform Support
+- **🤖 Mistral AI**: Direct access to Mistral's latest models including mistral-large-latest and codestral-latest
+- **🔗 Together AI**: Access to 200+ open-source models with fast inference
+- **🧠 Cohere**: Enterprise-grade language models with Command R+ and Command R
+- **⚡ Groq Fast**: Ultra-fast inference API for lightning-quick responses
+- **🔍 Perplexity AI**: Web-connected AI with real-time search capabilities
 
-### 🤖 HuggingFace Integration
-Access any of the 800,000+ models on HuggingFace Hub via their Inference API. Use cutting-edge open source models like:
-- `meta-llama/Llama-3.3-70B-Instruct`
-- `microsoft/DialoGPT-large`
-- `Qwen/Qwen2.5-72B-Instruct`
+### 🤖 HuggingFace Integration (Enhanced)
+Access any of the 800,000+ models on HuggingFace Hub via their Inference API with improved reliability:
+- `meta-llama/Llama-3.1-8B-Instruct` - Fast and reliable
+- `meta-llama/Llama-3.1-70B-Instruct` - Powerful reasoning
+- `mistralai/Mistral-7B-Instruct-v0.3` - Efficient French-developed model
+- `Qwen/Qwen2.5-7B-Instruct` - Alibaba's latest model
 
 ### 🧠 DeepSeek Models
 Get opinions from DeepSeek's powerful reasoning models:
@@ -47,22 +45,23 @@ Access xAI's latest thinking models with enhanced reasoning:
 - `grok-3-thinking` - Step-by-step reasoning model
 - `grok-3-mini` - Lightweight thinking model with `reasoning_effort` control
 
-### 🎭 Group Discussions
+### 🎭 Group Discussions (Enhanced)
 Start multi-AI discussions where models can see and respond to each other's input:
 ```
-> "Start a group discussion about the future of AI with GPT-4.1, Claude-4, and Gemini"
+> "Start a group discussion about the future of AI with GPT-4.1, Claude-4, Mistral, and Perplexity"
 ```
 
 ### 🔧 Enhanced Performance
 - **Longer responses**: Increased max_tokens (4000 default) to prevent cut-off responses
-- **Better error handling**: More robust API interactions
-- **Conversation persistence**: Enhanced memory management
+- **Better error handling**: More robust API interactions with exponential backoff
+- **Conversation persistence**: Enhanced memory management with better context handling
+- **Smart retry logic**: Automatic retries with progressive delays for better reliability
 
 ## 📋 Requirements
 
 * Python 3.8+
 * Claude Desktop
-* API keys for any combination of: OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek, OpenRouter
+* API keys for any combination of: OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek, Mistral, Together AI, Cohere, Groq Fast, Perplexity
 
 ## 🛠️ Installation
 
@@ -87,7 +86,11 @@ Start multi-AI discussions where models can see and respond to each other's inpu
    * **Claude**: Get your key at [anthropic.com](https://console.anthropic.com/settings/keys)
    * **HuggingFace**: Get your key at [huggingface.co](https://huggingface.co/settings/tokens)
    * **DeepSeek**: Get your key at [deepseek.com](https://api-docs.deepseek.com/)
-   * **OpenRouter**: Get your key at [openrouter.ai](https://openrouter.ai/keys)
+   * **Mistral**: Get your key at [console.mistral.ai](https://console.mistral.ai/)
+   * **Together AI**: Get your key at [api.together.xyz](https://api.together.xyz/settings/api-keys)
+   * **Cohere**: Get your key at [dashboard.cohere.com](https://dashboard.cohere.com/api-keys)
+   * **Groq**: Get your key at [console.groq.com](https://console.groq.com/keys)
+   * **Perplexity**: Get your key at [perplexity.ai](https://www.perplexity.ai/settings/api)
 
 4. **Configure Claude Desktop**
 
@@ -106,7 +109,11 @@ Start multi-AI discussions where models can see and respond to each other's inpu
            "CLAUDE_API_KEY": "your_claude_key_here",
            "HUGGINGFACE_API_KEY": "your_huggingface_key_here",
            "DEEPSEEK_API_KEY": "your_deepseek_key_here",
-           "OPENROUTER_API_KEY": "your_openrouter_key_here"
+           "MISTRAL_API_KEY": "your_mistral_key_here",
+           "TOGETHER_API_KEY": "your_together_key_here",
+           "COHERE_API_KEY": "your_cohere_key_here",
+           "GROQ_FAST_API_KEY": "your_groq_key_here",
+           "PERPLEXITY_API_KEY": "your_perplexity_key_here"
          }
        }
      }
@@ -136,33 +143,51 @@ Start multi-AI discussions where models can see and respond to each other's inpu
 * `grok-beta` - Experimental features
 
 **Claude**
-* `claude-4-opus-20250514` - Most advanced Claude model
-* `claude-4-sonnet-20250514` - Versatile model for general tasks
+* `claude-4-opus-20250522` - Most advanced Claude model
+* `claude-4-sonnet-20250522` - Versatile model for general tasks
 * `claude-3-7-sonnet-20250224` - Stable and reliable
 * `claude-3-5-sonnet-20241022` - Efficient, lighter model
 
-**HuggingFace** (800,000+ models available)
-* `meta-llama/Llama-3.3-70B-Instruct` - Meta's latest Llama model
-* `microsoft/DialoGPT-large` - Conversational AI
-* `microsoft/phi-4` - Microsoft's efficient reasoning model
-* `deepseek-ai/DeepSeek-R1-0528-Qwen3-8B` - DeepSeek reasoning model 
-* `google/gemma-3-27b-it` - Google's Gemma instruction-tuned model
-* `Qwen/Qwen3-235B-A22B` - Alibaba's massive 235B parameter model
-* `mistralai/Mistral-7B-Instruct-v0.3` - Mistral's instruction model
+**HuggingFace** (800,000+ models available - Enhanced with better reliability)
+* `meta-llama/Llama-3.1-8B-Instruct` - Fast and reliable Meta model
+* `meta-llama/Llama-3.1-70B-Instruct` - Powerful reasoning model
+* `mistralai/Mistral-7B-Instruct-v0.3` - Efficient French-developed model
+* `Qwen/Qwen2.5-7B-Instruct` - Alibaba's latest model
 * *Any model on HuggingFace Hub that supports text generation*
 
 **DeepSeek**
 * `deepseek-chat` - DeepSeek-V3 for general tasks
 * `deepseek-reasoner` - DeepSeek-R1 for advanced reasoning
 
-**OpenRouter** (300+ models available)
-* `anthropic/claude-3-5-sonnet` - Latest Claude 3.5 Sonnet
-* `openai/gpt-4` - GPT-4 via OpenRouter  
-* `meta-llama/llama-3.1-405b-instruct` - Massive 405B Llama model
-* `google/gemini-pro-1.5` - Gemini Pro 1.5
-* `mistralai/mistral-large-2407` - Mistral Large
-* `qwen/qwen-2.5-72b-instruct` - Qwen 2.5 72B
-* *Browse all 300+ models with the `list_openrouter_models` tool*
+**Mistral AI** (NEW)
+* `mistral-large-latest` - Most powerful Mistral model
+* `mistral-small-latest` - Fast and cost-effective
+* `mistral-medium-latest` - Balanced performance
+* `codestral-latest` - Specialized for code generation
+
+**Together AI** (NEW - 200+ open-source models)
+* `meta-llama/Llama-3.1-8B-Instruct-Turbo` - Fast Llama turbo
+* `meta-llama/Llama-3.1-70B-Instruct-Turbo` - Powerful Llama turbo
+* `meta-llama/Llama-3.1-405B-Instruct-Turbo` - Largest Llama model
+* `mistralai/Mixtral-8x7B-Instruct-v0.1` - Mixture of experts
+* `Qwen/Qwen2.5-72B-Instruct-Turbo` - Alibaba's fast model
+
+**Cohere** (NEW - Enterprise-grade)
+* `command-r-plus` - Most capable Cohere model
+* `command-r` - Balanced performance model
+* `command` - Standard command model
+
+**Groq Fast** (NEW - Ultra-fast inference)
+* `llama-3.1-70b-versatile` - Fast 70B Llama
+* `llama-3.1-8b-instant` - Lightning-fast 8B model
+* `mixtral-8x7b-32768` - Fast Mixtral variant
+* `gemma2-9b-it` - Google's Gemma model
+
+**Perplexity AI** (NEW - Web-connected)
+* `llama-3.1-sonar-large-128k-online` - Web search + large context
+* `llama-3.1-sonar-small-128k-online` - Web search + fast responses
+* `llama-3.1-sonar-large-128k-chat` - Pure chat without web
+* `llama-3.1-sonar-small-128k-chat` - Fast chat model
 
 ## 💡 Usage Examples
 
@@ -174,31 +199,38 @@ Once configured, ask Claude things like:
 
 > "Compare how Claude-4-opus and gemini-2.0-flash would solve this problem"
 
-> "Get an opinion from meta-llama/Llama-3.3-70B-Instruct on HuggingFace"
+> "Get an opinion from meta-llama/Llama-3.1-70B-Instruct on HuggingFace"
 
 > "What does DeepSeek-reasoner think about this math problem?"
 
-> "Get an opinion from anthropic/claude-3-5-sonnet on OpenRouter"
+> "Ask Mistral-large-latest to review my code architecture"
 
-> "List all available OpenRouter models from Anthropic"
+> "Get a fast response from Groq's llama-3.1-8b-instant model"
 
-> "Start a group discussion about AI ethics with GPT-4.1, Claude-4, and meta-llama/llama-3.1-405b-instruct on OpenRouter"
+> "Use Perplexity's web search to research the latest AI developments"
 
-> "Start a group discussion about AI ethics with GPT-4.1, Claude-4, Gemini, and DeepSeek"
+> "What does Cohere's command-r-plus think about this business strategy?"
 
-> "Cross-platform comparison of this algorithm across all available models"
+> "Get Together AI's Llama-405B opinion on this complex problem"
+
+> "Start a group discussion about AI ethics with GPT-4.1, Claude-4, Mistral, and Perplexity"
+
+> "Cross-platform comparison of this algorithm across all 11 available platforms"
 
 ## 🔧 Available Tools
 
 ### Single Model Opinions
 * **`get_openai_opinion`** - Get opinion from any OpenAI model
-* **`get_gemini_opinion`** - Get opinion from any Gemini model  
+* **`get_gemini_opinion`** - Get opinion from any Gemini model (enhanced with better conversation handling)
 * **`get_grok_opinion`** - Get opinion from any Grok model (includes thinking models)
 * **`get_claude_opinion`** - Get opinion from any Claude model
-* **`get_huggingface_opinion`** - Get opinion from any HuggingFace model
+* **`get_huggingface_opinion`** - Get opinion from any HuggingFace model (enhanced with better reliability)
 * **`get_deepseek_opinion`** - Get opinion from DeepSeek models
-* **`get_openrouter_opinion`** - Get opinion from any OpenRouter model (300+ available)
-* **`list_openrouter_models`** - Browse all available OpenRouter models
+* **`get_mistral_opinion`** - Get opinion from Mistral AI models (NEW)
+* **`get_together_opinion`** - Get opinion from Together AI's 200+ models (NEW)
+* **`get_cohere_opinion`** - Get opinion from Cohere enterprise models (NEW)
+* **`get_groq_fast_opinion`** - Get ultra-fast responses from Groq (NEW)
+* **`get_perplexity_opinion`** - Get web-connected AI responses (NEW)
 
 ### Model Comparisons  
 * **`compare_openai_models`** - Compare multiple OpenAI models
@@ -207,8 +239,8 @@ Once configured, ask Claude things like:
 * **`compare_claude_models`** - Compare multiple Claude models
 
 ### Cross-Platform Features
-* **`cross_platform_comparison`** - Compare across OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek & OpenRouter
-* **`group_discussion`** - Multi-round discussions between AI models with shared context (now supports 2+ models)
+* **`cross_platform_comparison`** - Compare across all 11 AI platforms: OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek, Mistral, Together AI, Cohere, Groq Fast & Perplexity
+* **`group_discussion`** - Multi-round discussions between AI models with shared context (supports all platforms)
 
 ### Conversation Management
 * **`list_conversation_histories`** - See active conversation threads
@@ -260,23 +292,17 @@ Your API keys stay private on your machine. The MCP server only sends model resp
 
 **Model not available**: Check if the HuggingFace model supports text generation or chat completion
 
-## 🚀 What's New in v2.1
+## 🚀 What's New in v3.0
 
-- ✅ **OpenRouter Integration**: Access 300+ AI models through unified API
-- ✅ **Improved Group Discussions**: Now works with just 2+ models (previously 3+)
-- ✅ **Smarter HuggingFace**: Auto-uses Llama 3.3 70B for group discussions
-- ✅ **Better Model Discovery**: Browse OpenRouter's entire model catalog
-- ✅ **Enhanced Participant Filtering**: Only includes available models automatically
-
-## 🚀 What's New in v2.0
-
-- ✅ **HuggingFace Integration**: Access 800,000+ open source models
-- ✅ **DeepSeek Support**: V3 and R1 reasoning models  
-- ✅ **Grok 3 Thinking**: Advanced reasoning with controllable effort
-- ✅ **Group Discussions**: Multi-AI collaborative conversations
-- ✅ **Enhanced Responses**: 4x longer responses (4000 tokens default)
-- ✅ **Better Error Handling**: More robust API interactions
-- ✅ **Expanded Model Support**: 6 AI platforms, 800,000+ models
+- ✅ **Major Bug Fixes**: Fixed HuggingFace empty responses and Gemini blank chat issues
+- ✅ **5 New AI Platforms**: Mistral AI, Together AI, Cohere, Groq Fast, Perplexity AI
+- ✅ **Enhanced HuggingFace**: Completely rebuilt with advanced retry logic and better error handling
+- ✅ **Improved Gemini**: Smart conversation handling prevents blank responses in long chats
+- ✅ **11 Total Platforms**: Now supporting 11 different AI platforms and 800,000+ models
+- ✅ **Ultra-Fast Inference**: Groq Fast for lightning-quick responses
+- ✅ **Web-Connected AI**: Perplexity AI with real-time search capabilities
+- ✅ **Enterprise Models**: Cohere's command models for business use cases
+- ✅ **Better Error Messages**: Helpful troubleshooting suggestions and model recommendations
 
 ## 🤝 Contributing
 
