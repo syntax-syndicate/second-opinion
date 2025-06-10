@@ -76,6 +76,11 @@ class SecondOpinionServer:
         self.huggingface_api_key = None
         self.deepseek_client = None
         self.openrouter_client = None
+        self.mistral_client = None
+        self.together_client = None
+        self.cohere_client = None
+        self.groq_client_fast = None  # New fast Groq client
+        self.perplexity_client = None
         
         # Conversation history storage
         # Format: {platform_model: [conversation_history]}
@@ -167,6 +172,63 @@ Remember that you're working together with Claude and other AIs to provide the b
             logger.info("OpenRouter client initialized")
         else:
             logger.warning("OPENROUTER_API_KEY not found - OpenRouter features disabled")
+        
+        # Mistral AI setup (uses OpenAI SDK with Mistral base URL)
+        mistral_api_key = os.getenv("MISTRAL_API_KEY")
+        if mistral_api_key:
+            self.mistral_client = openai.OpenAI(
+                api_key=mistral_api_key,
+                base_url="https://api.mistral.ai/v1"
+            )
+            logger.info("Mistral AI client initialized")
+        else:
+            logger.warning("MISTRAL_API_KEY not found - Mistral AI features disabled")
+        
+        # Together AI setup (uses OpenAI SDK with Together base URL)
+        together_api_key = os.getenv("TOGETHER_API_KEY")
+        if together_api_key:
+            self.together_client = openai.OpenAI(
+                api_key=together_api_key,
+                base_url="https://api.together.xyz/v1"
+            )
+            logger.info("Together AI client initialized")
+        else:
+            logger.warning("TOGETHER_API_KEY not found - Together AI features disabled")
+        
+        # Cohere setup (uses native Cohere SDK)
+        cohere_api_key = os.getenv("COHERE_API_KEY")
+        if cohere_api_key:
+            try:
+                import cohere
+                self.cohere_client = cohere.Client(api_key=cohere_api_key)
+                logger.info("Cohere client initialized")
+            except ImportError:
+                logger.warning("Cohere package not available. Install with: pip install cohere")
+                self.cohere_client = None
+        else:
+            logger.warning("COHERE_API_KEY not found - Cohere features disabled")
+        
+        # Enhanced Groq setup (using their fast inference API)
+        groq_fast_api_key = os.getenv("GROQ_FAST_API_KEY") or os.getenv("GROQ_API_KEY")
+        if groq_fast_api_key:
+            self.groq_client_fast = openai.OpenAI(
+                api_key=groq_fast_api_key,
+                base_url="https://api.groq.com/openai/v1"
+            )
+            logger.info("Groq Fast client initialized")
+        else:
+            logger.warning("GROQ_FAST_API_KEY not found - Enhanced Groq features disabled")
+        
+        # Perplexity AI setup (uses OpenAI SDK with Perplexity base URL)
+        perplexity_api_key = os.getenv("PERPLEXITY_API_KEY")
+        if perplexity_api_key:
+            self.perplexity_client = openai.OpenAI(
+                api_key=perplexity_api_key,
+                base_url="https://api.perplexity.ai"
+            )
+            logger.info("Perplexity AI client initialized")
+        else:
+            logger.warning("PERPLEXITY_API_KEY not found - Perplexity AI features disabled")
     
     def _get_conversation_key(self, platform: str, model: str) -> str:
         """Generate a key for conversation history storage"""
@@ -699,6 +761,262 @@ Remember that you're working together with Claude and other AIs to provide the b
                     )
                 ])
             
+            # Mistral AI tools
+            if self.mistral_client:
+                tools.append(
+                    Tool(
+                        name="get_mistral_opinion",
+                        description="Get a second opinion from a Mistral AI model",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to get an opinion on"
+                                },
+                                "model": {
+                                    "type": "string",
+                                    "description": "Mistral model to use",
+                                    "enum": [
+                                        "mistral-large-latest",
+                                        "mistral-small-latest",
+                                        "mistral-medium-latest",
+                                        "codestral-latest"
+                                    ],
+                                    "default": "mistral-small-latest"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature for response randomness (0.0-1.0)",
+                                    "minimum": 0.0,
+                                    "maximum": 1.0,
+                                    "default": 0.7
+                                },
+                                "max_tokens": {
+                                    "type": "integer",
+                                    "description": "Maximum tokens in response",
+                                    "default": 4000
+                                },
+                                "system_prompt": {
+                                    "type": "string",
+                                    "description": "Optional system prompt to guide the response",
+                                    "default": ""
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
+                                }
+                            },
+                            "required": ["prompt"]
+                        }
+                    )
+                )
+            
+            # Together AI tools
+            if self.together_client:
+                tools.append(
+                    Tool(
+                        name="get_together_opinion",
+                        description="Get a second opinion from Together AI (200+ open-source models)",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to get an opinion on"
+                                },
+                                "model": {
+                                    "type": "string",
+                                    "description": "Together AI model to use",
+                                    "enum": [
+                                        "meta-llama/Llama-3.1-8B-Instruct-Turbo",
+                                        "meta-llama/Llama-3.1-70B-Instruct-Turbo",
+                                        "meta-llama/Llama-3.1-405B-Instruct-Turbo",
+                                        "mistralai/Mixtral-8x7B-Instruct-v0.1",
+                                        "microsoft/WizardLM-2-8x22B",
+                                        "Qwen/Qwen2.5-72B-Instruct-Turbo"
+                                    ],
+                                    "default": "meta-llama/Llama-3.1-8B-Instruct-Turbo"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature for response randomness (0.0-1.0)",
+                                    "minimum": 0.0,
+                                    "maximum": 1.0,
+                                    "default": 0.7
+                                },
+                                "max_tokens": {
+                                    "type": "integer",
+                                    "description": "Maximum tokens in response",
+                                    "default": 4000
+                                },
+                                "system_prompt": {
+                                    "type": "string",
+                                    "description": "Optional system prompt to guide the response",
+                                    "default": ""
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
+                                }
+                            },
+                            "required": ["prompt"]
+                        }
+                    )
+                )
+            
+            # Cohere tools
+            if self.cohere_client:
+                tools.append(
+                    Tool(
+                        name="get_cohere_opinion",
+                        description="Get a second opinion from a Cohere model",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to get an opinion on"
+                                },
+                                "model": {
+                                    "type": "string",
+                                    "description": "Cohere model to use",
+                                    "enum": [
+                                        "command-r-plus",
+                                        "command-r",
+                                        "command"
+                                    ],
+                                    "default": "command-r-plus"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature for response randomness (0.0-1.0)",
+                                    "minimum": 0.0,
+                                    "maximum": 1.0,
+                                    "default": 0.7
+                                },
+                                "max_tokens": {
+                                    "type": "integer",
+                                    "description": "Maximum tokens in response",
+                                    "default": 4000
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
+                                }
+                            },
+                            "required": ["prompt"]
+                        }
+                    )
+                )
+            
+            # Groq Fast tools
+            if self.groq_client_fast:
+                tools.append(
+                    Tool(
+                        name="get_groq_fast_opinion",
+                        description="Get a second opinion from Groq's ultra-fast inference API",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to get an opinion on"
+                                },
+                                "model": {
+                                    "type": "string",
+                                    "description": "Groq fast model to use",
+                                    "enum": [
+                                        "llama-3.1-70b-versatile",
+                                        "llama-3.1-8b-instant",
+                                        "mixtral-8x7b-32768",
+                                        "gemma2-9b-it"
+                                    ],
+                                    "default": "llama-3.1-70b-versatile"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature for response randomness (0.0-2.0)",
+                                    "minimum": 0.0,
+                                    "maximum": 2.0,
+                                    "default": 0.7
+                                },
+                                "max_tokens": {
+                                    "type": "integer",
+                                    "description": "Maximum tokens in response",
+                                    "default": 4000
+                                },
+                                "system_prompt": {
+                                    "type": "string",
+                                    "description": "Optional system prompt to guide the response",
+                                    "default": ""
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
+                                }
+                            },
+                            "required": ["prompt"]
+                        }
+                    )
+                )
+            
+            # Perplexity AI tools
+            if self.perplexity_client:
+                tools.append(
+                    Tool(
+                        name="get_perplexity_opinion",
+                        description="Get a second opinion from Perplexity AI (with web search capabilities)",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to get an opinion on"
+                                },
+                                "model": {
+                                    "type": "string",
+                                    "description": "Perplexity model to use",
+                                    "enum": [
+                                        "llama-3.1-sonar-large-128k-online",
+                                        "llama-3.1-sonar-small-128k-online",
+                                        "llama-3.1-sonar-large-128k-chat",
+                                        "llama-3.1-sonar-small-128k-chat"
+                                    ],
+                                    "default": "llama-3.1-sonar-large-128k-online"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature for response randomness (0.0-1.0)",
+                                    "minimum": 0.0,
+                                    "maximum": 1.0,
+                                    "default": 0.7
+                                },
+                                "max_tokens": {
+                                    "type": "integer",
+                                    "description": "Maximum tokens in response",
+                                    "default": 4000
+                                },
+                                "system_prompt": {
+                                    "type": "string",
+                                    "description": "Optional system prompt to guide the response",
+                                    "default": ""
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
+                                }
+                            },
+                            "required": ["prompt"]
+                        }
+                    )
+                )
+            
             # Cross-platform comparison tools
             available_providers = []
             if self.openai_client: available_providers.append("OpenAI")
@@ -708,6 +1026,11 @@ Remember that you're working together with Claude and other AIs to provide the b
             if self.huggingface_api_key: available_providers.append("HuggingFace")
             if self.deepseek_client: available_providers.append("DeepSeek")
             if self.openrouter_client: available_providers.append("OpenRouter")
+            if self.mistral_client: available_providers.append("Mistral")
+            if self.together_client: available_providers.append("Together")
+            if self.cohere_client: available_providers.append("Cohere")
+            if self.groq_client_fast: available_providers.append("GroqFast")
+            if self.perplexity_client: available_providers.append("Perplexity")
             
             if len(available_providers) >= 2:
                 tools.append(
@@ -839,8 +1162,8 @@ Remember that you're working together with Claude and other AIs to provide the b
                         "properties": {
                             "platform": {
                                 "type": "string",
-                                "description": "Platform to clear (openai, gemini, grok, claude, huggingface, deepseek, or 'all')",
-                                "enum": ["openai", "gemini", "grok", "claude", "huggingface", "deepseek", "openrouter", "all"]
+                                "description": "Platform to clear (openai, gemini, grok, claude, huggingface, deepseek, openrouter, mistral, together, cohere, groq_fast, perplexity, or 'all')",
+                                "enum": ["openai", "gemini", "grok", "claude", "huggingface", "deepseek", "openrouter", "mistral", "together", "cohere", "groq_fast", "perplexity", "all"]
                             },
                             "model": {
                                 "type": "string",
@@ -890,6 +1213,16 @@ Remember that you're working together with Claude and other AIs to provide the b
                     return await self._list_conversation_histories()
                 elif name == "clear_conversation_history":
                     return await self._clear_conversation_history(**arguments)
+                elif name == "get_mistral_opinion":
+                    return await self._get_mistral_opinion(**arguments)
+                elif name == "get_together_opinion":
+                    return await self._get_together_opinion(**arguments)
+                elif name == "get_cohere_opinion":
+                    return await self._get_cohere_opinion(**arguments)
+                elif name == "get_groq_fast_opinion":
+                    return await self._get_groq_fast_opinion(**arguments)
+                elif name == "get_perplexity_opinion":
+                    return await self._get_perplexity_opinion(**arguments)
                 else:
                     return [TextContent(type="text", text=f"Unknown tool: {name}")]
             except Exception as e:
@@ -959,53 +1292,66 @@ Remember that you're working together with Claude and other AIs to provide the b
             if reset_conversation:
                 self.conversation_histories[conversation_key] = []
             
-            if USE_NEW_SDK:
-                # Build conversation history for new SDK
-                history, current_prompt = self._get_gemini_history_and_prompt(conversation_key, prompt)
+            result_text = None
+            max_retries = 3
+            
+            for retry_attempt in range(max_retries):
+                try:
+                    if USE_NEW_SDK:
+                        result_text = await self._call_gemini_new_sdk(
+                            conversation_key, prompt, model, temperature, max_output_tokens
+                        )
+                    else:
+                        result_text = await self._call_gemini_old_sdk(
+                            conversation_key, prompt, model, temperature, max_output_tokens
+                        )
+                    
+                    # Validate response
+                    if result_text and len(result_text.strip()) > 0:
+                        break  # Success!
+                    else:
+                        logger.warning(f"Gemini returned empty response on attempt {retry_attempt + 1}")
+                        if retry_attempt < max_retries - 1:
+                            await asyncio.sleep(2 ** retry_attempt)  # Exponential backoff
+                        
+                except Exception as retry_error:
+                    logger.warning(f"Gemini attempt {retry_attempt + 1} failed: {str(retry_error)}")
+                    if retry_attempt < max_retries - 1:
+                        await asyncio.sleep(2 ** retry_attempt)  # Exponential backoff
+                    else:
+                        raise retry_error
+            
+            # Final validation
+            if not result_text or len(result_text.strip()) == 0:
+                # Try with simplified prompt for conversation issues
+                if len(self.conversation_histories[conversation_key]) > 0:
+                    logger.info(f"Trying Gemini {model} with reset conversation due to empty response")
+                    self.conversation_histories[conversation_key] = []  # Reset conversation
+                    
+                    if USE_NEW_SDK:
+                        result_text = await self._call_gemini_new_sdk(
+                            conversation_key, prompt, model, temperature, max_output_tokens
+                        )
+                    else:
+                        result_text = await self._call_gemini_old_sdk(
+                            conversation_key, prompt, model, temperature, max_output_tokens
+                        )
                 
-                config = genai_types.GenerateContentConfig(
-                    temperature=temperature,
-                    max_output_tokens=max_output_tokens,
-                    system_instruction=self.collaborative_system_prompt
-                )
-                
-                # Create chat with history
-                chat = self.gemini_client.chats.create(
-                    model=model,
-                    config=config,
-                    history=history
-                )
-                
-                response = chat.send_message(current_prompt)
-                result_text = response.text
-            else:
-                # Using old SDK
-                model_obj = self.gemini_client.GenerativeModel(
-                    model,
-                    system_instruction=self.collaborative_system_prompt
-                )
-                
-                # Build conversation history for old SDK
-                history, current_prompt = self._get_gemini_history_and_prompt(conversation_key, prompt)
-                
-                if history:
-                    chat = model_obj.start_chat(history=history)
-                    response = chat.send_message(
-                        current_prompt,
-                        generation_config={
-                            "temperature": temperature,
-                            "max_output_tokens": max_output_tokens
-                        }
-                    )
-                else:
-                    response = model_obj.generate_content(
-                        current_prompt,
-                        generation_config={
-                            "temperature": temperature,
-                            "max_output_tokens": max_output_tokens
-                        }
-                    )
-                result_text = response.text
+                if not result_text or len(result_text.strip()) == 0:
+                    error_msg = f"Gemini {model} returned empty response after {max_retries} attempts.\n\n"
+                    error_msg += "**Possible issues:**\n"
+                    error_msg += "• Long conversation history may be confusing the model\n"
+                    error_msg += "• The prompt may trigger content safety filters\n"
+                    error_msg += "• Model may be experiencing temporary issues\n\n"
+                    error_msg += "**Try:**\n"
+                    error_msg += "• Reset conversation with `reset_conversation: true`\n"
+                    error_msg += "• Rephrase your prompt\n"
+                    error_msg += "• Try a different Gemini model\n"
+                    error_msg += "• Use a shorter, more direct question"
+                    return [TextContent(type="text", text=error_msg)]
+            
+            # Clean up response
+            result_text = result_text.strip()
             
             # Add to conversation history
             self._add_to_conversation_history(conversation_key, "user", prompt)
@@ -1015,7 +1361,109 @@ Remember that you're working together with Claude and other AIs to provide the b
             return [TextContent(type="text", text=result)]
             
         except Exception as e:
+            logger.error(f"Gemini API error: {str(e)}")
             return [TextContent(type="text", text=f"Gemini API Error: {str(e)}")]
+    
+    async def _call_gemini_new_sdk(self, conversation_key: str, prompt: str, model: str, temperature: float, max_output_tokens: int) -> str:
+        """Call Gemini using the new SDK with improved error handling"""
+        history, current_prompt = self._get_gemini_history_and_prompt(conversation_key, prompt)
+        
+        # Enhanced generation config
+        config = genai_types.GenerateContentConfig(
+            temperature=min(max(temperature, 0.0), 2.0),  # Clamp temperature
+            max_output_tokens=max_output_tokens,
+            system_instruction=self.collaborative_system_prompt,
+            safety_settings=[
+                {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+                {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+                {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+                {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"}
+            ]
+        )
+        
+        try:
+            if history:
+                # Use chat with history
+                chat = self.gemini_client.chats.create(
+                    model=model,
+                    config=config,
+                    history=history
+                )
+                response = chat.send_message(current_prompt)
+            else:
+                # Generate content without history
+                response = self.gemini_client.models.generate_content(
+                    model=model,
+                    contents=[{"parts": [{"text": current_prompt}]}],
+                    config=config
+                )
+            
+            # Extract text with validation
+            if hasattr(response, 'text') and response.text:
+                return response.text
+            elif hasattr(response, 'candidates') and response.candidates:
+                candidate = response.candidates[0]
+                if hasattr(candidate, 'content') and candidate.content:
+                    if hasattr(candidate.content, 'parts') and candidate.content.parts:
+                        return candidate.content.parts[0].text
+            
+            return ""
+            
+        except Exception as e:
+            logger.error(f"Gemini new SDK error: {str(e)}")
+            raise e
+    
+    async def _call_gemini_old_sdk(self, conversation_key: str, prompt: str, model: str, temperature: float, max_output_tokens: int) -> str:
+        """Call Gemini using the old SDK with improved error handling"""
+        model_obj = self.gemini_client.GenerativeModel(
+            model,
+            system_instruction=self.collaborative_system_prompt,
+            safety_settings=[
+                {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+                {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+                {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"},
+                {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_MEDIUM_AND_ABOVE"}
+            ]
+        )
+        
+        history, current_prompt = self._get_gemini_history_and_prompt(conversation_key, prompt)
+        
+        generation_config = {
+            "temperature": min(max(temperature, 0.0), 2.0),  # Clamp temperature
+            "max_output_tokens": max_output_tokens,
+            "top_p": 0.95,
+            "top_k": 40
+        }
+        
+        try:
+            if history:
+                # Use chat with history
+                chat = model_obj.start_chat(history=history)
+                response = chat.send_message(
+                    current_prompt,
+                    generation_config=generation_config
+                )
+            else:
+                # Generate content without history
+                response = model_obj.generate_content(
+                    current_prompt,
+                    generation_config=generation_config
+                )
+            
+            # Extract text with validation
+            if hasattr(response, 'text') and response.text:
+                return response.text
+            elif hasattr(response, 'candidates') and response.candidates:
+                candidate = response.candidates[0]
+                if hasattr(candidate, 'content') and candidate.content:
+                    if hasattr(candidate.content, 'parts') and candidate.content.parts:
+                        return candidate.content.parts[0].text
+            
+            return ""
+            
+        except Exception as e:
+            logger.error(f"Gemini old SDK error: {str(e)}")
+            raise e
     
     async def _get_grok_opinion(
         self,
@@ -1140,23 +1588,56 @@ Remember that you're working together with Claude and other AIs to provide the b
             headers = {
                 "Authorization": f"Bearer {self.huggingface_api_key}",
                 "Content-Type": "application/json",
+                "User-Agent": "second-opinion-mcp/2.0"
             }
             
             # Build conversation context for instruction models
             conversation_context = ""
-            for msg in self.conversation_histories[conversation_key]:
-                if msg["role"] == "user":
-                    conversation_context += f"User: {msg['content']}\n"
-                elif msg["role"] == "assistant":
-                    conversation_context += f"Assistant: {msg['content']}\n"
+            chat_history = []
             
-            # Different approaches based on model type
-            if "instruct" in model.lower() or "chat" in model.lower() or "dialog" in model.lower():
-                # For instruction/chat models, use a more structured prompt
-                if conversation_context:
-                    full_prompt = f"{conversation_context}User: {prompt}\nAssistant:"
+            # For chat format models, build proper chat history
+            if "instruct" in model.lower() or "chat" in model.lower():
+                for msg in self.conversation_histories[conversation_key]:
+                    chat_history.append({
+                        "role": msg["role"],
+                        "content": msg["content"]
+                    })
+                chat_history.append({"role": "user", "content": prompt})
+            else:
+                # For other models, build text context
+                for msg in self.conversation_histories[conversation_key]:
+                    if msg["role"] == "user":
+                        conversation_context += f"User: {msg['content']}\n"
+                    elif msg["role"] == "assistant":
+                        conversation_context += f"Assistant: {msg['content']}\n"
+            
+            # Determine the best prompt format based on model type
+            if "instruct" in model.lower() or "chat" in model.lower():
+                # Try chat format first for instruction models
+                if "llama" in model.lower() and chat_history:
+                    # Llama format
+                    full_prompt = ""
+                    for msg in chat_history:
+                        if msg["role"] == "user":
+                            full_prompt += f"### Human: {msg['content']}\n"
+                        elif msg["role"] == "assistant":
+                            full_prompt += f"### Assistant: {msg['content']}\n"
+                    if not full_prompt.endswith("### Assistant: "):
+                        full_prompt += "### Assistant: "
+                elif "mistral" in model.lower() and chat_history:
+                    # Mistral format
+                    full_prompt = ""
+                    for msg in chat_history:
+                        if msg["role"] == "user":
+                            full_prompt += f"[INST] {msg['content']} [/INST]"
+                        elif msg["role"] == "assistant":
+                            full_prompt += f" {msg['content']}</s>"
                 else:
-                    full_prompt = f"User: {prompt}\nAssistant:"
+                    # Generic instruction format
+                    if conversation_context:
+                        full_prompt = f"{conversation_context}User: {prompt}\nAssistant:"
+                    else:
+                        full_prompt = f"User: {prompt}\nAssistant:"
             else:
                 # For base models, use simple continuation
                 if conversation_context:
@@ -1164,29 +1645,53 @@ Remember that you're working together with Claude and other AIs to provide the b
                 else:
                     full_prompt = prompt
             
-            # Try multiple payload formats for better compatibility
+            # Enhanced payload formats with better error handling
             payloads_to_try = [
-                # Format 1: Inference API standard
+                # Format 1: Full featured format with better parameters
                 {
                     "inputs": full_prompt,
                     "parameters": {
-                        "temperature": temperature,
-                        "max_new_tokens": min(max_tokens, 2048),  # Many models have token limits
+                        "temperature": min(max(temperature, 0.1), 1.0),  # Clamp temperature
+                        "max_new_tokens": min(max_tokens, 2048),
                         "return_full_text": False,
                         "do_sample": True,
-                        "top_p": 0.9,
-                        "stop": ["User:", "Human:", "\n\n"]
+                        "top_p": 0.95,
+                        "top_k": 50,
+                        "repetition_penalty": 1.1,
+                        "stop_sequences": ["User:", "Human:", "### Human:", "[INST]", "\n\n\n"],
+                        "pad_token_id": 50256,  # Common padding token
+                        "eos_token_id": 50256   # Common end-of-sequence token
+                    },
+                    "options": {
+                        "wait_for_model": True,
+                        "use_cache": False
                     }
                 },
-                # Format 2: Simple format
+                # Format 2: Simplified format with basic parameters
                 {
                     "inputs": full_prompt,
                     "parameters": {
                         "max_new_tokens": min(max_tokens, 1024),
-                        "temperature": temperature
+                        "temperature": min(max(temperature, 0.1), 1.0),
+                        "return_full_text": False,
+                        "do_sample": True
+                    },
+                    "options": {
+                        "wait_for_model": True
                     }
                 },
-                # Format 3: Minimal format
+                # Format 3: Minimal format for compatibility
+                {
+                    "inputs": full_prompt,
+                    "parameters": {
+                        "max_new_tokens": min(max_tokens, 512),
+                        "return_full_text": False
+                    },
+                    "options": {
+                        "wait_for_model": True
+                    }
+                },
+                # Format 4: Ultra-minimal for problematic models
                 {
                     "inputs": full_prompt
                 }
@@ -1194,78 +1699,83 @@ Remember that you're working together with Claude and other AIs to provide the b
             
             response_content = None
             last_error = None
+            retry_count = 0
+            max_retries = 3
             
-            for i, payload in enumerate(payloads_to_try):
-                try:
-                    response = requests.post(api_url, headers=headers, json=payload, timeout=30)
-                    
-                    if response.status_code == 200:
-                        result_data = response.json()
+            # Enhanced retry logic with exponential backoff
+            for payload_idx, payload in enumerate(payloads_to_try):
+                for retry in range(max_retries):
+                    try:
+                        # Progressive timeout increase
+                        timeout = 30 + (retry * 15)
                         
-                        # Handle different response formats
-                        if isinstance(result_data, list) and len(result_data) > 0:
-                            if "generated_text" in result_data[0]:
-                                response_content = result_data[0]["generated_text"]
-                            elif "text" in result_data[0]:
-                                response_content = result_data[0]["text"]
-                            else:
-                                response_content = str(result_data[0])
-                        elif isinstance(result_data, dict):
-                            if "generated_text" in result_data:
-                                response_content = result_data["generated_text"]
-                            elif "text" in result_data:
-                                response_content = result_data["text"]
-                            else:
-                                response_content = str(result_data)
-                        else:
-                            response_content = str(result_data)
+                        response = requests.post(
+                            api_url, 
+                            headers=headers, 
+                            json=payload, 
+                            timeout=timeout
+                        )
                         
-                        # Clean up response
-                        if response_content:
-                            # Remove the input prompt if it's included
-                            if full_prompt in response_content:
-                                response_content = response_content.replace(full_prompt, "").strip()
+                        if response.status_code == 200:
+                            result_data = response.json()
                             
-                            # Remove common prefixes
-                            prefixes_to_remove = ["Assistant:", "AI:", "Bot:", "Response:"]
-                            for prefix in prefixes_to_remove:
-                                if response_content.startswith(prefix):
-                                    response_content = response_content[len(prefix):].strip()
+                            # Enhanced response parsing
+                            response_content = self._extract_huggingface_response(result_data, full_prompt)
+                            
+                            if response_content and len(response_content.strip()) > 0:
+                                break  # Success! Exit both loops
+                                
+                        elif response.status_code == 503:
+                            # Model loading - wait and retry
+                            wait_time = min(15 + (retry * 10), 60)  # Progressive wait
+                            logger.info(f"Model {model} loading, waiting {wait_time}s...")
+                            await asyncio.sleep(wait_time)
+                            last_error = f"Model {model} is loading. Retrying..."
+                            continue
+                            
+                        elif response.status_code == 429:
+                            # Rate limited - wait longer
+                            wait_time = min(30 + (retry * 20), 120)
+                            logger.info(f"Rate limited for {model}, waiting {wait_time}s...")
+                            await asyncio.sleep(wait_time)
+                            last_error = "Rate limited. Retrying..."
+                            continue
+                            
+                        elif response.status_code == 400:
+                            # Bad request - try next payload format
+                            last_error = f"Bad request (format {payload_idx+1}): {response.text}"
+                            break  # Try next payload format
+                            
+                        else:
+                            last_error = f"HTTP {response.status_code}: {response.text}"
+                            
+                    except requests.exceptions.Timeout:
+                        last_error = f"Timeout after {timeout}s for model {model}"
+                        logger.warning(f"Request timeout on attempt {retry+1} for {model}")
+                        continue
                         
-                        break  # Success! Exit the retry loop
+                    except requests.exceptions.ConnectionError:
+                        last_error = f"Connection error for model {model}"
+                        await asyncio.sleep(5)  # Brief wait for connection issues
+                        continue
                         
-                    elif response.status_code == 503:
-                        last_error = f"Model {model} is loading. Please try again in a few moments."
-                        if i == len(payloads_to_try) - 1:  # Last attempt
-                            return [TextContent(type="text", text=f"HuggingFace Model Loading: {last_error}")]
-                    else:
-                        last_error = f"HTTP {response.status_code}: {response.text}"
-                        
-                except requests.exceptions.Timeout:
-                    last_error = f"Request timeout for model {model}"
-                except Exception as e:
-                    last_error = str(e)
+                    except Exception as e:
+                        last_error = f"Request error: {str(e)}"
+                        continue
+                
+                # If we got a valid response, break out of payload loop
+                if response_content and len(response_content.strip()) > 0:
+                    break
             
-            if not response_content:
-                # Check if model exists and suggest alternatives
-                suggestions = [
-                    "meta-llama/Llama-3.3-70B-Instruct",
-                    "meta-llama/Llama-3.1-8B-Instruct", 
-                    "microsoft/DialoGPT-large",
-                    "mistralai/Mistral-7B-Instruct-v0.3",
-                    "microsoft/phi-4",
-                    "deepseek-ai/DeepSeek-R1-0528-Qwen3-8B",
-                    "google/gemma-3-27b-it",
-                    "Qwen/Qwen3-235B-A22B"
-                ]
-                
-                error_msg = f"HuggingFace Error with {model}: {last_error}\n\n"
-                error_msg += "**Try these working models instead:**\n"
-                for suggestion in suggestions:
-                    error_msg += f"- {suggestion}\n"
-                error_msg += "\n**Tip:** Many models need to 'warm up' - try again in 30 seconds!"
-                
-                return [TextContent(type="text", text=error_msg)]
+            # Final response validation and error handling
+            if not response_content or len(response_content.strip()) == 0:
+                return await self._handle_huggingface_error(model, last_error)
+            
+            # Clean and validate response
+            response_content = self._clean_huggingface_response(response_content, full_prompt)
+            
+            if len(response_content.strip()) < 3:  # Too short response
+                return [TextContent(type="text", text=f"HuggingFace {model} returned an unexpectedly short response. The model may not be suitable for this task. Try a different model or rephrase your prompt.")]
             
             # Add to conversation history
             self._add_to_conversation_history(conversation_key, "user", prompt)
@@ -1275,7 +1785,323 @@ Remember that you're working together with Claude and other AIs to provide the b
             return [TextContent(type="text", text=result)]
             
         except Exception as e:
+            logger.error(f"HuggingFace API error for {model}: {str(e)}")
             return [TextContent(type="text", text=f"HuggingFace API Error: {str(e)}")]
+    
+    def _extract_huggingface_response(self, result_data, full_prompt: str) -> str:
+        """Extract and clean response content from HuggingFace API response"""
+        response_content = None
+        
+        # Handle different response formats
+        if isinstance(result_data, list) and len(result_data) > 0:
+            item = result_data[0]
+            if isinstance(item, dict):
+                response_content = item.get("generated_text") or item.get("text") or str(item)
+            else:
+                response_content = str(item)
+        elif isinstance(result_data, dict):
+            response_content = result_data.get("generated_text") or result_data.get("text") or str(result_data)
+        else:
+            response_content = str(result_data)
+        
+        return response_content if response_content else ""
+    
+    def _clean_huggingface_response(self, response_content: str, full_prompt: str) -> str:
+        """Clean and format HuggingFace response content"""
+        if not response_content:
+            return ""
+        
+        # Remove the input prompt if it's included in the response
+        if full_prompt in response_content:
+            response_content = response_content.replace(full_prompt, "").strip()
+        
+        # Remove common prefixes and suffixes
+        prefixes_to_remove = [
+            "Assistant:", "AI:", "Bot:", "Response:", "Answer:", 
+            "### Assistant:", "### Response:", "[/INST]", "</s>"
+        ]
+        
+        for prefix in prefixes_to_remove:
+            if response_content.startswith(prefix):
+                response_content = response_content[len(prefix):].strip()
+        
+        # Remove trailing artifacts
+        suffixes_to_remove = ["</s>", "<|endoftext|>", "<|end|>", "###"]
+        for suffix in suffixes_to_remove:
+            if response_content.endswith(suffix):
+                response_content = response_content[:-len(suffix)].strip()
+        
+        # Clean up excessive whitespace and newlines
+        lines = response_content.split('\n')
+        cleaned_lines = []
+        consecutive_empty = 0
+        
+        for line in lines:
+            if line.strip():
+                cleaned_lines.append(line)
+                consecutive_empty = 0
+            else:
+                consecutive_empty += 1
+                if consecutive_empty <= 1:  # Allow max 1 consecutive empty line
+                    cleaned_lines.append(line)
+        
+        return '\n'.join(cleaned_lines).strip()
+    
+    async def _handle_huggingface_error(self, model: str, last_error: str) -> Sequence[TextContent]:
+        """Handle HuggingFace errors with helpful suggestions"""
+        # Updated model suggestions with more recent and reliable models
+        working_models = [
+            "meta-llama/Llama-3.1-8B-Instruct",
+            "meta-llama/Llama-3.1-70B-Instruct", 
+            "mistralai/Mistral-7B-Instruct-v0.3",
+            "mistralai/Mixtral-8x7B-Instruct-v0.1",
+            "microsoft/DialoGPT-large",
+            "HuggingFaceH4/zephyr-7b-beta",
+            "teknium/OpenHermes-2.5-Mistral-7B",
+            "google/flan-t5-large",
+            "Qwen/Qwen2.5-7B-Instruct",
+            "microsoft/phi-3-medium-4k-instruct"
+        ]
+        
+        # Check if it's a model-not-found error
+        if "404" in str(last_error) or "not found" in str(last_error).lower():
+            error_msg = f"❌ **Model '{model}' not found on HuggingFace.**\n\n"
+            error_msg += "**🔍 Troubleshooting:**\n"
+            error_msg += "• Check the model name spelling and format (e.g., 'username/model-name')\n"
+            error_msg += "• Verify the model exists at huggingface.co/models\n"
+            error_msg += "• Ensure the model supports text generation\n\n"
+        elif "loading" in str(last_error).lower():
+            error_msg = f"⏳ **Model '{model}' is currently loading.**\n\n"
+            error_msg += "**💡 What this means:**\n"
+            error_msg += "• HuggingFace models 'sleep' when unused and need time to wake up\n"
+            error_msg += "• This usually takes 30-60 seconds for first request\n"
+            error_msg += "• Try again in a minute!\n\n"
+        else:
+            error_msg = f"❌ **HuggingFace Error with '{model}':** {last_error}\n\n"
+        
+        error_msg += "**🚀 Try these reliable models instead:**\n"
+        for suggestion in working_models:
+            error_msg += f"• `{suggestion}`\n"
+        
+        error_msg += "\n**💡 Pro Tips:**\n"
+        error_msg += "• Smaller models (7B) load faster than larger ones (70B)\n"
+        error_msg += "• 'Instruct' models work better for conversations\n"
+        error_msg += "• Popular models are usually faster to load\n"
+        error_msg += "• If a model fails, wait 1-2 minutes before retrying"
+        
+        return [TextContent(type="text", text=error_msg)]
+    
+    async def _get_mistral_opinion(
+        self,
+        prompt: str,
+        model: str = "mistral-small-latest",
+        temperature: float = 0.7,
+        max_tokens: int = 4000,
+        system_prompt: str = "",
+        reset_conversation: bool = False
+    ) -> Sequence[TextContent]:
+        if not self.mistral_client:
+            return [TextContent(type="text", text="Mistral AI client not configured. Please set MISTRAL_API_KEY environment variable.")]
+        
+        try:
+            conversation_key = self._get_conversation_key("mistral", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
+            # Build messages with conversation history
+            messages = self._get_openai_messages(conversation_key, prompt, system_prompt)
+            
+            response = self.mistral_client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+            
+            response_content = response.choices[0].message.content
+            
+            # Add to conversation history
+            self._add_to_conversation_history(conversation_key, "user", prompt)
+            self._add_to_conversation_history(conversation_key, "assistant", response_content)
+            
+            result = f"**Mistral {model} Opinion:**\n\n{response_content}"
+            return [TextContent(type="text", text=result)]
+            
+        except Exception as e:
+            return [TextContent(type="text", text=f"Mistral API Error: {str(e)}")]
+    
+    async def _get_together_opinion(
+        self,
+        prompt: str,
+        model: str = "meta-llama/Llama-3.1-8B-Instruct-Turbo",
+        temperature: float = 0.7,
+        max_tokens: int = 4000,
+        system_prompt: str = "",
+        reset_conversation: bool = False
+    ) -> Sequence[TextContent]:
+        if not self.together_client:
+            return [TextContent(type="text", text="Together AI client not configured. Please set TOGETHER_API_KEY environment variable.")]
+        
+        try:
+            conversation_key = self._get_conversation_key("together", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
+            # Build messages with conversation history
+            messages = self._get_openai_messages(conversation_key, prompt, system_prompt)
+            
+            response = self.together_client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+            
+            response_content = response.choices[0].message.content
+            
+            # Add to conversation history
+            self._add_to_conversation_history(conversation_key, "user", prompt)
+            self._add_to_conversation_history(conversation_key, "assistant", response_content)
+            
+            result = f"**Together AI {model} Opinion:**\n\n{response_content}"
+            return [TextContent(type="text", text=result)]
+            
+        except Exception as e:
+            return [TextContent(type="text", text=f"Together AI Error: {str(e)}")]
+    
+    async def _get_cohere_opinion(
+        self,
+        prompt: str,
+        model: str = "command-r-plus",
+        temperature: float = 0.7,
+        max_tokens: int = 4000,
+        reset_conversation: bool = False
+    ) -> Sequence[TextContent]:
+        if not self.cohere_client:
+            return [TextContent(type="text", text="Cohere client not configured. Please set COHERE_API_KEY environment variable.")]
+        
+        try:
+            conversation_key = self._get_conversation_key("cohere", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
+            # Build chat history for Cohere format
+            chat_history = []
+            for msg in self.conversation_histories[conversation_key]:
+                if msg["role"] == "user":
+                    chat_history.append({"role": "USER", "message": msg["content"]})
+                elif msg["role"] == "assistant":
+                    chat_history.append({"role": "CHATBOT", "message": msg["content"]})
+            
+            # Make the API call
+            response = self.cohere_client.chat(
+                model=model,
+                message=prompt,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                chat_history=chat_history,
+                preamble=self.collaborative_system_prompt
+            )
+            
+            response_content = response.text
+            
+            # Add to conversation history
+            self._add_to_conversation_history(conversation_key, "user", prompt)
+            self._add_to_conversation_history(conversation_key, "assistant", response_content)
+            
+            result = f"**Cohere {model} Opinion:**\n\n{response_content}"
+            return [TextContent(type="text", text=result)]
+            
+        except Exception as e:
+            return [TextContent(type="text", text=f"Cohere API Error: {str(e)}")]
+    
+    async def _get_groq_fast_opinion(
+        self,
+        prompt: str,
+        model: str = "llama-3.1-70b-versatile",
+        temperature: float = 0.7,
+        max_tokens: int = 4000,
+        system_prompt: str = "",
+        reset_conversation: bool = False
+    ) -> Sequence[TextContent]:
+        if not self.groq_client_fast:
+            return [TextContent(type="text", text="Groq Fast client not configured. Please set GROQ_FAST_API_KEY environment variable.")]
+        
+        try:
+            conversation_key = self._get_conversation_key("groq_fast", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
+            # Build messages with conversation history
+            messages = self._get_openai_messages(conversation_key, prompt, system_prompt)
+            
+            response = self.groq_client_fast.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+            
+            response_content = response.choices[0].message.content
+            
+            # Add to conversation history
+            self._add_to_conversation_history(conversation_key, "user", prompt)
+            self._add_to_conversation_history(conversation_key, "assistant", response_content)
+            
+            result = f"**Groq Fast {model} Opinion:**\n\n{response_content}"
+            return [TextContent(type="text", text=result)]
+            
+        except Exception as e:
+            return [TextContent(type="text", text=f"Groq Fast API Error: {str(e)}")]
+    
+    async def _get_perplexity_opinion(
+        self,
+        prompt: str,
+        model: str = "llama-3.1-sonar-large-128k-online",
+        temperature: float = 0.7,
+        max_tokens: int = 4000,
+        system_prompt: str = "",
+        reset_conversation: bool = False
+    ) -> Sequence[TextContent]:
+        if not self.perplexity_client:
+            return [TextContent(type="text", text="Perplexity AI client not configured. Please set PERPLEXITY_API_KEY environment variable.")]
+        
+        try:
+            conversation_key = self._get_conversation_key("perplexity", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
+            # Build messages with conversation history
+            messages = self._get_openai_messages(conversation_key, prompt, system_prompt)
+            
+            response = self.perplexity_client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+            
+            response_content = response.choices[0].message.content
+            
+            # Add to conversation history
+            self._add_to_conversation_history(conversation_key, "user", prompt)
+            self._add_to_conversation_history(conversation_key, "assistant", response_content)
+            
+            result = f"**Perplexity {model} Opinion:**\n\n{response_content}"
+            return [TextContent(type="text", text=result)]
+            
+        except Exception as e:
+            return [TextContent(type="text", text=f"Perplexity API Error: {str(e)}")]
     
     async def _get_deepseek_opinion(
         self,
@@ -2086,6 +2912,16 @@ def main():
         required_vars.append("DEEPSEEK_API_KEY")
     if not os.getenv("OPENROUTER_API_KEY"):
         required_vars.append("OPENROUTER_API_KEY")
+    if not os.getenv("MISTRAL_API_KEY"):
+        required_vars.append("MISTRAL_API_KEY")
+    if not os.getenv("TOGETHER_API_KEY"):
+        required_vars.append("TOGETHER_API_KEY")
+    if not os.getenv("COHERE_API_KEY"):
+        required_vars.append("COHERE_API_KEY")
+    if not os.getenv("GROQ_FAST_API_KEY") and not os.getenv("GROQ_API_KEY"):
+        required_vars.append("GROQ_FAST_API_KEY")
+    if not os.getenv("PERPLEXITY_API_KEY"):
+        required_vars.append("PERPLEXITY_API_KEY")
     
     if required_vars:
         print("⚠️  Warning: Missing environment variables:", file=sys.stderr)
