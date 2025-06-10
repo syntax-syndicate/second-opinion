@@ -3,7 +3,7 @@
 # MCP Framework
 mcp
 
-# OpenAI API (for OpenAI, Grok, and DeepSeek - they all use OpenAI-compatible APIs)
+# OpenAI API (for OpenAI, Grok, DeepSeek, Mistral, Together AI, Groq Fast, and Perplexity - they all use OpenAI-compatible APIs)
 openai
 
 # Gemini API (supports both new and legacy SDKs)
@@ -13,8 +13,12 @@ google-generativeai
 # Anthropic Claude API
 anthropic
 
+# Cohere API
+cohere
+
 # HTTP requests for HuggingFace Inference API
 requests
 
 # Standard library imports (these should be available by default)
 # asyncio, json, os, sys, logging, collections, typing
+
