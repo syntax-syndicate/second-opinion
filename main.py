@@ -2942,8 +2942,7 @@ def main():
                 write_stream, 
                 InitializationOptions(
                     server_name="second-opinion",
-                    server_version="3.0.0",
-                    capabilities=server_instance.app.get_capabilities()
+                    server_version="3.0.0"
                 )
             )
     
