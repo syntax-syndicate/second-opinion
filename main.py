@@ -2929,21 +2929,28 @@ def main():
             print(f"   - {var}", file=sys.stderr)
         print("\nSome features will be disabled. Set these variables to enable full functionality.", file=sys.stderr)
     
-    # Create and run server
-    server = SecondOpinionServer()
+    # Create server instance
+    server_instance = SecondOpinionServer()
     
-    # Use the correct MCP server startup
-    import mcp.server.stdio
-    
+    # Run the MCP server
     async def run_server():
-        async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
-            init_options = InitializationOptions(
-                server_name="second-opinion",
-                server_version="2.0.0",
-                capabilities={}
+        from mcp.server.stdio import stdio_server
+        
+        async with stdio_server() as (read_stream, write_stream):
+            await server_instance.app.run(
+                read_stream, 
+                write_stream, 
+                InitializationOptions(
+                    server_name="second-opinion",
+                    server_version="3.0.0",
+                    capabilities=server_instance.app.get_capabilities(
+                        notification_options=None,
+                        experimental_capabilities=None
+                    )
+                )
             )
-            await server.app.run(read_stream, write_stream, init_options)
     
+    # Run the server
     asyncio.run(run_server())
 
 if __name__ == "__main__":
