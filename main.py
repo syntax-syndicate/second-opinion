@@ -2935,6 +2935,7 @@ def main():
     # Run the MCP server
     async def run_server():
         from mcp.server.stdio import stdio_server
+        from mcp.types import ServerCapabilities
         
         async with stdio_server() as (read_stream, write_stream):
             await server_instance.app.run(
@@ -2942,7 +2943,10 @@ def main():
                 write_stream, 
                 InitializationOptions(
                     server_name="second-opinion",
-                    server_version="3.0.0"
+                    server_version="3.0.0",
+                    capabilities=ServerCapabilities(
+                        tools={}
+                    )
                 )
             )
     
