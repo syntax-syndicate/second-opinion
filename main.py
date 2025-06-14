@@ -81,6 +81,12 @@ class SecondOpinionServer:
         self.cohere_client = None
         self.groq_client_fast = None  # New fast Groq client
         self.perplexity_client = None
+        # New AI service clients
+        self.replicate_api_key = None
+        self.ai21_client = None
+        self.stability_client = None
+        self.fireworks_client = None
+        self.anyscale_client = None
         
         # Conversation history storage
         # Format: {platform_model: [conversation_history]}
@@ -229,6 +235,58 @@ Remember that you're working together with Claude and other AIs to provide the b
             logger.info("Perplexity AI client initialized")
         else:
             logger.warning("PERPLEXITY_API_KEY not found - Perplexity AI features disabled")
+        
+        # Replicate AI setup (for open-source models)
+        replicate_api_key = os.getenv("REPLICATE_API_TOKEN")
+        if replicate_api_key:
+            self.replicate_api_key = replicate_api_key
+            logger.info("Replicate AI initialized")
+        else:
+            logger.warning("REPLICATE_API_TOKEN not found - Replicate AI features disabled")
+        
+        # AI21 Labs setup (uses OpenAI SDK with AI21 base URL)
+        ai21_api_key = os.getenv("AI21_API_KEY")
+        if ai21_api_key:
+            self.ai21_client = openai.OpenAI(
+                api_key=ai21_api_key,
+                base_url="https://api.ai21.com/studio/v1"
+            )
+            logger.info("AI21 Labs client initialized")
+        else:
+            logger.warning("AI21_API_KEY not found - AI21 Labs features disabled")
+        
+        # Stability AI setup (uses OpenAI SDK with Stability base URL)
+        stability_api_key = os.getenv("STABILITY_API_KEY")
+        if stability_api_key:
+            self.stability_client = openai.OpenAI(
+                api_key=stability_api_key,
+                base_url="https://api.stability.ai/v2beta"
+            )
+            logger.info("Stability AI client initialized")
+        else:
+            logger.warning("STABILITY_API_KEY not found - Stability AI features disabled")
+        
+        # Fireworks AI setup (uses OpenAI SDK with Fireworks base URL)
+        fireworks_api_key = os.getenv("FIREWORKS_API_KEY")
+        if fireworks_api_key:
+            self.fireworks_client = openai.OpenAI(
+                api_key=fireworks_api_key,
+                base_url="https://api.fireworks.ai/inference/v1"
+            )
+            logger.info("Fireworks AI client initialized")
+        else:
+            logger.warning("FIREWORKS_API_KEY not found - Fireworks AI features disabled")
+        
+        # Anyscale (Endpoints) setup (uses OpenAI SDK with Anyscale base URL)
+        anyscale_api_key = os.getenv("ANYSCALE_API_KEY")
+        if anyscale_api_key:
+            self.anyscale_client = openai.OpenAI(
+                api_key=anyscale_api_key,
+                base_url="https://api.endpoints.anyscale.com/v1"
+            )
+            logger.info("Anyscale Endpoints client initialized")
+        else:
+            logger.warning("ANYSCALE_API_KEY not found - Anyscale features disabled")
     
     def _get_conversation_key(self, platform: str, model: str) -> str:
         """Generate a key for conversation history storage"""
@@ -298,7 +356,9 @@ Remember that you're working together with Claude and other AIs to provide the b
                                     "enum": [
                                         "o4-mini",
                                         "gpt-4.1",
-                                        "gpt-4o"
+                                        "gpt-4o",
+                                        "gpt-4o-mini",
+                                        "gpt-3.5-turbo"
                                     ],
                                     "default": "gpt-4.1"
                                 },
@@ -345,7 +405,9 @@ Remember that you're working together with Claude and other AIs to provide the b
                                         "enum": [
                                             "o4-mini",
                                             "gpt-4.1",
-                                            "gpt-4o"
+                                            "gpt-4o",
+                                            "gpt-4o-mini",
+                                            "gpt-3.5-turbo"
                                         ]
                                     },
                                     "description": "List of OpenAI models to compare",
@@ -1017,6 +1079,266 @@ Remember that you're working together with Claude and other AIs to provide the b
                     )
                 )
             
+            # Replicate AI tools
+            if self.replicate_api_key:
+                tools.append(
+                    Tool(
+                        name="get_replicate_opinion",
+                        description="Get a second opinion from Replicate AI (open-source models)",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to get an opinion on"
+                                },
+                                "model": {
+                                    "type": "string",
+                                    "description": "Replicate model to use",
+                                    "enum": [
+                                        "meta/llama-2-70b-chat",
+                                        "meta/llama-2-13b-chat", 
+                                        "meta/llama-2-7b-chat",
+                                        "meta/codellama-34b-instruct",
+                                        "stability-ai/stable-code-instruct-3b",
+                                        "mistralai/mistral-7b-instruct-v0.2",
+                                        "microsoft/wizardcoder-34b"
+                                    ],
+                                    "default": "meta/llama-2-70b-chat"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature for response randomness (0.0-1.0)",
+                                    "minimum": 0.0,
+                                    "maximum": 1.0,
+                                    "default": 0.7
+                                },
+                                "max_tokens": {
+                                    "type": "integer",
+                                    "description": "Maximum tokens in response",
+                                    "default": 4000
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
+                                }
+                            },
+                            "required": ["prompt"]
+                        }
+                    )
+                )
+            
+            # AI21 Labs tools
+            if self.ai21_client:
+                tools.append(
+                    Tool(
+                        name="get_ai21_opinion",
+                        description="Get a second opinion from AI21 Labs (Jurassic models)",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to get an opinion on"
+                                },
+                                "model": {
+                                    "type": "string",
+                                    "description": "AI21 model to use",
+                                    "enum": [
+                                        "jamba-1.5-large",
+                                        "jamba-1.5-mini",
+                                        "j2-ultra",
+                                        "j2-mid"
+                                    ],
+                                    "default": "jamba-1.5-large"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature for response randomness (0.0-2.0)",
+                                    "minimum": 0.0,
+                                    "maximum": 2.0,
+                                    "default": 0.7
+                                },
+                                "max_tokens": {
+                                    "type": "integer",
+                                    "description": "Maximum tokens in response",
+                                    "default": 4000
+                                },
+                                "system_prompt": {
+                                    "type": "string",
+                                    "description": "Optional system prompt to guide the response",
+                                    "default": ""
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
+                                }
+                            },
+                            "required": ["prompt"]
+                        }
+                    )
+                )
+            
+            # Stability AI tools
+            if self.stability_client:
+                tools.append(
+                    Tool(
+                        name="get_stability_opinion",
+                        description="Get a second opinion from Stability AI (Stable LM models)",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to get an opinion on"
+                                },
+                                "model": {
+                                    "type": "string",
+                                    "description": "Stability AI model to use",
+                                    "enum": [
+                                        "stablelm-2-zephyr-1_6b",
+                                        "stable-code-instruct-3b",
+                                        "japanese-stablelm-instruct-beta-70b",
+                                        "stablelm-zephyr-3b"
+                                    ],
+                                    "default": "stablelm-2-zephyr-1_6b"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature for response randomness (0.0-2.0)",
+                                    "minimum": 0.0,
+                                    "maximum": 2.0,
+                                    "default": 0.7
+                                },
+                                "max_tokens": {
+                                    "type": "integer",
+                                    "description": "Maximum tokens in response",
+                                    "default": 4000
+                                },
+                                "system_prompt": {
+                                    "type": "string",
+                                    "description": "Optional system prompt to guide the response",
+                                    "default": ""
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
+                                }
+                            },
+                            "required": ["prompt"]
+                        }
+                    )
+                )
+            
+            # Fireworks AI tools
+            if self.fireworks_client:
+                tools.append(
+                    Tool(
+                        name="get_fireworks_opinion",
+                        description="Get a second opinion from Fireworks AI (fast inference for open models)",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to get an opinion on"
+                                },
+                                "model": {
+                                    "type": "string",
+                                    "description": "Fireworks AI model to use",
+                                    "enum": [
+                                        "accounts/fireworks/models/llama-v3p1-70b-instruct",
+                                        "accounts/fireworks/models/llama-v3p1-8b-instruct",
+                                        "accounts/fireworks/models/mixtral-8x7b-instruct",
+                                        "accounts/fireworks/models/qwen2p5-72b-instruct",
+                                        "accounts/fireworks/models/deepseek-coder-v2-lite-instruct"
+                                    ],
+                                    "default": "accounts/fireworks/models/llama-v3p1-70b-instruct"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature for response randomness (0.0-2.0)",
+                                    "minimum": 0.0,
+                                    "maximum": 2.0,
+                                    "default": 0.7
+                                },
+                                "max_tokens": {
+                                    "type": "integer",
+                                    "description": "Maximum tokens in response",
+                                    "default": 4000
+                                },
+                                "system_prompt": {
+                                    "type": "string",
+                                    "description": "Optional system prompt to guide the response",
+                                    "default": ""
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
+                                }
+                            },
+                            "required": ["prompt"]
+                        }
+                    )
+                )
+            
+            # Anyscale tools
+            if self.anyscale_client:
+                tools.append(
+                    Tool(
+                        name="get_anyscale_opinion",
+                        description="Get a second opinion from Anyscale Endpoints (Ray-powered LLM serving)",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to get an opinion on"
+                                },
+                                "model": {
+                                    "type": "string",
+                                    "description": "Anyscale model to use",
+                                    "enum": [
+                                        "meta-llama/Llama-2-70b-chat-hf",
+                                        "meta-llama/Llama-2-13b-chat-hf",
+                                        "meta-llama/Llama-2-7b-chat-hf",
+                                        "codellama/CodeLlama-34b-Instruct-hf",
+                                        "mistralai/Mistral-7B-Instruct-v0.1"
+                                    ],
+                                    "default": "meta-llama/Llama-2-70b-chat-hf"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature for response randomness (0.0-2.0)",
+                                    "minimum": 0.0,
+                                    "maximum": 2.0,
+                                    "default": 0.7
+                                },
+                                "max_tokens": {
+                                    "type": "integer",
+                                    "description": "Maximum tokens in response",
+                                    "default": 4000
+                                },
+                                "system_prompt": {
+                                    "type": "string",
+                                    "description": "Optional system prompt to guide the response",
+                                    "default": ""
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
+                                }
+                            },
+                            "required": ["prompt"]
+                        }
+                    )
+                )
+            
             # Cross-platform comparison tools
             available_providers = []
             if self.openai_client: available_providers.append("OpenAI")
@@ -1031,6 +1353,11 @@ Remember that you're working together with Claude and other AIs to provide the b
             if self.cohere_client: available_providers.append("Cohere")
             if self.groq_client_fast: available_providers.append("GroqFast")
             if self.perplexity_client: available_providers.append("Perplexity")
+            if self.replicate_api_key: available_providers.append("Replicate")
+            if self.ai21_client: available_providers.append("AI21")
+            if self.stability_client: available_providers.append("Stability")
+            if self.fireworks_client: available_providers.append("Fireworks")
+            if self.anyscale_client: available_providers.append("Anyscale")
             
             if len(available_providers) >= 2:
                 tools.append(
@@ -1046,7 +1373,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 },
                                 "openai_model": {
                                     "type": "string",
-                                    "enum": ["o4-mini", "gpt-4.1", "gpt-4o"],
+                                    "enum": ["o4-mini", "gpt-4.1", "gpt-4o", "gpt-4o-mini", "gpt-3.5-turbo"],
                                     "default": "gpt-4.1"
                                 },
                                 "gemini_model": {
@@ -1078,6 +1405,31 @@ Remember that you're working together with Claude and other AIs to provide the b
                                     "description": "OpenRouter model to use (e.g., 'anthropic/claude-3-5-sonnet', 'openai/gpt-4')",
                                     "default": "anthropic/claude-3-5-sonnet"
                                 },
+                                "replicate_model": {
+                                    "type": "string",
+                                    "enum": ["meta/llama-2-70b-chat", "meta/llama-2-13b-chat", "meta/codellama-34b-instruct"],
+                                    "default": "meta/llama-2-70b-chat"
+                                },
+                                "ai21_model": {
+                                    "type": "string",
+                                    "enum": ["jamba-1.5-large", "jamba-1.5-mini", "j2-ultra", "j2-mid"],
+                                    "default": "jamba-1.5-large"
+                                },
+                                "stability_model": {
+                                    "type": "string",
+                                    "enum": ["stablelm-2-zephyr-1_6b", "stable-code-instruct-3b", "stablelm-zephyr-3b"],
+                                    "default": "stablelm-2-zephyr-1_6b"
+                                },
+                                "fireworks_model": {
+                                    "type": "string",
+                                    "enum": ["accounts/fireworks/models/llama-v3p1-70b-instruct", "accounts/fireworks/models/llama-v3p1-8b-instruct", "accounts/fireworks/models/mixtral-8x7b-instruct"],
+                                    "default": "accounts/fireworks/models/llama-v3p1-70b-instruct"
+                                },
+                                "anyscale_model": {
+                                    "type": "string",
+                                    "enum": ["meta-llama/Llama-2-70b-chat-hf", "meta-llama/Llama-2-13b-chat-hf", "codellama/CodeLlama-34b-Instruct-hf"],
+                                    "default": "meta-llama/Llama-2-70b-chat-hf"
+                                },
                                 "temperature": {
                                     "type": "number",
                                     "default": 0.7
@@ -1108,7 +1460,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                         "properties": {
                                             "platform": {
                                                 "type": "string",
-                                                "enum": ["openai", "gemini", "grok", "claude", "huggingface", "deepseek", "openrouter"]
+                                                "enum": ["openai", "gemini", "grok", "claude", "huggingface", "deepseek", "openrouter", "mistral", "together", "cohere", "groq_fast", "perplexity", "replicate", "ai21", "stability", "fireworks", "anyscale"]
                                             },
                                             "model": {
                                                 "type": "string"
@@ -1162,8 +1514,8 @@ Remember that you're working together with Claude and other AIs to provide the b
                         "properties": {
                             "platform": {
                                 "type": "string",
-                                "description": "Platform to clear (openai, gemini, grok, claude, huggingface, deepseek, openrouter, mistral, together, cohere, groq_fast, perplexity, or 'all')",
-                                "enum": ["openai", "gemini", "grok", "claude", "huggingface", "deepseek", "openrouter", "mistral", "together", "cohere", "groq_fast", "perplexity", "all"]
+                                "description": "Platform to clear (openai, gemini, grok, claude, huggingface, deepseek, openrouter, mistral, together, cohere, groq_fast, perplexity, replicate, ai21, stability, fireworks, anyscale, or 'all')",
+                                "enum": ["openai", "gemini", "grok", "claude", "huggingface", "deepseek", "openrouter", "mistral", "together", "cohere", "groq_fast", "perplexity", "replicate", "ai21", "stability", "fireworks", "anyscale", "all"]
                             },
                             "model": {
                                 "type": "string",
@@ -1223,6 +1575,16 @@ Remember that you're working together with Claude and other AIs to provide the b
                     return await self._get_groq_fast_opinion(**arguments)
                 elif name == "get_perplexity_opinion":
                     return await self._get_perplexity_opinion(**arguments)
+                elif name == "get_replicate_opinion":
+                    return await self._get_replicate_opinion(**arguments)
+                elif name == "get_ai21_opinion":
+                    return await self._get_ai21_opinion(**arguments)
+                elif name == "get_stability_opinion":
+                    return await self._get_stability_opinion(**arguments)
+                elif name == "get_fireworks_opinion":
+                    return await self._get_fireworks_opinion(**arguments)
+                elif name == "get_anyscale_opinion":
+                    return await self._get_anyscale_opinion(**arguments)
                 else:
                     return [TextContent(type="text", text=f"Unknown tool: {name}")]
             except Exception as e:
@@ -2103,6 +2465,276 @@ Remember that you're working together with Claude and other AIs to provide the b
         except Exception as e:
             return [TextContent(type="text", text=f"Perplexity API Error: {str(e)}")]
     
+    async def _get_replicate_opinion(
+        self,
+        prompt: str,
+        model: str = "meta/llama-2-70b-chat",
+        temperature: float = 0.7,
+        max_tokens: int = 4000,
+        reset_conversation: bool = False
+    ) -> Sequence[TextContent]:
+        if not self.replicate_api_key:
+            return [TextContent(type="text", text="Replicate API client not configured. Please set REPLICATE_API_TOKEN environment variable.")]
+        
+        try:
+            conversation_key = self._get_conversation_key("replicate", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
+            # Replicate uses a different API format
+            import requests
+            
+            # Build conversation context
+            conversation_context = ""
+            for msg in self.conversation_histories[conversation_key]:
+                if msg["role"] == "user":
+                    conversation_context += f"User: {msg['content']}\n"
+                elif msg["role"] == "assistant":
+                    conversation_context += f"Assistant: {msg['content']}\n"
+            
+            # Create full prompt with context
+            if conversation_context:
+                full_prompt = f"{conversation_context}User: {prompt}\nAssistant:"
+            else:
+                full_prompt = f"User: {prompt}\nAssistant:"
+            
+            headers = {
+                "Authorization": f"Token {self.replicate_api_key}",
+                "Content-Type": "application/json"
+            }
+            
+            # Replicate prediction API
+            prediction_data = {
+                "version": "02e509c789964a7ea8736978a43525956ef40397be9033abf9fd2badfe68c9e3",  # Llama 2 70B Chat
+                "input": {
+                    "prompt": full_prompt,
+                    "temperature": min(max(temperature, 0.01), 1.0),
+                    "max_new_tokens": min(max_tokens, 4000),
+                    "top_p": 0.9,
+                    "repetition_penalty": 1.15,
+                    "system_prompt": self.collaborative_system_prompt
+                }
+            }
+            
+            # Handle different models
+            if "llama-2-13b" in model:
+                prediction_data["version"] = "f4e2de70d66816a838a89eeeb621910adffb0dd0baba3976c96980970978018d"
+            elif "llama-2-7b" in model:
+                prediction_data["version"] = "ac808388e2e9d8ed35a5bf2eaa7d83f0ad53f9e3df31a42e4eb0a0c3249b3165"
+            elif "codellama-34b" in model:
+                prediction_data["version"] = "42c8aaa6c5e4c8bd8e63cb07d23f23c20f9bafc3f6a9c1c69e3bb4e7a6e63e4a"
+            
+            response = requests.post(
+                "https://api.replicate.com/v1/predictions",
+                headers=headers,
+                json=prediction_data,
+                timeout=60
+            )
+            
+            if response.status_code != 201:
+                raise Exception(f"Replicate API error: {response.status_code} - {response.text}")
+            
+            prediction = response.json()
+            prediction_id = prediction["id"]
+            
+            # Poll for completion
+            import time
+            max_wait = 120  # 2 minutes timeout
+            start_time = time.time()
+            
+            while time.time() - start_time < max_wait:
+                check_response = requests.get(
+                    f"https://api.replicate.com/v1/predictions/{prediction_id}",
+                    headers=headers
+                )
+                
+                if check_response.status_code == 200:
+                    result = check_response.json()
+                    if result["status"] == "succeeded":
+                        output = "".join(result["output"]) if isinstance(result["output"], list) else str(result["output"])
+                        
+                        # Add to conversation history
+                        self._add_to_conversation_history(conversation_key, "user", prompt)
+                        self._add_to_conversation_history(conversation_key, "assistant", output)
+                        
+                        result_text = f"**Replicate {model} Opinion:**\n\n{output}"
+                        return [TextContent(type="text", text=result_text)]
+                    elif result["status"] == "failed":
+                        raise Exception(f"Replicate prediction failed: {result.get('error', 'Unknown error')}")
+                
+                time.sleep(2)  # Wait 2 seconds before polling again
+            
+            raise Exception("Replicate API timeout - prediction took too long")
+            
+        except Exception as e:
+            return [TextContent(type="text", text=f"Replicate API Error: {str(e)}")]
+    
+    async def _get_ai21_opinion(
+        self,
+        prompt: str,
+        model: str = "jamba-1.5-large",
+        temperature: float = 0.7,
+        max_tokens: int = 4000,
+        system_prompt: str = "",
+        reset_conversation: bool = False
+    ) -> Sequence[TextContent]:
+        if not self.ai21_client:
+            return [TextContent(type="text", text="AI21 Labs client not configured. Please set AI21_API_KEY environment variable.")]
+        
+        try:
+            conversation_key = self._get_conversation_key("ai21", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
+            # Build messages with conversation history
+            messages = self._get_openai_messages(conversation_key, prompt, system_prompt)
+            
+            response = self.ai21_client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+            
+            response_content = response.choices[0].message.content
+            
+            # Add to conversation history
+            self._add_to_conversation_history(conversation_key, "user", prompt)
+            self._add_to_conversation_history(conversation_key, "assistant", response_content)
+            
+            result = f"**AI21 Labs {model} Opinion:**\n\n{response_content}"
+            return [TextContent(type="text", text=result)]
+            
+        except Exception as e:
+            return [TextContent(type="text", text=f"AI21 Labs API Error: {str(e)}")]
+    
+    async def _get_stability_opinion(
+        self,
+        prompt: str,
+        model: str = "stablelm-2-zephyr-1_6b",
+        temperature: float = 0.7,
+        max_tokens: int = 4000,
+        system_prompt: str = "",
+        reset_conversation: bool = False
+    ) -> Sequence[TextContent]:
+        if not self.stability_client:
+            return [TextContent(type="text", text="Stability AI client not configured. Please set STABILITY_API_KEY environment variable.")]
+        
+        try:
+            conversation_key = self._get_conversation_key("stability", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
+            # Build messages with conversation history
+            messages = self._get_openai_messages(conversation_key, prompt, system_prompt)
+            
+            response = self.stability_client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+            
+            response_content = response.choices[0].message.content
+            
+            # Add to conversation history
+            self._add_to_conversation_history(conversation_key, "user", prompt)
+            self._add_to_conversation_history(conversation_key, "assistant", response_content)
+            
+            result = f"**Stability AI {model} Opinion:**\n\n{response_content}"
+            return [TextContent(type="text", text=result)]
+            
+        except Exception as e:
+            return [TextContent(type="text", text=f"Stability AI API Error: {str(e)}")]
+    
+    async def _get_fireworks_opinion(
+        self,
+        prompt: str,
+        model: str = "accounts/fireworks/models/llama-v3p1-70b-instruct",
+        temperature: float = 0.7,
+        max_tokens: int = 4000,
+        system_prompt: str = "",
+        reset_conversation: bool = False
+    ) -> Sequence[TextContent]:
+        if not self.fireworks_client:
+            return [TextContent(type="text", text="Fireworks AI client not configured. Please set FIREWORKS_API_KEY environment variable.")]
+        
+        try:
+            conversation_key = self._get_conversation_key("fireworks", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
+            # Build messages with conversation history
+            messages = self._get_openai_messages(conversation_key, prompt, system_prompt)
+            
+            response = self.fireworks_client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+            
+            response_content = response.choices[0].message.content
+            
+            # Add to conversation history
+            self._add_to_conversation_history(conversation_key, "user", prompt)
+            self._add_to_conversation_history(conversation_key, "assistant", response_content)
+            
+            result = f"**Fireworks AI {model} Opinion:**\n\n{response_content}"
+            return [TextContent(type="text", text=result)]
+            
+        except Exception as e:
+            return [TextContent(type="text", text=f"Fireworks AI API Error: {str(e)}")]
+    
+    async def _get_anyscale_opinion(
+        self,
+        prompt: str,
+        model: str = "meta-llama/Llama-2-70b-chat-hf",
+        temperature: float = 0.7,
+        max_tokens: int = 4000,
+        system_prompt: str = "",
+        reset_conversation: bool = False
+    ) -> Sequence[TextContent]:
+        if not self.anyscale_client:
+            return [TextContent(type="text", text="Anyscale client not configured. Please set ANYSCALE_API_KEY environment variable.")]
+        
+        try:
+            conversation_key = self._get_conversation_key("anyscale", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
+            # Build messages with conversation history
+            messages = self._get_openai_messages(conversation_key, prompt, system_prompt)
+            
+            response = self.anyscale_client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+            
+            response_content = response.choices[0].message.content
+            
+            # Add to conversation history
+            self._add_to_conversation_history(conversation_key, "user", prompt)
+            self._add_to_conversation_history(conversation_key, "assistant", response_content)
+            
+            result = f"**Anyscale {model} Opinion:**\n\n{response_content}"
+            return [TextContent(type="text", text=result)]
+            
+        except Exception as e:
+            return [TextContent(type="text", text=f"Anyscale API Error: {str(e)}")]
+    
     async def _get_deepseek_opinion(
         self,
         prompt: str,
@@ -2312,6 +2944,26 @@ Remember that you're working together with Claude and other AIs to provide the b
                 valid_participants.append(participant)
             elif platform == "openrouter" and self.openrouter_client:
                 valid_participants.append(participant)
+            elif platform == "mistral" and self.mistral_client:
+                valid_participants.append(participant)
+            elif platform == "together" and self.together_client:
+                valid_participants.append(participant)
+            elif platform == "cohere" and self.cohere_client:
+                valid_participants.append(participant)
+            elif platform == "groq_fast" and self.groq_client_fast:
+                valid_participants.append(participant)
+            elif platform == "perplexity" and self.perplexity_client:
+                valid_participants.append(participant)
+            elif platform == "replicate" and self.replicate_api_key:
+                valid_participants.append(participant)
+            elif platform == "ai21" and self.ai21_client:
+                valid_participants.append(participant)
+            elif platform == "stability" and self.stability_client:
+                valid_participants.append(participant)
+            elif platform == "fireworks" and self.fireworks_client:
+                valid_participants.append(participant)
+            elif platform == "anyscale" and self.anyscale_client:
+                valid_participants.append(participant)
         
         if len(valid_participants) < 2:
             return [TextContent(type="text", text="Need at least 2 valid participants for group discussion.")]
@@ -2373,6 +3025,46 @@ Remember that you're working together with Claude and other AIs to provide the b
                         )
                     elif platform == "openrouter":
                         response = await self._get_openrouter_opinion(
+                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                        )
+                    elif platform == "mistral":
+                        response = await self._get_mistral_opinion(
+                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                        )
+                    elif platform == "together":
+                        response = await self._get_together_opinion(
+                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                        )
+                    elif platform == "cohere":
+                        response = await self._get_cohere_opinion(
+                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                        )
+                    elif platform == "groq_fast":
+                        response = await self._get_groq_fast_opinion(
+                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                        )
+                    elif platform == "perplexity":
+                        response = await self._get_perplexity_opinion(
+                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                        )
+                    elif platform == "replicate":
+                        response = await self._get_replicate_opinion(
+                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                        )
+                    elif platform == "ai21":
+                        response = await self._get_ai21_opinion(
+                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                        )
+                    elif platform == "stability":
+                        response = await self._get_stability_opinion(
+                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                        )
+                    elif platform == "fireworks":
+                        response = await self._get_fireworks_opinion(
+                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                        )
+                    elif platform == "anyscale":
+                        response = await self._get_anyscale_opinion(
                             context_prompt, model=model, temperature=temperature, max_tokens=500
                         )
                     
@@ -2631,6 +3323,11 @@ Remember that you're working together with Claude and other AIs to provide the b
         huggingface_model: str = "meta-llama/Llama-3.3-70B-Instruct",
         deepseek_model: str = "deepseek-chat",
         openrouter_model: str = "anthropic/claude-3-5-sonnet",
+        replicate_model: str = "meta/llama-2-70b-chat",
+        ai21_model: str = "jamba-1.5-large",
+        stability_model: str = "stablelm-2-zephyr-1_6b",
+        fireworks_model: str = "accounts/fireworks/models/llama-v3p1-70b-instruct",
+        anyscale_model: str = "meta-llama/Llama-2-70b-chat-hf",
         temperature: float = 0.7
     ) -> Sequence[TextContent]:
         results = []
@@ -2829,8 +3526,6 @@ Remember that you're working together with Claude and other AIs to provide the b
         else:
             results.append("### DeepSeek\n❌ Not configured\n")
         
-        return [TextContent(type="text", text="\n".join(results))]
-    
         # Get OpenRouter opinion
         if self.openrouter_client:
             try:
@@ -2841,15 +3536,105 @@ Remember that you're working together with Claude and other AIs to provide the b
                 
                 # Clean up the response
                 if f"**OpenRouter" in response_content:
-                    response_content = response_content.split("Opinion:**\\n\\n", 1)[-1]
+                    response_content = response_content.split("Opinion:**\n\n", 1)[-1]
                 
-                results.append(f"### OpenRouter ({openrouter_model})\\n{response_content}\\n")
+                results.append(f"### OpenRouter ({openrouter_model})\n{response_content}\n")
             except Exception as e:
-                results.append(f"### OpenRouter ({openrouter_model})\\n❌ Error: {str(e)}\\n")
+                results.append(f"### OpenRouter ({openrouter_model})\n❌ Error: {str(e)}\n")
         else:
-            results.append("### OpenRouter\\n❌ Not configured\\n")
+            results.append("### OpenRouter\n❌ Not configured\n")
         
-        return [TextContent(type="text", text="\\n".join(results))]
+        # Get Replicate opinion
+        if self.replicate_api_key:
+            try:
+                rep_response = await self._get_replicate_opinion(
+                    prompt, replicate_model, temperature, 2000
+                )
+                response_content = rep_response[0].text
+                
+                # Clean up the response
+                if f"**Replicate" in response_content:
+                    response_content = response_content.split("Opinion:**\n\n", 1)[-1]
+                
+                results.append(f"### Replicate ({replicate_model})\n{response_content}\n")
+            except Exception as e:
+                results.append(f"### Replicate ({replicate_model})\n❌ Error: {str(e)}\n")
+        else:
+            results.append("### Replicate\n❌ Not configured\n")
+        
+        # Get AI21 Labs opinion
+        if self.ai21_client:
+            try:
+                ai21_response = await self._get_ai21_opinion(
+                    prompt, ai21_model, temperature, 2000
+                )
+                response_content = ai21_response[0].text
+                
+                # Clean up the response
+                if f"**AI21 Labs" in response_content:
+                    response_content = response_content.split("Opinion:**\n\n", 1)[-1]
+                
+                results.append(f"### AI21 Labs ({ai21_model})\n{response_content}\n")
+            except Exception as e:
+                results.append(f"### AI21 Labs ({ai21_model})\n❌ Error: {str(e)}\n")
+        else:
+            results.append("### AI21 Labs\n❌ Not configured\n")
+        
+        # Get Stability AI opinion
+        if self.stability_client:
+            try:
+                stability_response = await self._get_stability_opinion(
+                    prompt, stability_model, temperature, 2000
+                )
+                response_content = stability_response[0].text
+                
+                # Clean up the response
+                if f"**Stability AI" in response_content:
+                    response_content = response_content.split("Opinion:**\n\n", 1)[-1]
+                
+                results.append(f"### Stability AI ({stability_model})\n{response_content}\n")
+            except Exception as e:
+                results.append(f"### Stability AI ({stability_model})\n❌ Error: {str(e)}\n")
+        else:
+            results.append("### Stability AI\n❌ Not configured\n")
+        
+        # Get Fireworks AI opinion
+        if self.fireworks_client:
+            try:
+                fireworks_response = await self._get_fireworks_opinion(
+                    prompt, fireworks_model, temperature, 2000
+                )
+                response_content = fireworks_response[0].text
+                
+                # Clean up the response
+                if f"**Fireworks AI" in response_content:
+                    response_content = response_content.split("Opinion:**\n\n", 1)[-1]
+                
+                results.append(f"### Fireworks AI ({fireworks_model})\n{response_content}\n")
+            except Exception as e:
+                results.append(f"### Fireworks AI ({fireworks_model})\n❌ Error: {str(e)}\n")
+        else:
+            results.append("### Fireworks AI\n❌ Not configured\n")
+        
+        # Get Anyscale opinion
+        if self.anyscale_client:
+            try:
+                anyscale_response = await self._get_anyscale_opinion(
+                    prompt, anyscale_model, temperature, 2000
+                )
+                response_content = anyscale_response[0].text
+                
+                # Clean up the response
+                if f"**Anyscale" in response_content:
+                    response_content = response_content.split("Opinion:**\n\n", 1)[-1]
+                
+                results.append(f"### Anyscale ({anyscale_model})\n{response_content}\n")
+            except Exception as e:
+                results.append(f"### Anyscale ({anyscale_model})\n❌ Error: {str(e)}\n")
+        else:
+            results.append("### Anyscale\n❌ Not configured\n")
+        
+        return [TextContent(type="text", text="\n".join(results))]
     
     async def _list_conversation_histories(self) -> Sequence[TextContent]:
         """List all active conversation histories"""
@@ -2922,6 +3707,16 @@ def main():
         required_vars.append("GROQ_FAST_API_KEY")
     if not os.getenv("PERPLEXITY_API_KEY"):
         required_vars.append("PERPLEXITY_API_KEY")
+    if not os.getenv("REPLICATE_API_TOKEN"):
+        required_vars.append("REPLICATE_API_TOKEN")
+    if not os.getenv("AI21_API_KEY"):
+        required_vars.append("AI21_API_KEY")
+    if not os.getenv("STABILITY_API_KEY"):
+        required_vars.append("STABILITY_API_KEY")
+    if not os.getenv("FIREWORKS_API_KEY"):
+        required_vars.append("FIREWORKS_API_KEY")
+    if not os.getenv("ANYSCALE_API_KEY"):
+        required_vars.append("ANYSCALE_API_KEY")
     
     if required_vars:
         print("⚠️  Warning: Missing environment variables:", file=sys.stderr)
@@ -2943,7 +3738,7 @@ def main():
                 write_stream, 
                 InitializationOptions(
                     server_name="second-opinion",
-                    server_version="3.0.0",
+                    server_version="4.0.0",
                     capabilities=ServerCapabilities(
                         tools={}
                     )

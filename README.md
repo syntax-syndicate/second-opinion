@@ -1,6 +1,6 @@
 # Second Opinion MCP
 
-Get instant second opinions from multiple AI models (OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek, Mistral, Together AI, Cohere, Groq Fast & Perplexity) directly within Claude conversations.
+Get instant second opinions from multiple AI models (OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek, Mistral, Together AI, Cohere, Groq Fast, Perplexity, Replicate, AI21 Labs, Stability AI, Fireworks AI & Anyscale) directly within Claude conversations.
 
 ## 🚀 What it does
 
@@ -13,19 +13,26 @@ This MCP server allows Claude to consult other AI models for different perspecti
 * **Group discussions** - Host AI debates with multiple models
 * **Custom model access** - Use any HuggingFace model via Inference API
 
-## ✨ Version 3.0 Features & Improvements
+## ✨ Version 4.0 Features & Improvements
 
-### 🚀 Major Bug Fixes
-- **Fixed HuggingFace Models**: Completely rebuilt HuggingFace integration with advanced retry logic, better model format detection, and comprehensive error handling
-- **Fixed Gemini Blank Responses**: Enhanced Gemini conversation handling to prevent empty responses in long chats with smart fallback and retry mechanisms
-- **Improved Error Handling**: Better error messages with helpful suggestions for troubleshooting
+### 🚀 Major New Platform Integrations
+- **🎭 Replicate**: Access to open-source models including Llama 2, CodeLlama, Mistral, and more
+- **🌟 AI21 Labs**: Jamba 1.5 models with advanced reasoning capabilities
+- **🎨 Stability AI**: StableLM models including code-specialized variants
+- **🔥 Fireworks AI**: Ultra-fast inference for popular open-source models
+- **🚀 Anyscale**: Ray-powered LLM serving with enterprise-grade reliability
 
-### 🆕 New AI Platform Support
+### 🆕 Enhanced Existing Platform Support
 - **🤖 Mistral AI**: Direct access to Mistral's latest models including mistral-large-latest and codestral-latest
 - **🔗 Together AI**: Access to 200+ open-source models with fast inference
 - **🧠 Cohere**: Enterprise-grade language models with Command R+ and Command R
 - **⚡ Groq Fast**: Ultra-fast inference API for lightning-quick responses
 - **🔍 Perplexity AI**: Web-connected AI with real-time search capabilities
+
+### 🔧 Previous Bug Fixes (v3.0)
+- **Fixed HuggingFace Models**: Completely rebuilt HuggingFace integration with advanced retry logic, better model format detection, and comprehensive error handling
+- **Fixed Gemini Blank Responses**: Enhanced Gemini conversation handling to prevent empty responses in long chats with smart fallback and retry mechanisms
+- **Improved Error Handling**: Better error messages with helpful suggestions for troubleshooting
 
 ### 🤖 HuggingFace Integration (Enhanced)
 Access any of the 800,000+ models on HuggingFace Hub via their Inference API with improved reliability:
@@ -61,7 +68,7 @@ Start multi-AI discussions where models can see and respond to each other's inpu
 
 * Python 3.8+
 * Claude Desktop
-* API keys for any combination of: OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek, Mistral, Together AI, Cohere, Groq Fast, Perplexity
+* API keys for any combination of: OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek, Mistral, Together AI, Cohere, Groq Fast, Perplexity, Replicate, AI21 Labs, Stability AI, Fireworks AI, Anyscale
 
 ## 🛠️ Installation
 
@@ -91,6 +98,11 @@ Start multi-AI discussions where models can see and respond to each other's inpu
    * **Cohere**: Get your key at [dashboard.cohere.com](https://dashboard.cohere.com/api-keys)
    * **Groq**: Get your key at [console.groq.com](https://console.groq.com/keys)
    * **Perplexity**: Get your key at [perplexity.ai](https://www.perplexity.ai/settings/api)
+   * **Replicate**: Get your key at [replicate.com](https://replicate.com/account/api-tokens)
+   * **AI21 Labs**: Get your key at [studio.ai21.com](https://studio.ai21.com/account/api-key)
+   * **Stability AI**: Get your key at [platform.stability.ai](https://platform.stability.ai/account/keys)
+   * **Fireworks AI**: Get your key at [fireworks.ai](https://fireworks.ai/account/api-keys)
+   * **Anyscale**: Get your key at [console.anyscale.com](https://console.anyscale.com/credentials)
 
 4. **Configure Claude Desktop**
 
@@ -113,7 +125,12 @@ Start multi-AI discussions where models can see and respond to each other's inpu
            "TOGETHER_API_KEY": "your_together_key_here",
            "COHERE_API_KEY": "your_cohere_key_here",
            "GROQ_FAST_API_KEY": "your_groq_key_here",
-           "PERPLEXITY_API_KEY": "your_perplexity_key_here"
+           "PERPLEXITY_API_KEY": "your_perplexity_key_here",
+           "REPLICATE_API_TOKEN": "your_replicate_key_here",
+           "AI21_API_KEY": "your_ai21_key_here",
+           "STABILITY_API_KEY": "your_stability_key_here",
+           "FIREWORKS_API_KEY": "your_fireworks_key_here",
+           "ANYSCALE_API_KEY": "your_anyscale_key_here"
          }
        }
      }
@@ -130,6 +147,8 @@ Start multi-AI discussions where models can see and respond to each other's inpu
 * `o4-mini` - Fast reasoning model
 * `gpt-4.1` - Latest flagship model  
 * `gpt-4o` - Multimodal powerhouse
+* `gpt-4o-mini` - Lightweight version of GPT-4o
+* `gpt-3.5-turbo` - Fast and cost-effective model
 
 **Gemini**
 * `gemini-2.0-flash-001` - Fast and efficient
@@ -183,11 +202,46 @@ Start multi-AI discussions where models can see and respond to each other's inpu
 * `mixtral-8x7b-32768` - Fast Mixtral variant
 * `gemma2-9b-it` - Google's Gemma model
 
-**Perplexity AI** (NEW - Web-connected)
+**Perplexity AI** (Web-connected)
 * `llama-3.1-sonar-large-128k-online` - Web search + large context
 * `llama-3.1-sonar-small-128k-online` - Web search + fast responses
 * `llama-3.1-sonar-large-128k-chat` - Pure chat without web
 * `llama-3.1-sonar-small-128k-chat` - Fast chat model
+
+**Replicate** (NEW - Open-source model hosting)
+* `meta/llama-2-70b-chat` - Large Llama 2 chat model
+* `meta/llama-2-13b-chat` - Medium Llama 2 chat model  
+* `meta/llama-2-7b-chat` - Small Llama 2 chat model
+* `meta/codellama-34b-instruct` - Code-specialized Llama model
+* `stability-ai/stable-code-instruct-3b` - Stability's code model
+* `mistralai/mistral-7b-instruct-v0.2` - Mistral instruction model
+* `microsoft/wizardcoder-34b` - Microsoft's coding model
+
+**AI21 Labs** (NEW - Advanced reasoning)
+* `jamba-1.5-large` - Large Jamba model with state-space capabilities
+* `jamba-1.5-mini` - Compact Jamba model
+* `j2-ultra` - Jurassic-2 Ultra model
+* `j2-mid` - Jurassic-2 Mid model
+
+**Stability AI** (NEW - StableLM family)
+* `stablelm-2-zephyr-1_6b` - Efficient 1.6B parameter model
+* `stable-code-instruct-3b` - Code-specialized 3B model
+* `japanese-stablelm-instruct-beta-70b` - Japanese language model
+* `stablelm-zephyr-3b` - Balanced 3B parameter model
+
+**Fireworks AI** (NEW - Ultra-fast inference)
+* `accounts/fireworks/models/llama-v3p1-70b-instruct` - Fast Llama 3.1 70B
+* `accounts/fireworks/models/llama-v3p1-8b-instruct` - Fast Llama 3.1 8B
+* `accounts/fireworks/models/mixtral-8x7b-instruct` - Fast Mixtral model
+* `accounts/fireworks/models/qwen2p5-72b-instruct` - Fast Qwen 2.5 model
+* `accounts/fireworks/models/deepseek-coder-v2-lite-instruct` - Code-specialized model
+
+**Anyscale** (NEW - Ray-powered serving)
+* `meta-llama/Llama-2-70b-chat-hf` - Enterprise Llama 2 70B
+* `meta-llama/Llama-2-13b-chat-hf` - Enterprise Llama 2 13B
+* `meta-llama/Llama-2-7b-chat-hf` - Enterprise Llama 2 7B
+* `codellama/CodeLlama-34b-Instruct-hf` - Enterprise CodeLlama
+* `mistralai/Mistral-7B-Instruct-v0.1` - Enterprise Mistral model
 
 ## 💡 Usage Examples
 
@@ -215,7 +269,17 @@ Once configured, ask Claude things like:
 
 > "Start a group discussion about AI ethics with GPT-4.1, Claude-4, Mistral, and Perplexity"
 
-> "Cross-platform comparison of this algorithm across all 11 available platforms"
+> "Cross-platform comparison of this algorithm across all 16 available platforms"
+
+> "Get a Replicate opinion from meta/llama-2-70b-chat on this open-source approach"
+
+> "What does AI21's Jamba-1.5-large think about this reasoning problem?"
+
+> "Ask Stability AI's StableLM about this code optimization"
+
+> "Get a super-fast response from Fireworks AI's Llama model"
+
+> "Use Anyscale's enterprise-grade Llama serving for this complex task"
 
 ## 🔧 Available Tools
 
@@ -230,7 +294,12 @@ Once configured, ask Claude things like:
 * **`get_together_opinion`** - Get opinion from Together AI's 200+ models (NEW)
 * **`get_cohere_opinion`** - Get opinion from Cohere enterprise models (NEW)
 * **`get_groq_fast_opinion`** - Get ultra-fast responses from Groq (NEW)
-* **`get_perplexity_opinion`** - Get web-connected AI responses (NEW)
+* **`get_perplexity_opinion`** - Get web-connected AI responses
+* **`get_replicate_opinion`** - Get opinion from Replicate's open-source models (NEW)
+* **`get_ai21_opinion`** - Get opinion from AI21 Labs' Jamba models (NEW)
+* **`get_stability_opinion`** - Get opinion from Stability AI's StableLM models (NEW)
+* **`get_fireworks_opinion`** - Get ultra-fast responses from Fireworks AI (NEW)
+* **`get_anyscale_opinion`** - Get enterprise-grade responses from Anyscale (NEW)
 
 ### Model Comparisons  
 * **`compare_openai_models`** - Compare multiple OpenAI models
@@ -239,7 +308,7 @@ Once configured, ask Claude things like:
 * **`compare_claude_models`** - Compare multiple Claude models
 
 ### Cross-Platform Features
-* **`cross_platform_comparison`** - Compare across all 11 AI platforms: OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek, Mistral, Together AI, Cohere, Groq Fast & Perplexity
+* **`cross_platform_comparison`** - Compare across all 16 AI platforms: OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek, Mistral, Together AI, Cohere, Groq Fast, Perplexity, Replicate, AI21 Labs, Stability AI, Fireworks AI & Anyscale
 * **`group_discussion`** - Multi-round discussions between AI models with shared context (supports all platforms)
 
 ### Conversation Management
@@ -292,17 +361,25 @@ Your API keys stay private on your machine. The MCP server only sends model resp
 
 **Model not available**: Check if the HuggingFace model supports text generation or chat completion
 
-## 🚀 What's New in v3.0
+## 🚀 What's New in v4.0
 
+- ✅ **5 New Major AI Platforms**: Replicate, AI21 Labs, Stability AI, Fireworks AI, Anyscale
+- ✅ **16 Total Platforms**: Now supporting 16 different AI platforms and 800,000+ models
+- ✅ **Open-Source Model Access**: Replicate integration for accessing hosted open-source models
+- ✅ **Advanced Reasoning**: AI21 Labs' Jamba models with state-space architecture
+- ✅ **Specialized Code Models**: Stability AI's code-optimized StableLM variants
+- ✅ **Ultra-Fast Inference**: Fireworks AI for blazing-fast open model serving
+- ✅ **Enterprise Ray Serving**: Anyscale's production-grade LLM infrastructure
+- ✅ **Enhanced Model Selection**: More model options across existing platforms
+- ✅ **Improved Cross-Platform**: All new platforms work with comparison and group discussion tools
+- ✅ **Complete Integration**: New services fully integrated into all existing features
+
+### Previous Improvements (v3.0)
 - ✅ **Major Bug Fixes**: Fixed HuggingFace empty responses and Gemini blank chat issues
-- ✅ **5 New AI Platforms**: Mistral AI, Together AI, Cohere, Groq Fast, Perplexity AI
 - ✅ **Enhanced HuggingFace**: Completely rebuilt with advanced retry logic and better error handling
 - ✅ **Improved Gemini**: Smart conversation handling prevents blank responses in long chats
-- ✅ **11 Total Platforms**: Now supporting 11 different AI platforms and 800,000+ models
-- ✅ **Ultra-Fast Inference**: Groq Fast for lightning-quick responses
 - ✅ **Web-Connected AI**: Perplexity AI with real-time search capabilities
 - ✅ **Enterprise Models**: Cohere's command models for business use cases
-- ✅ **Better Error Messages**: Helpful troubleshooting suggestions and model recommendations
 
 ## 🤝 Contributing
 
@@ -311,3 +388,5 @@ Issues and pull requests welcome! This is an open-source project for the AI comm
 ---
 
 **Built for developers who want access to the entire AI ecosystem at their fingertips** 🧠✨
+
+*Now with 16 AI platforms and 800,000+ models - the most comprehensive AI second opinion service available*
