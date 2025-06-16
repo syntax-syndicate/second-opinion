@@ -1,6 +1,13 @@
 # Second Opinion MCP
 
-Get instant second opinions from multiple AI models (OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek, Mistral, Together AI, Cohere, Groq Fast, Perplexity, Replicate, AI21 Labs, Stability AI, Fireworks AI & Anyscale) directly within Claude conversations.
+Get instant second opinions from multiple AI models including local, cloud, and enterprise services directly within Claude conversations.
+
+**Supported Platforms (25+ Services):**
+- **Local AI**: Ollama, LM Studio 
+- **Cloud Services**: OpenAI, Gemini, Grok, Claude, Azure OpenAI, AWS Bedrock, Vertex AI
+- **Specialized Services**: Mistral, Together AI, Cohere, Groq, Perplexity, Writer.com, HuggingFace
+- **Enterprise Services**: AI21, Stability AI, Fireworks AI, Anyscale, OpenRouter, DeepSeek
+- **Emerging Platforms**: Moonshot AI, 01.AI (Yi models), Baichuan AI, Replicate
 
 ## 🚀 What it does
 
@@ -68,7 +75,12 @@ Start multi-AI discussions where models can see and respond to each other's inpu
 
 * Python 3.8+
 * Claude Desktop
-* API keys for any combination of: OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek, Mistral, Together AI, Cohere, Groq Fast, Perplexity, Replicate, AI21 Labs, Stability AI, Fireworks AI, Anyscale
+* API keys for any combination of the 25+ supported services:
+  - **Required for local**: Ollama server or LM Studio running locally
+  - **Cloud APIs**: OpenAI, Gemini, Grok, Claude, Azure OpenAI, AWS credentials, GCP credentials
+  - **Specialized APIs**: Mistral, Together AI, Cohere, Groq, Perplexity, Writer.com, HuggingFace
+  - **Enterprise APIs**: AI21, Stability AI, Fireworks AI, Anyscale, OpenRouter, DeepSeek
+  - **Emerging APIs**: Moonshot AI, 01.AI, Baichuan AI, Replicate
 
 ## 🛠️ Installation
 
@@ -85,24 +97,45 @@ Start multi-AI discussions where models can see and respond to each other's inpu
    pip install -r requirements.txt
    ```
 
-3. **Get API Keys**
+3. **Get API Keys (Optional - choose which services you want to use)**
 
-   * **OpenAI**: Get your key at [platform.openai.com](https://platform.openai.com/api-keys)
-   * **Gemini**: Get your key at [aistudio.google.com](https://aistudio.google.com/app/apikey)
-   * **Grok**: Get your key at [x.ai](https://x.ai/api)
-   * **Claude**: Get your key at [anthropic.com](https://console.anthropic.com/settings/keys)
-   * **HuggingFace**: Get your key at [huggingface.co](https://huggingface.co/settings/tokens)
-   * **DeepSeek**: Get your key at [deepseek.com](https://api-docs.deepseek.com/)
-   * **Mistral**: Get your key at [console.mistral.ai](https://console.mistral.ai/)
-   * **Together AI**: Get your key at [api.together.xyz](https://api.together.xyz/settings/api-keys)
-   * **Cohere**: Get your key at [dashboard.cohere.com](https://dashboard.cohere.com/api-keys)
-   * **Groq**: Get your key at [console.groq.com](https://console.groq.com/keys)
-   * **Perplexity**: Get your key at [perplexity.ai](https://www.perplexity.ai/settings/api)
-   * **Replicate**: Get your key at [replicate.com](https://replicate.com/account/api-tokens)
-   * **AI21 Labs**: Get your key at [studio.ai21.com](https://studio.ai21.com/account/api-key)
-   * **Stability AI**: Get your key at [platform.stability.ai](https://platform.stability.ai/account/keys)
-   * **Fireworks AI**: Get your key at [fireworks.ai](https://fireworks.ai/account/api-keys)
-   * **Anyscale**: Get your key at [console.anyscale.com](https://console.anyscale.com/credentials)
+   **Core AI Services:**
+   * **OpenAI**: [platform.openai.com](https://platform.openai.com/api-keys)
+   * **Gemini**: [aistudio.google.com](https://aistudio.google.com/app/apikey)
+   * **Grok**: [x.ai](https://x.ai/api)
+   * **Claude**: [anthropic.com](https://console.anthropic.com/settings/keys)
+   * **HuggingFace**: [huggingface.co](https://huggingface.co/settings/tokens)
+   
+   **Cloud Platforms:**
+   * **Azure OpenAI**: Azure portal + deployment URL
+   * **AWS Bedrock**: AWS access/secret keys
+   * **Google Vertex AI**: GCP project ID + authentication
+   
+   **Specialized Services:**
+   * **DeepSeek**: [deepseek.com](https://api-docs.deepseek.com/)
+   * **Mistral**: [console.mistral.ai](https://console.mistral.ai/)
+   * **Together AI**: [api.together.xyz](https://api.together.xyz/settings/api-keys)
+   * **Cohere**: [dashboard.cohere.com](https://dashboard.cohere.com/api-keys)
+   * **Groq**: [console.groq.com](https://console.groq.com/keys)
+   * **Perplexity**: [perplexity.ai](https://www.perplexity.ai/settings/api)
+   * **Writer.com**: [writer.com](https://writer.com)
+   
+   **Enterprise Services:**
+   * **AI21**: [studio.ai21.com](https://studio.ai21.com)
+   * **Stability AI**: [platform.stability.ai](https://platform.stability.ai)
+   * **Fireworks AI**: [fireworks.ai](https://fireworks.ai)
+   * **Anyscale**: [anyscale.com](https://anyscale.com)
+   * **OpenRouter**: [openrouter.ai](https://openrouter.ai)
+   * **Replicate**: [replicate.com](https://replicate.com)
+   
+   **Emerging Platforms:**
+   * **Moonshot AI**: [moonshot.cn](https://moonshot.cn)
+   * **01.AI**: [lingyiwanwu.com](https://lingyiwanwu.com)
+   * **Baichuan AI**: [baichuan-ai.com](https://baichuan-ai.com)
+   
+   **Local Services (No API keys required):**
+   * **Ollama**: Install and run `ollama serve`
+   * **LM Studio**: Start local server
 
 4. **Configure Claude Desktop**
 
@@ -126,11 +159,25 @@ Start multi-AI discussions where models can see and respond to each other's inpu
            "COHERE_API_KEY": "your_cohere_key_here",
            "GROQ_FAST_API_KEY": "your_groq_key_here",
            "PERPLEXITY_API_KEY": "your_perplexity_key_here",
-           "REPLICATE_API_TOKEN": "your_replicate_key_here",
+           "AZURE_OPENAI_API_KEY": "your_azure_key_here",
+           "AZURE_OPENAI_ENDPOINT": "your_azure_endpoint_here",
+           "AWS_ACCESS_KEY_ID": "your_aws_access_key",
+           "AWS_SECRET_ACCESS_KEY": "your_aws_secret_key",
+           "AWS_REGION": "us-east-1",
+           "VERTEX_PROJECT_ID": "your_gcp_project_id",
+           "VERTEX_LOCATION": "us-central1",
+           "WRITER_API_KEY": "your_writer_key_here",
            "AI21_API_KEY": "your_ai21_key_here",
            "STABILITY_API_KEY": "your_stability_key_here",
            "FIREWORKS_API_KEY": "your_fireworks_key_here",
-           "ANYSCALE_API_KEY": "your_anyscale_key_here"
+           "ANYSCALE_API_KEY": "your_anyscale_key_here",
+           "OPENROUTER_API_KEY": "your_openrouter_key_here",
+           "REPLICATE_API_TOKEN": "your_replicate_token_here",
+           "MOONSHOT_API_KEY": "your_moonshot_key_here",
+           "YI_API_KEY": "your_yi_key_here",
+           "BAICHUAN_API_KEY": "your_baichuan_key_here",
+           "OLLAMA_BASE_URL": "http://localhost:11434/v1",
+           "LMSTUDIO_BASE_URL": "http://localhost:1234/v1"
          }
        }
      }
@@ -283,23 +330,40 @@ Once configured, ask Claude things like:
 
 ## 🔧 Available Tools
 
-### Single Model Opinions
+### Core AI Services
 * **`get_openai_opinion`** - Get opinion from any OpenAI model
-* **`get_gemini_opinion`** - Get opinion from any Gemini model (enhanced with better conversation handling)
+* **`get_gemini_opinion`** - Get opinion from any Gemini model (enhanced conversation handling)
 * **`get_grok_opinion`** - Get opinion from any Grok model (includes thinking models)
 * **`get_claude_opinion`** - Get opinion from any Claude model
-* **`get_huggingface_opinion`** - Get opinion from any HuggingFace model (enhanced with better reliability)
+* **`get_huggingface_opinion`** - Get opinion from any of 800,000+ HuggingFace models
+
+### Local AI Services
+* **`get_ollama_opinion`** - Get opinion from local Ollama models (NEW)
+* **`get_lmstudio_opinion`** - Get opinion from LM Studio local models (NEW)
+
+### Cloud Enterprise Services
+* **`get_azure_openai_opinion`** - Get opinion from Azure OpenAI (NEW)
+* **`get_aws_bedrock_opinion`** - Get opinion from AWS Bedrock models (NEW)
+* **`get_vertex_ai_opinion`** - Get opinion from Google Vertex AI (NEW)
+
+### Specialized Services
 * **`get_deepseek_opinion`** - Get opinion from DeepSeek models
-* **`get_mistral_opinion`** - Get opinion from Mistral AI models (NEW)
-* **`get_together_opinion`** - Get opinion from Together AI's 200+ models (NEW)
-* **`get_cohere_opinion`** - Get opinion from Cohere enterprise models (NEW)
-* **`get_groq_fast_opinion`** - Get ultra-fast responses from Groq (NEW)
+* **`get_mistral_opinion`** - Get opinion from Mistral AI models
+* **`get_together_opinion`** - Get opinion from Together AI's 200+ models
+* **`get_cohere_opinion`** - Get opinion from Cohere enterprise models
+* **`get_groq_fast_opinion`** - Get ultra-fast responses from Groq
 * **`get_perplexity_opinion`** - Get web-connected AI responses
-* **`get_replicate_opinion`** - Get opinion from Replicate's open-source models (NEW)
-* **`get_ai21_opinion`** - Get opinion from AI21 Labs' Jamba models (NEW)
-* **`get_stability_opinion`** - Get opinion from Stability AI's StableLM models (NEW)
-* **`get_fireworks_opinion`** - Get ultra-fast responses from Fireworks AI (NEW)
-* **`get_anyscale_opinion`** - Get enterprise-grade responses from Anyscale (NEW)
+* **`get_writer_opinion`** - Get opinion from Writer.com AI (NEW)
+
+### Enterprise & Emerging Services
+* **`get_ai21_opinion`** - Get opinion from AI21 Labs models
+* **`get_stability_opinion`** - Get opinion from Stability AI models
+* **`get_fireworks_opinion`** - Get opinion from Fireworks AI models
+* **`get_anyscale_opinion`** - Get opinion from Anyscale models
+* **`get_openrouter_opinion`** - Get opinion from OpenRouter models
+* **`get_replicate_opinion`** - Get opinion from Replicate models
+* **`get_moonshot_opinion`** - Get opinion from Moonshot AI (NEW)
+* **`get_yi_opinion`** - Get opinion from 01.AI Yi models (NEW)
 
 ### Model Comparisons  
 * **`compare_openai_models`** - Compare multiple OpenAI models
@@ -308,7 +372,7 @@ Once configured, ask Claude things like:
 * **`compare_claude_models`** - Compare multiple Claude models
 
 ### Cross-Platform Features
-* **`cross_platform_comparison`** - Compare across all 16 AI platforms: OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek, Mistral, Together AI, Cohere, Groq Fast, Perplexity, Replicate, AI21 Labs, Stability AI, Fireworks AI & Anyscale
+* **`cross_platform_comparison`** - Compare across all 25+ AI platforms and services
 * **`group_discussion`** - Multi-round discussions between AI models with shared context (supports all platforms)
 
 ### Conversation Management
@@ -363,23 +427,24 @@ Your API keys stay private on your machine. The MCP server only sends model resp
 
 ## 🚀 What's New in v4.0
 
-- ✅ **5 New Major AI Platforms**: Replicate, AI21 Labs, Stability AI, Fireworks AI, Anyscale
-- ✅ **16 Total Platforms**: Now supporting 16 different AI platforms and 800,000+ models
-- ✅ **Open-Source Model Access**: Replicate integration for accessing hosted open-source models
-- ✅ **Advanced Reasoning**: AI21 Labs' Jamba models with state-space architecture
-- ✅ **Specialized Code Models**: Stability AI's code-optimized StableLM variants
-- ✅ **Ultra-Fast Inference**: Fireworks AI for blazing-fast open model serving
-- ✅ **Enterprise Ray Serving**: Anyscale's production-grade LLM infrastructure
-- ✅ **Enhanced Model Selection**: More model options across existing platforms
-- ✅ **Improved Cross-Platform**: All new platforms work with comparison and group discussion tools
-- ✅ **Complete Integration**: New services fully integrated into all existing features
+### 🌟 Major Expansion: 25+ AI Services
+- ✅ **Local AI Support**: Ollama and LM Studio for private, local AI inference
+- ✅ **Enterprise Cloud**: Azure OpenAI, AWS Bedrock, Google Vertex AI
+- ✅ **Specialized Services**: Writer.com for content creation
+- ✅ **Emerging Platforms**: Moonshot AI, 01.AI Yi models, Baichuan AI
+- ✅ **Complete Coverage**: Now supporting 25+ different AI platforms and services
 
-### Previous Improvements (v3.0)
-- ✅ **Major Bug Fixes**: Fixed HuggingFace empty responses and Gemini blank chat issues
-- ✅ **Enhanced HuggingFace**: Completely rebuilt with advanced retry logic and better error handling
-- ✅ **Improved Gemini**: Smart conversation handling prevents blank responses in long chats
-- ✅ **Web-Connected AI**: Perplexity AI with real-time search capabilities
-- ✅ **Enterprise Models**: Cohere's command models for business use cases
+### 🏢 Enterprise-Ready Features
+- ✅ **Multi-Cloud Support**: Works with all major cloud providers
+- ✅ **Local Deployment**: Run AI models privately with Ollama/LM Studio
+- ✅ **Enterprise APIs**: Full support for business-grade AI services
+- ✅ **Flexible Configuration**: Mix and match any combination of services
+
+### 🔧 Technical Improvements
+- ✅ **Enhanced Architecture**: Modular design for easy service addition
+- ✅ **Better Error Handling**: Comprehensive error messages and fallbacks
+- ✅ **Robust Configuration**: Environment-based setup with graceful degradation
+- ✅ **Cross-Platform Tools**: Updated comparison and discussion features
 
 ## 🤝 Contributing
 
@@ -389,4 +454,4 @@ Issues and pull requests welcome! This is an open-source project for the AI comm
 
 **Built for developers who want access to the entire AI ecosystem at their fingertips** 🧠✨
 
-*Now with 16 AI platforms and 800,000+ models - the most comprehensive AI second opinion service available*
+*Now with 25+ AI services including local, cloud, and enterprise platforms - the most comprehensive AI second opinion service available*
