@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 """
 Second Opinion MCP Server
-Allows AI models to get second opinions from other AI models (OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek, OpenRouter)
-Features conversation history, collaborative prompting, and group discussions
+Allows AI models to get second opinions from other AI models including:
+- Cloud Services: OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek, OpenRouter, Azure OpenAI, AWS Bedrock, Vertex AI
+- Local Services: Ollama, LM Studio
+- Specialized Services: Mistral, Together AI, Cohere, Groq, Perplexity, Writer.com
+- Enterprise Services: AI21, Stability AI, Fireworks AI, Anyscale
+- Emerging Platforms: Moonshot AI, 01.AI (Yi models), Baichuan AI, Replicate
+Features conversation history, collaborative prompting, group discussions, and cross-platform comparisons
 """
 
 import asyncio
@@ -87,6 +92,21 @@ class SecondOpinionServer:
         self.stability_client = None
         self.fireworks_client = None
         self.anyscale_client = None
+        # Local AI services
+        self.ollama_client = None
+        self.lmstudio_client = None
+        # Cloud AI services
+        self.azure_openai_client = None
+        self.aws_bedrock_client = None
+        self.vertex_ai_client = None
+        # Specialized AI services
+        self.writer_client = None
+        self.jasper_client = None
+        self.character_ai_client = None
+        # Emerging AI platforms
+        self.moonshot_client = None
+        self.baichuan_client = None
+        self.yi_client = None
         
         # Conversation history storage
         # Format: {platform_model: [conversation_history]}
@@ -287,6 +307,170 @@ Remember that you're working together with Claude and other AIs to provide the b
             logger.info("Anyscale Endpoints client initialized")
         else:
             logger.warning("ANYSCALE_API_KEY not found - Anyscale features disabled")
+        
+        # Local AI Services
+        
+        # Ollama setup (local AI models - uses OpenAI SDK with local base URL)
+        ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
+        ollama_api_key = os.getenv("OLLAMA_API_KEY", "ollama")  # Ollama doesn't require real API key
+        try:
+            # Test if Ollama is running by making a simple request
+            import requests
+            response = requests.get(f"{ollama_base_url.replace('/v1', '')}/api/tags", timeout=2)
+            if response.status_code == 200:
+                self.ollama_client = openai.OpenAI(
+                    api_key=ollama_api_key,
+                    base_url=ollama_base_url
+                )
+                logger.info("Ollama client initialized")
+            else:
+                logger.warning("Ollama server not responding - Ollama features disabled")
+        except Exception as e:
+            logger.warning(f"Ollama not available: {e} - Ollama features disabled")
+        
+        # LM Studio setup (local AI models - uses OpenAI SDK with local base URL)
+        lmstudio_base_url = os.getenv("LMSTUDIO_BASE_URL", "http://localhost:1234/v1")
+        lmstudio_api_key = os.getenv("LMSTUDIO_API_KEY", "lm-studio")  # LM Studio doesn't require real API key
+        try:
+            # Test if LM Studio is running
+            response = requests.get(f"{lmstudio_base_url}/models", timeout=2)
+            if response.status_code == 200:
+                self.lmstudio_client = openai.OpenAI(
+                    api_key=lmstudio_api_key,
+                    base_url=lmstudio_base_url
+                )
+                logger.info("LM Studio client initialized")
+            else:
+                logger.warning("LM Studio server not responding - LM Studio features disabled")
+        except Exception as e:
+            logger.warning(f"LM Studio not available: {e} - LM Studio features disabled")
+        
+        # Cloud AI Services
+        
+        # Azure OpenAI setup (uses OpenAI SDK with Azure endpoint)
+        azure_api_key = os.getenv("AZURE_OPENAI_API_KEY")
+        azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT")
+        if azure_api_key and azure_endpoint:
+            try:
+                from openai import AzureOpenAI
+                self.azure_openai_client = AzureOpenAI(
+                    api_key=azure_api_key,
+                    azure_endpoint=azure_endpoint,
+                    api_version="2024-02-01"
+                )
+                logger.info("Azure OpenAI client initialized")
+            except ImportError:
+                logger.warning("Azure OpenAI requires newer openai package version")
+        else:
+            logger.warning("AZURE_OPENAI_API_KEY or AZURE_OPENAI_ENDPOINT not found - Azure OpenAI features disabled")
+        
+        # AWS Bedrock setup
+        aws_region = os.getenv("AWS_REGION", "us-east-1")
+        aws_access_key = os.getenv("AWS_ACCESS_KEY_ID")
+        aws_secret_key = os.getenv("AWS_SECRET_ACCESS_KEY")
+        if aws_access_key and aws_secret_key:
+            try:
+                import boto3
+                self.aws_bedrock_client = boto3.client(
+                    'bedrock-runtime',
+                    region_name=aws_region,
+                    aws_access_key_id=aws_access_key,
+                    aws_secret_access_key=aws_secret_key
+                )
+                logger.info("AWS Bedrock client initialized")
+            except ImportError:
+                logger.warning("AWS Bedrock requires boto3. Install with: pip install boto3")
+            except Exception as e:
+                logger.warning(f"AWS Bedrock setup failed: {e}")
+        else:
+            logger.warning("AWS credentials not found - AWS Bedrock features disabled")
+        
+        # Google Vertex AI setup
+        vertex_project_id = os.getenv("VERTEX_PROJECT_ID")
+        vertex_location = os.getenv("VERTEX_LOCATION", "us-central1")
+        if vertex_project_id:
+            try:
+                from google.cloud import aiplatform
+                import google.auth
+                aiplatform.init(project=vertex_project_id, location=vertex_location)
+                self.vertex_ai_client = aiplatform
+                logger.info("Google Vertex AI client initialized")
+            except ImportError:
+                logger.warning("Vertex AI requires google-cloud-aiplatform. Install with: pip install google-cloud-aiplatform")
+            except Exception as e:
+                logger.warning(f"Vertex AI setup failed: {e}")
+        else:
+            logger.warning("VERTEX_PROJECT_ID not found - Vertex AI features disabled")
+        
+        # Specialized AI Services
+        
+        # Writer.com setup (uses OpenAI SDK pattern)
+        writer_api_key = os.getenv("WRITER_API_KEY")
+        if writer_api_key:
+            self.writer_client = openai.OpenAI(
+                api_key=writer_api_key,
+                base_url="https://api.writer.com/v1"
+            )
+            logger.info("Writer.com client initialized")
+        else:
+            logger.warning("WRITER_API_KEY not found - Writer.com features disabled")
+        
+        # Jasper AI setup (uses OpenAI SDK pattern)
+        jasper_api_key = os.getenv("JASPER_API_KEY")
+        if jasper_api_key:
+            self.jasper_client = openai.OpenAI(
+                api_key=jasper_api_key,
+                base_url="https://api.jasper.ai/v1"
+            )
+            logger.info("Jasper AI client initialized")
+        else:
+            logger.warning("JASPER_API_KEY not found - Jasper AI features disabled")
+        
+        # Character.AI setup (uses OpenAI SDK pattern)
+        character_ai_key = os.getenv("CHARACTER_AI_KEY")
+        if character_ai_key:
+            self.character_ai_client = openai.OpenAI(
+                api_key=character_ai_key,
+                base_url="https://beta.character.ai/chat/streaming"
+            )
+            logger.info("Character.AI client initialized")
+        else:
+            logger.warning("CHARACTER_AI_KEY not found - Character.AI features disabled")
+        
+        # Emerging AI Platforms
+        
+        # Moonshot AI setup (uses OpenAI SDK pattern)
+        moonshot_api_key = os.getenv("MOONSHOT_API_KEY")
+        if moonshot_api_key:
+            self.moonshot_client = openai.OpenAI(
+                api_key=moonshot_api_key,
+                base_url="https://api.moonshot.cn/v1"
+            )
+            logger.info("Moonshot AI client initialized")
+        else:
+            logger.warning("MOONSHOT_API_KEY not found - Moonshot AI features disabled")
+        
+        # Baichuan AI setup (uses OpenAI SDK pattern)
+        baichuan_api_key = os.getenv("BAICHUAN_API_KEY")
+        if baichuan_api_key:
+            self.baichuan_client = openai.OpenAI(
+                api_key=baichuan_api_key,
+                base_url="https://api.baichuan-ai.com/v1"
+            )
+            logger.info("Baichuan AI client initialized")
+        else:
+            logger.warning("BAICHUAN_API_KEY not found - Baichuan AI features disabled")
+        
+        # 01.AI (Yi models) setup (uses OpenAI SDK pattern)
+        yi_api_key = os.getenv("YI_API_KEY")
+        if yi_api_key:
+            self.yi_client = openai.OpenAI(
+                api_key=yi_api_key,
+                base_url="https://api.lingyiwanwu.com/v1"
+            )
+            logger.info("01.AI (Yi models) client initialized")
+        else:
+            logger.warning("YI_API_KEY not found - 01.AI features disabled")
     
     def _get_conversation_key(self, platform: str, model: str) -> str:
         """Generate a key for conversation history storage"""
@@ -1097,7 +1281,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                     "description": "Replicate model to use",
                                     "enum": [
                                         "meta/llama-2-70b-chat",
-                                        "meta/llama-2-13b-chat", 
+                                        "meta/llama-2-13b-chat",
                                         "meta/llama-2-7b-chat",
                                         "meta/codellama-34b-instruct",
                                         "stability-ai/stable-code-instruct-3b",
@@ -1528,6 +1712,391 @@ Remember that you're working together with Claude and other AIs to provide the b
                 )
             )
             
+            # Local AI Services Tools
+            if self.ollama_client:
+                tools.append(
+                    Tool(
+                        name="get_ollama_opinion",
+                        description="Get a second opinion from Ollama (local AI models)",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to get an opinion on"
+                                },
+                                "model": {
+                                    "type": "string",
+                                    "description": "Ollama model to use",
+                                    "default": "llama3.2"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature for response randomness (0.0-2.0)",
+                                    "minimum": 0.0,
+                                    "maximum": 2.0,
+                                    "default": 0.7
+                                },
+                                "max_tokens": {
+                                    "type": "integer",
+                                    "description": "Maximum tokens in response",
+                                    "default": 4000
+                                },
+                                "system_prompt": {
+                                    "type": "string",
+                                    "description": "Optional system prompt to guide the response",
+                                    "default": ""
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
+                                }
+                            },
+                            "required": ["prompt"]
+                        }
+                    )
+                )
+            
+            if self.lmstudio_client:
+                tools.append(
+                    Tool(
+                        name="get_lmstudio_opinion",
+                        description="Get a second opinion from LM Studio (local AI models)",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to get an opinion on"
+                                },
+                                "model": {
+                                    "type": "string",
+                                    "description": "LM Studio model to use",
+                                    "default": "local-model"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature for response randomness (0.0-2.0)",
+                                    "minimum": 0.0,
+                                    "maximum": 2.0,
+                                    "default": 0.7
+                                },
+                                "max_tokens": {
+                                    "type": "integer",
+                                    "description": "Maximum tokens in response",
+                                    "default": 4000
+                                },
+                                "system_prompt": {
+                                    "type": "string",
+                                    "description": "Optional system prompt to guide the response",
+                                    "default": ""
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
+                                }
+                            },
+                            "required": ["prompt"]
+                        }
+                    )
+                )
+            
+            # Cloud AI Services Tools
+            if self.azure_openai_client:
+                tools.append(
+                    Tool(
+                        name="get_azure_openai_opinion",
+                        description="Get a second opinion from Azure OpenAI",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to get an opinion on"
+                                },
+                                "model": {
+                                    "type": "string",
+                                    "description": "Azure OpenAI model to use",
+                                    "enum": ["gpt-35-turbo", "gpt-4", "gpt-4-32k", "gpt-4o"],
+                                    "default": "gpt-4"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature for response randomness (0.0-2.0)",
+                                    "minimum": 0.0,
+                                    "maximum": 2.0,
+                                    "default": 0.7
+                                },
+                                "max_tokens": {
+                                    "type": "integer",
+                                    "description": "Maximum tokens in response",
+                                    "default": 4000
+                                },
+                                "system_prompt": {
+                                    "type": "string",
+                                    "description": "Optional system prompt to guide the response",
+                                    "default": ""
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
+                                }
+                            },
+                            "required": ["prompt"]
+                        }
+                    )
+                )
+            
+            if self.aws_bedrock_client:
+                tools.append(
+                    Tool(
+                        name="get_aws_bedrock_opinion",
+                        description="Get a second opinion from AWS Bedrock",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to get an opinion on"
+                                },
+                                "model": {
+                                    "type": "string",
+                                    "description": "AWS Bedrock model to use",
+                                    "enum": [
+                                        "anthropic.claude-3-5-sonnet-20241022-v2:0",
+                                        "anthropic.claude-3-sonnet-20240229-v1:0",
+                                        "anthropic.claude-3-haiku-20240307-v1:0",
+                                        "amazon.titan-text-premier-v1:0",
+                                        "amazon.titan-text-express-v1",
+                                        "meta.llama3-2-90b-instruct-v1:0",
+                                        "meta.llama3-2-11b-instruct-v1:0"
+                                    ],
+                                    "default": "anthropic.claude-3-5-sonnet-20241022-v2:0"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature for response randomness (0.0-2.0)",
+                                    "minimum": 0.0,
+                                    "maximum": 2.0,
+                                    "default": 0.7
+                                },
+                                "max_tokens": {
+                                    "type": "integer",
+                                    "description": "Maximum tokens in response",
+                                    "default": 4000
+                                },
+                                "system_prompt": {
+                                    "type": "string",
+                                    "description": "Optional system prompt to guide the response",
+                                    "default": ""
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
+                                }
+                            },
+                            "required": ["prompt"]
+                        }
+                    )
+                )
+            
+            if self.vertex_ai_client:
+                tools.append(
+                    Tool(
+                        name="get_vertex_ai_opinion",
+                        description="Get a second opinion from Google Vertex AI",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to get an opinion on"
+                                },
+                                "model": {
+                                    "type": "string",
+                                    "description": "Vertex AI model to use",
+                                    "enum": [
+                                        "gemini-1.5-pro",
+                                        "gemini-1.5-flash",
+                                        "gemini-1.0-pro",
+                                        "claude-3-5-sonnet@20241022",
+                                        "claude-3-sonnet@20240229",
+                                        "claude-3-haiku@20240307"
+                                    ],
+                                    "default": "gemini-1.5-pro"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature for response randomness (0.0-2.0)",
+                                    "minimum": 0.0,
+                                    "maximum": 2.0,
+                                    "default": 0.7
+                                },
+                                "max_tokens": {
+                                    "type": "integer",
+                                    "description": "Maximum tokens in response",
+                                    "default": 4000
+                                },
+                                "system_prompt": {
+                                    "type": "string",
+                                    "description": "Optional system prompt to guide the response",
+                                    "default": ""
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
+                                }
+                            },
+                            "required": ["prompt"]
+                        }
+                    )
+                )
+            
+            # Specialized AI Services Tools
+            if self.writer_client:
+                tools.append(
+                    Tool(
+                        name="get_writer_opinion",
+                        description="Get a second opinion from Writer.com AI",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to get an opinion on"
+                                },
+                                "model": {
+                                    "type": "string",
+                                    "description": "Writer.com model to use",
+                                    "enum": ["palmyra-x-003-instruct", "palmyra-x-002-instruct", "palmyra-base"],
+                                    "default": "palmyra-x-003-instruct"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature for response randomness (0.0-2.0)",
+                                    "minimum": 0.0,
+                                    "maximum": 2.0,
+                                    "default": 0.7
+                                },
+                                "max_tokens": {
+                                    "type": "integer",
+                                    "description": "Maximum tokens in response",
+                                    "default": 4000
+                                },
+                                "system_prompt": {
+                                    "type": "string",
+                                    "description": "Optional system prompt to guide the response",
+                                    "default": ""
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
+                                }
+                            },
+                            "required": ["prompt"]
+                        }
+                    )
+                )
+            
+            # Emerging AI Platforms Tools
+            if self.moonshot_client:
+                tools.append(
+                    Tool(
+                        name="get_moonshot_opinion",
+                        description="Get a second opinion from Moonshot AI",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to get an opinion on"
+                                },
+                                "model": {
+                                    "type": "string",
+                                    "description": "Moonshot AI model to use",
+                                    "enum": ["moonshot-v1-8k", "moonshot-v1-32k", "moonshot-v1-128k"],
+                                    "default": "moonshot-v1-8k"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature for response randomness (0.0-2.0)",
+                                    "minimum": 0.0,
+                                    "maximum": 2.0,
+                                    "default": 0.7
+                                },
+                                "max_tokens": {
+                                    "type": "integer",
+                                    "description": "Maximum tokens in response",
+                                    "default": 4000
+                                },
+                                "system_prompt": {
+                                    "type": "string",
+                                    "description": "Optional system prompt to guide the response",
+                                    "default": ""
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
+                                }
+                            },
+                            "required": ["prompt"]
+                        }
+                    )
+                )
+            
+            if self.yi_client:
+                tools.append(
+                    Tool(
+                        name="get_yi_opinion",
+                        description="Get a second opinion from 01.AI (Yi models)",
+                        inputSchema={
+                            "type": "object",
+                            "properties": {
+                                "prompt": {
+                                    "type": "string",
+                                    "description": "The question or prompt to get an opinion on"
+                                },
+                                "model": {
+                                    "type": "string",
+                                    "description": "01.AI model to use",
+                                    "enum": ["yi-lightning", "yi-large", "yi-medium", "yi-spark"],
+                                    "default": "yi-lightning"
+                                },
+                                "temperature": {
+                                    "type": "number",
+                                    "description": "Temperature for response randomness (0.0-2.0)",
+                                    "minimum": 0.0,
+                                    "maximum": 2.0,
+                                    "default": 0.7
+                                },
+                                "max_tokens": {
+                                    "type": "integer",
+                                    "description": "Maximum tokens in response",
+                                    "default": 4000
+                                },
+                                "system_prompt": {
+                                    "type": "string",
+                                    "description": "Optional system prompt to guide the response",
+                                    "default": ""
+                                },
+                                "reset_conversation": {
+                                    "type": "boolean",
+                                    "description": "Reset conversation history for this model",
+                                    "default": False
+                                }
+                            },
+                            "required": ["prompt"]
+                        }
+                    )
+                )
+            
             return tools
         
         @self.app.call_tool()
@@ -1585,6 +2154,26 @@ Remember that you're working together with Claude and other AIs to provide the b
                     return await self._get_fireworks_opinion(**arguments)
                 elif name == "get_anyscale_opinion":
                     return await self._get_anyscale_opinion(**arguments)
+                # Local AI Services Handlers
+                elif name == "get_ollama_opinion":
+                    return await self._get_ollama_opinion(**arguments)
+                elif name == "get_lmstudio_opinion":
+                    return await self._get_lmstudio_opinion(**arguments)
+                # Cloud AI Services Handlers
+                elif name == "get_azure_openai_opinion":
+                    return await self._get_azure_openai_opinion(**arguments)
+                elif name == "get_aws_bedrock_opinion":
+                    return await self._get_aws_bedrock_opinion(**arguments)
+                elif name == "get_vertex_ai_opinion":
+                    return await self._get_vertex_ai_opinion(**arguments)
+                # Specialized AI Services Handlers
+                elif name == "get_writer_opinion":
+                    return await self._get_writer_opinion(**arguments)
+                # Emerging AI Platforms Handlers
+                elif name == "get_moonshot_opinion":
+                    return await self._get_moonshot_opinion(**arguments)
+                elif name == "get_yi_opinion":
+                    return await self._get_yi_opinion(**arguments)
                 else:
                     return [TextContent(type="text", text=f"Unknown tool: {name}")]
             except Exception as e:
@@ -2072,9 +2661,9 @@ Remember that you're working together with Claude and other AIs to provide the b
                         timeout = 30 + (retry * 15)
                         
                         response = requests.post(
-                            api_url, 
-                            headers=headers, 
-                            json=payload, 
+                            api_url,
+                            headers=headers,
+                            json=payload,
                             timeout=timeout
                         )
                         
@@ -2179,7 +2768,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         
         # Remove common prefixes and suffixes
         prefixes_to_remove = [
-            "Assistant:", "AI:", "Bot:", "Response:", "Answer:", 
+            "Assistant:", "AI:", "Bot:", "Response:", "Answer:",
             "### Assistant:", "### Response:", "[/INST]", "</s>"
         ]
         
@@ -2214,7 +2803,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         # Updated model suggestions with more recent and reliable models
         working_models = [
             "meta-llama/Llama-3.1-8B-Instruct",
-            "meta-llama/Llama-3.1-70B-Instruct", 
+            "meta-llama/Llama-3.1-70B-Instruct",
             "mistralai/Mistral-7B-Instruct-v0.3",
             "mistralai/Mixtral-8x7B-Instruct-v0.1",
             "microsoft/DialoGPT-large",
@@ -2902,6 +3491,381 @@ Remember that you're working together with Claude and other AIs to provide the b
             
         except Exception as e:
             return [TextContent(type="text", text=f"Error fetching OpenRouter models: {str(e)}")]
+    
+    # Local AI Services Methods
+    
+    async def _get_ollama_opinion(
+        self,
+        prompt: str,
+        model: str = "llama3.2",
+        temperature: float = 0.7,
+        max_tokens: int = 4000,
+        system_prompt: str = "",
+        reset_conversation: bool = False
+    ) -> Sequence[TextContent]:
+        if not self.ollama_client:
+            return [TextContent(type="text", text="Ollama client not configured. Please start Ollama server (ollama serve) or set OLLAMA_BASE_URL environment variable.")]
+        
+        try:
+            conversation_key = self._get_conversation_key("ollama", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
+            # Build messages with conversation history
+            messages = self._get_openai_messages(conversation_key, prompt, system_prompt)
+            
+            response = self.ollama_client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+            
+            response_content = response.choices[0].message.content
+            
+            # Add to conversation history
+            self._add_to_conversation_history(conversation_key, "user", prompt)
+            self._add_to_conversation_history(conversation_key, "assistant", response_content)
+            
+            result = f"**Ollama {model} Opinion:**\n\n{response_content}"
+            return [TextContent(type="text", text=result)]
+            
+        except Exception as e:
+            return [TextContent(type="text", text=f"Ollama API Error: {str(e)}")]
+    
+    async def _get_lmstudio_opinion(
+        self,
+        prompt: str,
+        model: str = "local-model",
+        temperature: float = 0.7,
+        max_tokens: int = 4000,
+        system_prompt: str = "",
+        reset_conversation: bool = False
+    ) -> Sequence[TextContent]:
+        if not self.lmstudio_client:
+            return [TextContent(type="text", text="LM Studio client not configured. Please start LM Studio server or set LMSTUDIO_BASE_URL environment variable.")]
+        
+        try:
+            conversation_key = self._get_conversation_key("lmstudio", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
+            # Build messages with conversation history
+            messages = self._get_openai_messages(conversation_key, prompt, system_prompt)
+            
+            response = self.lmstudio_client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+            
+            response_content = response.choices[0].message.content
+            
+            # Add to conversation history
+            self._add_to_conversation_history(conversation_key, "user", prompt)
+            self._add_to_conversation_history(conversation_key, "assistant", response_content)
+            
+            result = f"**LM Studio {model} Opinion:**\n\n{response_content}"
+            return [TextContent(type="text", text=result)]
+            
+        except Exception as e:
+            return [TextContent(type="text", text=f"LM Studio API Error: {str(e)}")]
+    
+    # Cloud AI Services Methods
+    
+    async def _get_azure_openai_opinion(
+        self,
+        prompt: str,
+        model: str = "gpt-4",
+        temperature: float = 0.7,
+        max_tokens: int = 4000,
+        system_prompt: str = "",
+        reset_conversation: bool = False
+    ) -> Sequence[TextContent]:
+        if not self.azure_openai_client:
+            return [TextContent(type="text", text="Azure OpenAI client not configured. Please set AZURE_OPENAI_API_KEY and AZURE_OPENAI_ENDPOINT environment variables.")]
+        
+        try:
+            conversation_key = self._get_conversation_key("azure_openai", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
+            # Build messages with conversation history
+            messages = self._get_openai_messages(conversation_key, prompt, system_prompt)
+            
+            response = self.azure_openai_client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+            
+            response_content = response.choices[0].message.content
+            
+            # Add to conversation history
+            self._add_to_conversation_history(conversation_key, "user", prompt)
+            self._add_to_conversation_history(conversation_key, "assistant", response_content)
+            
+            result = f"**Azure OpenAI {model} Opinion:**\n\n{response_content}"
+            return [TextContent(type="text", text=result)]
+            
+        except Exception as e:
+            return [TextContent(type="text", text=f"Azure OpenAI API Error: {str(e)}")]
+    
+    async def _get_aws_bedrock_opinion(
+        self,
+        prompt: str,
+        model: str = "anthropic.claude-3-5-sonnet-20241022-v2:0",
+        temperature: float = 0.7,
+        max_tokens: int = 4000,
+        system_prompt: str = "",
+        reset_conversation: bool = False
+    ) -> Sequence[TextContent]:
+        if not self.aws_bedrock_client:
+            return [TextContent(type="text", text="AWS Bedrock client not configured. Please set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY environment variables.")]
+        
+        try:
+            conversation_key = self._get_conversation_key("aws_bedrock", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
+            # Build request body based on model type
+            if "anthropic" in model:
+                body = {
+                    "anthropic_version": "bedrock-2023-05-31",
+                    "max_tokens": max_tokens,
+                    "temperature": temperature,
+                    "messages": [{"role": "user", "content": prompt}]
+                }
+                if system_prompt:
+                    body["system"] = system_prompt
+            elif "amazon.titan" in model:
+                body = {
+                    "inputText": prompt,
+                    "textGenerationConfig": {
+                        "maxTokenCount": max_tokens,
+                        "temperature": temperature
+                    }
+                }
+            else:
+                # Generic format for other models
+                body = {
+                    "prompt": prompt,
+                    "max_tokens": max_tokens,
+                    "temperature": temperature
+                }
+            
+            response = self.aws_bedrock_client.invoke_model(
+                modelId=model,
+                body=json.dumps(body),
+                contentType="application/json"
+            )
+            
+            response_body = json.loads(response["body"].read())
+            
+            # Extract content based on model type
+            if "anthropic" in model:
+                response_content = response_body["content"][0]["text"]
+            elif "amazon.titan" in model:
+                response_content = response_body["results"][0]["outputText"]
+            else:
+                response_content = response_body.get("completion", str(response_body))
+            
+            # Add to conversation history
+            self._add_to_conversation_history(conversation_key, "user", prompt)
+            self._add_to_conversation_history(conversation_key, "assistant", response_content)
+            
+            result = f"**AWS Bedrock {model} Opinion:**\n\n{response_content}"
+            return [TextContent(type="text", text=result)]
+            
+        except Exception as e:
+            return [TextContent(type="text", text=f"AWS Bedrock API Error: {str(e)}")]
+    
+    async def _get_vertex_ai_opinion(
+        self,
+        prompt: str,
+        model: str = "gemini-1.5-pro",
+        temperature: float = 0.7,
+        max_tokens: int = 4000,
+        system_prompt: str = "",
+        reset_conversation: bool = False
+    ) -> Sequence[TextContent]:
+        if not self.vertex_ai_client:
+            return [TextContent(type="text", text="Vertex AI client not configured. Please set VERTEX_PROJECT_ID environment variable and authenticate with Google Cloud.")]
+        
+        try:
+            from google.cloud.aiplatform.gapic.schema import predict
+            
+            conversation_key = self._get_conversation_key("vertex_ai", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
+            # Use Vertex AI Generative AI client
+            import vertexai
+            from vertexai.generative_models import GenerativeModel
+            
+            vertex_model = GenerativeModel(model)
+            
+            # Create prompt with system prompt if provided
+            full_prompt = prompt
+            if system_prompt:
+                full_prompt = f"{system_prompt}\n\nUser: {prompt}"
+            
+            response = vertex_model.generate_content(
+                full_prompt,
+                generation_config={
+                    "temperature": temperature,
+                    "max_output_tokens": max_tokens,
+                }
+            )
+            
+            response_content = response.text
+            
+            # Add to conversation history
+            self._add_to_conversation_history(conversation_key, "user", prompt)
+            self._add_to_conversation_history(conversation_key, "assistant", response_content)
+            
+            result = f"**Vertex AI {model} Opinion:**\n\n{response_content}"
+            return [TextContent(type="text", text=result)]
+            
+        except Exception as e:
+            return [TextContent(type="text", text=f"Vertex AI API Error: {str(e)}")]
+    
+    # Specialized AI Services Methods
+    
+    async def _get_writer_opinion(
+        self,
+        prompt: str,
+        model: str = "palmyra-x-003-instruct",
+        temperature: float = 0.7,
+        max_tokens: int = 4000,
+        system_prompt: str = "",
+        reset_conversation: bool = False
+    ) -> Sequence[TextContent]:
+        if not self.writer_client:
+            return [TextContent(type="text", text="Writer.com client not configured. Please set WRITER_API_KEY environment variable.")]
+        
+        try:
+            conversation_key = self._get_conversation_key("writer", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
+            # Build messages with conversation history
+            messages = self._get_openai_messages(conversation_key, prompt, system_prompt)
+            
+            response = self.writer_client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+            
+            response_content = response.choices[0].message.content
+            
+            # Add to conversation history
+            self._add_to_conversation_history(conversation_key, "user", prompt)
+            self._add_to_conversation_history(conversation_key, "assistant", response_content)
+            
+            result = f"**Writer.com {model} Opinion:**\n\n{response_content}"
+            return [TextContent(type="text", text=result)]
+            
+        except Exception as e:
+            return [TextContent(type="text", text=f"Writer.com API Error: {str(e)}")]
+    
+    async def _get_moonshot_opinion(
+        self,
+        prompt: str,
+        model: str = "moonshot-v1-8k",
+        temperature: float = 0.7,
+        max_tokens: int = 4000,
+        system_prompt: str = "",
+        reset_conversation: bool = False
+    ) -> Sequence[TextContent]:
+        if not self.moonshot_client:
+            return [TextContent(type="text", text="Moonshot AI client not configured. Please set MOONSHOT_API_KEY environment variable.")]
+        
+        try:
+            conversation_key = self._get_conversation_key("moonshot", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
+            # Build messages with conversation history
+            messages = self._get_openai_messages(conversation_key, prompt, system_prompt)
+            
+            response = self.moonshot_client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+            
+            response_content = response.choices[0].message.content
+            
+            # Add to conversation history
+            self._add_to_conversation_history(conversation_key, "user", prompt)
+            self._add_to_conversation_history(conversation_key, "assistant", response_content)
+            
+            result = f"**Moonshot AI {model} Opinion:**\n\n{response_content}"
+            return [TextContent(type="text", text=result)]
+            
+        except Exception as e:
+            return [TextContent(type="text", text=f"Moonshot AI API Error: {str(e)}")]
+    
+    async def _get_yi_opinion(
+        self,
+        prompt: str,
+        model: str = "yi-lightning",
+        temperature: float = 0.7,
+        max_tokens: int = 4000,
+        system_prompt: str = "",
+        reset_conversation: bool = False
+    ) -> Sequence[TextContent]:
+        if not self.yi_client:
+            return [TextContent(type="text", text="01.AI (Yi models) client not configured. Please set YI_API_KEY environment variable.")]
+        
+        try:
+            conversation_key = self._get_conversation_key("yi", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conversation_histories[conversation_key] = []
+            
+            # Build messages with conversation history
+            messages = self._get_openai_messages(conversation_key, prompt, system_prompt)
+            
+            response = self.yi_client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+            
+            response_content = response.choices[0].message.content
+            
+            # Add to conversation history
+            self._add_to_conversation_history(conversation_key, "user", prompt)
+            self._add_to_conversation_history(conversation_key, "assistant", response_content)
+            
+            result = f"**01.AI {model} Opinion:**\n\n{response_content}"
+            return [TextContent(type="text", text=result)]
+            
+        except Exception as e:
+            return [TextContent(type="text", text=f"01.AI API Error: {str(e)}")]
     
     async def _group_discussion(
         self,
@@ -3734,8 +4698,8 @@ def main():
         
         async with stdio_server() as (read_stream, write_stream):
             await server_instance.app.run(
-                read_stream, 
-                write_stream, 
+                read_stream,
+                write_stream,
                 InitializationOptions(
                     server_name="second-opinion",
                     server_version="4.0.0",
