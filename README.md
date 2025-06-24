@@ -198,8 +198,8 @@ Start multi-AI discussions where models can see and respond to each other's inpu
 * `gpt-3.5-turbo` - Fast and cost-effective model
 
 **Gemini**
-* `gemini-2.0-flash-001` - Fast and efficient
-* `gemini-2.5-flash-preview-05-20` - Advanced reasoning
+* `gemini-2.5-flash-lite-preview-06-17` - Lightweight and fast
+* `gemini-2.5-flash` - Advanced reasoning and efficiency
 
 **Grok**
 * `grok-3` - Latest flagship model
