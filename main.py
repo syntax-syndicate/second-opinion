@@ -623,10 +623,10 @@ Remember that you're working together with Claude and other AIs to provide the b
                                     "type": "string",
                                     "description": "Gemini model to use",
                                     "enum": [
-                                        "gemini-2.0-flash-001",
-                                        "gemini-2.5-flash-preview-05-20"
+                                        "gemini-2.5-flash-lite-preview-06-17",
+                                        "gemini-2.5-flash"
                                     ],
-                                    "default": "gemini-2.0-flash-001"
+                                    "default": "gemini-2.5-flash-lite-preview-06-17"
                                 },
                                 "temperature": {
                                     "type": "number",
@@ -664,12 +664,12 @@ Remember that you're working together with Claude and other AIs to provide the b
                                     "items": {
                                         "type": "string",
                                         "enum": [
-                                            "gemini-2.0-flash-001",
-                                            "gemini-2.5-flash-preview-05-20"
+                                            "gemini-2.5-flash-lite-preview-06-17",
+                                            "gemini-2.5-flash"
                                         ]
                                     },
                                     "description": "List of Gemini models to compare",
-                                    "default": ["gemini-2.0-flash-001", "gemini-2.5-flash-preview-05-20"]
+                                    "default": ["gemini-2.5-flash-lite-preview-06-17", "gemini-2.5-flash"]
                                 },
                                 "temperature": {
                                     "type": "number",
@@ -1562,8 +1562,8 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 },
                                 "gemini_model": {
                                     "type": "string",
-                                    "enum": ["gemini-2.0-flash-001", "gemini-2.5-flash-preview-05-20"],
-                                    "default": "gemini-2.0-flash-001"
+                                    "enum": ["gemini-2.5-flash-lite-preview-06-17", "gemini-2.5-flash"],
+                                    "default": "gemini-2.5-flash-lite-preview-06-17"
                                 },
                                 "grok_model": {
                                     "type": "string",
@@ -1656,7 +1656,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                     "default": [
                                         {"platform": "openai", "model": "gpt-4.1"},
                                         {"platform": "claude", "model": "claude-4-sonnet-20250514"},
-                                        {"platform": "gemini", "model": "gemini-2.0-flash-001"}
+                                        {"platform": "gemini", "model": "gemini-2.5-flash-lite-preview-06-17"}
                                     ]
                                 },
                                 "rounds": {
@@ -2228,7 +2228,7 @@ Remember that you're working together with Claude and other AIs to provide the b
     async def _get_gemini_opinion(
         self,
         prompt: str,
-        model: str = "gemini-2.0-flash-001",
+        model: str = "gemini-2.5-flash-lite-preview-06-17",
         temperature: float = 0.7,
         max_output_tokens: int = 4000,
         reset_conversation: bool = False
@@ -3880,7 +3880,7 @@ Remember that you're working together with Claude and other AIs to provide the b
             participants = [
                 {"platform": "openai", "model": "gpt-4.1"},
                 {"platform": "claude", "model": "claude-4-sonnet-20250514"},
-                {"platform": "gemini", "model": "gemini-2.0-flash-001"}
+                {"platform": "gemini", "model": "gemini-2.5-flash-lite-preview-06-17"}
             ]
         
         # Validate participants and filter to only available ones
@@ -4112,7 +4112,7 @@ Remember that you're working together with Claude and other AIs to provide the b
             return [TextContent(type="text", text="Gemini client not configured.")]
         
         if models is None:
-            models = ["gemini-2.0-flash-001", "gemini-2.5-flash-preview-05-20"]
+            models = ["gemini-2.5-flash-lite-preview-06-17", "gemini-2.5-flash"]
         
         results = []
         results.append("## Gemini Model Comparison\n")
@@ -4281,7 +4281,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         self,
         prompt: str,
         openai_model: str = "gpt-4.1",
-        gemini_model: str = "gemini-2.0-flash-001",
+        gemini_model: str = "gemini-2.5-flash-lite-preview-06-17",
         grok_model: str = "grok-3",
         claude_model: str = "claude-4-sonnet-20250514",
         huggingface_model: str = "meta-llama/Llama-3.3-70B-Instruct",
