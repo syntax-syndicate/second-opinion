@@ -4,8 +4,7 @@
 
 <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=22&duration=3000&pause=1000&color=6366F1&center=true&vCenter=true&width=600&lines=Get+instant+second+opinions;From+16+AI+platforms;800%2C000%2B+models+available;Directly+within+Claude+conversations" alt="Typing SVG" />
 
-[![GitHub release](https://img.shields.io/github/v/release/ProCreations-Official/second-opinion?style=for-the-badge&logo=github&color=brightgreen)](https://github.com/ProCreations-Official/second-opinion/releases)
-[![License](https://img.shields.io/github/license/ProCreations-Official/second-opinion?style=for-the-badge&color=blue)](LICENSE)
+[![License](https://img.shields.io/badge/License-CC--BY--ND--4.0-blue?style=for-the-badge&logo=creative-commons&logoColor=white)](https://creativecommons.org/licenses/by-nd/4.0/)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![MCP](https://img.shields.io/badge/MCP-Compatible-purple?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCA5TDEzLjA5IDE1Ljc0TDEyIDIyTDEwLjkxIDE1Ljc0TDQgOUwxMC45MSA4LjI2TDEyIDJaIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K)](https://modelcontextprotocol.io)
 
@@ -499,7 +498,9 @@ You should see `second-opinion` in the list of available MCP servers.
 
 ---
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png" width="100%" />
+```
+████████████████████████████████████████████████████████████████████████████████
+```
 
 # 💡 Usage Examples
 
@@ -664,7 +665,9 @@ Issues and pull requests welcome! This is an open-source project for the AI comm
 
 ---
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/gradient.png" width="100%" />
+```
+▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+```
 
 ### 🧠✨ **Built for developers who want access to the entire AI ecosystem at their fingertips**
 
@@ -676,6 +679,8 @@ Issues and pull requests welcome! This is an open-source project for the AI comm
 
 **⭐ Star us on GitHub • 🍴 Fork the project • 💖 Contribute to the future of AI**
 
-<img src="https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/gradient.png" width="100%" />
+```
+▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+```
 
 </div>
