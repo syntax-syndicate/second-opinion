@@ -89,11 +89,10 @@ Start multi-AI discussions where models can see and respond to each other's inpu
 </div>
 
 * **Python 3.8+** - Programming language runtime
-* **Claude Desktop** - For MCP server integration
+* **Claude Desktop or Claude Code** - Choose your preferred MCP integration
 * **API Keys** - For any combination of the 16 supported AI platforms
 
-<details>
-<summary>📦 <strong>Installation Guide</strong></summary>
+## 📦 Installation Guide
 
 ### 🚀 Quick Start
 
@@ -136,47 +135,54 @@ Start multi-AI discussions where models can see and respond to each other's inpu
 
    </details>
 
-4. **🔧 Configure Claude Desktop**
+4. **🔧 Choose Your Integration Method**
 
-   Add this to your Claude Desktop MCP configuration:
+   Select the method that matches your Claude setup:
 
-   ```json
-   {
-     "mcpServers": {
-       "second-opinion": {
-         "command": "python3",
-         "args": ["/path/to/your/main.py"],
-         "env": {
-           "OPENAI_API_KEY": "your_openai_key_here",
-           "GEMINI_API_KEY": "your_gemini_key_here",
-           "GROK_API_KEY": "your_grok_key_here",
-           "CLAUDE_API_KEY": "your_claude_key_here",
-           "HUGGINGFACE_API_KEY": "your_huggingface_key_here",
-           "DEEPSEEK_API_KEY": "your_deepseek_key_here",
-           "MISTRAL_API_KEY": "your_mistral_key_here",
-           "TOGETHER_API_KEY": "your_together_key_here",
-           "COHERE_API_KEY": "your_cohere_key_here",
-           "GROQ_FAST_API_KEY": "your_groq_key_here",
-           "PERPLEXITY_API_KEY": "your_perplexity_key_here",
-           "REPLICATE_API_TOKEN": "your_replicate_key_here",
-           "AI21_API_KEY": "your_ai21_key_here",
-           "STABILITY_API_KEY": "your_stability_key_here",
-           "FIREWORKS_API_KEY": "your_fireworks_key_here",
-           "ANYSCALE_API_KEY": "your_anyscale_key_here"
-         }
-       }
-     }
-   }
-   ```
+<details>
+<summary>🖥️ <strong>Option A: Claude Desktop Installation</strong></summary>
 
-   > **💡 Note**: You only need to add API keys for the services you want to use. Missing keys will simply disable those specific features.
+### For Claude Desktop Users
 
-5. **🔄 Restart Claude Desktop**
+Add this to your Claude Desktop MCP configuration:
+
+```json
+{
+  "mcpServers": {
+    "second-opinion": {
+      "command": "python3",
+      "args": ["/path/to/your/main.py"],
+      "env": {
+        "OPENAI_API_KEY": "your_openai_key_here",
+        "GEMINI_API_KEY": "your_gemini_key_here",
+        "GROK_API_KEY": "your_grok_key_here",
+        "CLAUDE_API_KEY": "your_claude_key_here",
+        "HUGGINGFACE_API_KEY": "your_huggingface_key_here",
+        "DEEPSEEK_API_KEY": "your_deepseek_key_here",
+        "MISTRAL_API_KEY": "your_mistral_key_here",
+        "TOGETHER_API_KEY": "your_together_key_here",
+        "COHERE_API_KEY": "your_cohere_key_here",
+        "GROQ_FAST_API_KEY": "your_groq_key_here",
+        "PERPLEXITY_API_KEY": "your_perplexity_key_here",
+        "REPLICATE_API_TOKEN": "your_replicate_key_here",
+        "AI21_API_KEY": "your_ai21_key_here",
+        "STABILITY_API_KEY": "your_stability_key_here",
+        "FIREWORKS_API_KEY": "your_fireworks_key_here",
+        "ANYSCALE_API_KEY": "your_anyscale_key_here"
+      }
+    }
+  }
+}
+```
+
+> **💡 Note**: You only need to add API keys for the services you want to use. Missing keys will simply disable those specific features.
+
+**🔄 Restart Claude Desktop** after configuration.
 
 </details>
 
 <details>
-<summary>🛠️ <strong>Claude Code Installation</strong></summary>
+<summary>🛠️ <strong>Option B: Claude Code Installation</strong></summary>
 
 ### 🎯 For Claude Code CLI Users
 
