@@ -624,7 +624,8 @@ Remember that you're working together with Claude and other AIs to provide the b
                                     "description": "Gemini model to use",
                                     "enum": [
                                         "gemini-2.5-flash-lite-preview-06-17",
-                                        "gemini-2.5-flash"
+                                        "gemini-2.5-flash",
+                                        "gemini-2.5-pro"
                                     ],
                                     "default": "gemini-2.5-flash-lite-preview-06-17"
                                 },
@@ -665,11 +666,12 @@ Remember that you're working together with Claude and other AIs to provide the b
                                         "type": "string",
                                         "enum": [
                                             "gemini-2.5-flash-lite-preview-06-17",
-                                            "gemini-2.5-flash"
+                                            "gemini-2.5-flash",
+                                            "gemini-2.5-pro"
                                         ]
                                     },
                                     "description": "List of Gemini models to compare",
-                                    "default": ["gemini-2.5-flash-lite-preview-06-17", "gemini-2.5-flash"]
+                                    "default": ["gemini-2.5-flash-lite-preview-06-17", "gemini-2.5-flash", "gemini-2.5-pro"]
                                 },
                                 "temperature": {
                                     "type": "number",
@@ -1562,7 +1564,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 },
                                 "gemini_model": {
                                     "type": "string",
-                                    "enum": ["gemini-2.5-flash-lite-preview-06-17", "gemini-2.5-flash"],
+                                    "enum": ["gemini-2.5-flash-lite-preview-06-17", "gemini-2.5-flash", "gemini-2.5-pro"],
                                     "default": "gemini-2.5-flash-lite-preview-06-17"
                                 },
                                 "grok_model": {
@@ -4112,7 +4114,7 @@ Remember that you're working together with Claude and other AIs to provide the b
             return [TextContent(type="text", text="Gemini client not configured.")]
         
         if models is None:
-            models = ["gemini-2.5-flash-lite-preview-06-17", "gemini-2.5-flash"]
+            models = ["gemini-2.5-flash-lite-preview-06-17", "gemini-2.5-flash", "gemini-2.5-pro"]
         
         results = []
         results.append("## Gemini Model Comparison\n")

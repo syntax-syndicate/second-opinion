@@ -338,8 +338,9 @@ You should see `second-opinion` in the list of available MCP servers.
 
 | Model | Description | Best For |
 |-------|-------------|----------|
-| `gemini-2.0-flash-001` | Fast and efficient | ⚡ Quick responses |
-| `gemini-2.5-flash-preview-05-20` | Advanced reasoning | 🧮 Complex analysis |
+| `gemini-2.5-flash-lite-preview-06-17` | Lightweight and fast | ⚡ Quick responses |
+| `gemini-2.5-flash` | Advanced reasoning and efficiency | 🧮 Complex analysis |
+| `gemini-2.5-pro` | Most capable Gemini model | 🧠 Advanced tasks |
 
 </details>
 
