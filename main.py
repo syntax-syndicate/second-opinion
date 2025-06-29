@@ -556,7 +556,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "system_prompt": {
                                     "type": "string",
@@ -639,7 +639,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_output_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "reset_conversation": {
                                     "type": "boolean",
@@ -717,7 +717,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "reasoning_effort": {
                                     "type": "string",
@@ -807,7 +807,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "system_prompt": {
                                     "type": "string",
@@ -885,7 +885,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "reset_conversation": {
                                     "type": "boolean",
@@ -930,7 +930,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "system_prompt": {
                                     "type": "string",
@@ -976,7 +976,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "system_prompt": {
                                     "type": "string",
@@ -1043,7 +1043,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "system_prompt": {
                                     "type": "string",
@@ -1097,7 +1097,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "system_prompt": {
                                     "type": "string",
@@ -1148,7 +1148,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "reset_conversation": {
                                     "type": "boolean",
@@ -1195,7 +1195,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "system_prompt": {
                                     "type": "string",
@@ -1247,7 +1247,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "system_prompt": {
                                     "type": "string",
@@ -1302,7 +1302,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "reset_conversation": {
                                     "type": "boolean",
@@ -1349,7 +1349,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "system_prompt": {
                                     "type": "string",
@@ -1401,7 +1401,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "system_prompt": {
                                     "type": "string",
@@ -1454,7 +1454,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "system_prompt": {
                                     "type": "string",
@@ -1507,7 +1507,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "system_prompt": {
                                     "type": "string",
@@ -1742,7 +1742,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "system_prompt": {
                                     "type": "string",
@@ -1787,7 +1787,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "system_prompt": {
                                     "type": "string",
@@ -1834,7 +1834,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "system_prompt": {
                                     "type": "string",
@@ -1888,7 +1888,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "system_prompt": {
                                     "type": "string",
@@ -1941,7 +1941,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "system_prompt": {
                                     "type": "string",
@@ -1988,7 +1988,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "system_prompt": {
                                     "type": "string",
@@ -2035,7 +2035,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "system_prompt": {
                                     "type": "string",
@@ -2081,7 +2081,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                                 "max_tokens": {
                                     "type": "integer",
                                     "description": "Maximum tokens in response",
-                                    "default": 4000
+                                    "default": 8000
                                 },
                                 "system_prompt": {
                                     "type": "string",
@@ -2187,7 +2187,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "gpt-4.1",
         temperature: float = 0.7,
-        max_tokens: int = 4000,
+        max_tokens: int = 8000,
         system_prompt: str = "",
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
@@ -2232,7 +2232,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "gemini-2.5-flash-lite-preview-06-17",
         temperature: float = 0.7,
-        max_output_tokens: int = 4000,
+        max_output_tokens: int = 8000,
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
         if not self.gemini_client:
@@ -2423,7 +2423,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "grok-3",
         temperature: float = 0.7,
-        max_tokens: int = 4000,
+        max_tokens: int = 8000,
         reasoning_effort: str = "low",
         system_prompt: str = "",
         reset_conversation: bool = False
@@ -2472,7 +2472,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "claude-4-sonnet-20250514",
         temperature: float = 0.7,
-        max_tokens: int = 4000,
+        max_tokens: int = 8000,
         system_prompt: str = "",
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
@@ -2522,7 +2522,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str,
         temperature: float = 0.7,
-        max_tokens: int = 4000,
+        max_tokens: int = 8000,
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
         if not self.huggingface_api_key:
@@ -2605,7 +2605,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                     "inputs": full_prompt,
                     "parameters": {
                         "temperature": min(max(temperature, 0.1), 1.0),  # Clamp temperature
-                        "max_new_tokens": min(max_tokens, 2048),
+                        "max_new_tokens": min(max_tokens, 4096),
                         "return_full_text": False,
                         "do_sample": True,
                         "top_p": 0.95,
@@ -2624,7 +2624,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                 {
                     "inputs": full_prompt,
                     "parameters": {
-                        "max_new_tokens": min(max_tokens, 1024),
+                        "max_new_tokens": min(max_tokens, 2048),
                         "temperature": min(max(temperature, 0.1), 1.0),
                         "return_full_text": False,
                         "do_sample": True
@@ -2637,7 +2637,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                 {
                     "inputs": full_prompt,
                     "parameters": {
-                        "max_new_tokens": min(max_tokens, 512),
+                        "max_new_tokens": min(max_tokens, 1024),
                         "return_full_text": False
                     },
                     "options": {
@@ -2849,7 +2849,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "mistral-small-latest",
         temperature: float = 0.7,
-        max_tokens: int = 4000,
+        max_tokens: int = 8000,
         system_prompt: str = "",
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
@@ -2890,7 +2890,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "meta-llama/Llama-3.1-8B-Instruct-Turbo",
         temperature: float = 0.7,
-        max_tokens: int = 4000,
+        max_tokens: int = 8000,
         system_prompt: str = "",
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
@@ -2931,7 +2931,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "command-r-plus",
         temperature: float = 0.7,
-        max_tokens: int = 4000,
+        max_tokens: int = 8000,
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
         if not self.cohere_client:
@@ -2979,7 +2979,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "llama-3.1-70b-versatile",
         temperature: float = 0.7,
-        max_tokens: int = 4000,
+        max_tokens: int = 8000,
         system_prompt: str = "",
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
@@ -3020,7 +3020,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "llama-3.1-sonar-large-128k-online",
         temperature: float = 0.7,
-        max_tokens: int = 4000,
+        max_tokens: int = 8000,
         system_prompt: str = "",
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
@@ -3061,7 +3061,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "meta/llama-2-70b-chat",
         temperature: float = 0.7,
-        max_tokens: int = 4000,
+        max_tokens: int = 8000,
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
         if not self.replicate_api_key:
@@ -3102,7 +3102,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                 "input": {
                     "prompt": full_prompt,
                     "temperature": min(max(temperature, 0.01), 1.0),
-                    "max_new_tokens": min(max_tokens, 4000),
+                    "max_new_tokens": min(max_tokens, 8000),
                     "top_p": 0.9,
                     "repetition_penalty": 1.15,
                     "system_prompt": self.collaborative_system_prompt
@@ -3167,7 +3167,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "jamba-1.5-large",
         temperature: float = 0.7,
-        max_tokens: int = 4000,
+        max_tokens: int = 8000,
         system_prompt: str = "",
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
@@ -3208,7 +3208,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "stablelm-2-zephyr-1_6b",
         temperature: float = 0.7,
-        max_tokens: int = 4000,
+        max_tokens: int = 8000,
         system_prompt: str = "",
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
@@ -3249,7 +3249,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "accounts/fireworks/models/llama-v3p1-70b-instruct",
         temperature: float = 0.7,
-        max_tokens: int = 4000,
+        max_tokens: int = 8000,
         system_prompt: str = "",
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
@@ -3290,7 +3290,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "meta-llama/Llama-2-70b-chat-hf",
         temperature: float = 0.7,
-        max_tokens: int = 4000,
+        max_tokens: int = 8000,
         system_prompt: str = "",
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
@@ -3331,7 +3331,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "deepseek-chat",
         temperature: float = 0.7,
-        max_tokens: int = 4000,
+        max_tokens: int = 8000,
         system_prompt: str = "",
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
@@ -3372,7 +3372,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str,
         temperature: float = 0.7,
-        max_tokens: int = 4000,
+        max_tokens: int = 8000,
         system_prompt: str = "",
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
@@ -3501,7 +3501,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "llama3.2",
         temperature: float = 0.7,
-        max_tokens: int = 4000,
+        max_tokens: int = 8000,
         system_prompt: str = "",
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
@@ -3542,7 +3542,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "local-model",
         temperature: float = 0.7,
-        max_tokens: int = 4000,
+        max_tokens: int = 8000,
         system_prompt: str = "",
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
@@ -3585,7 +3585,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "gpt-4",
         temperature: float = 0.7,
-        max_tokens: int = 4000,
+        max_tokens: int = 8000,
         system_prompt: str = "",
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
@@ -3626,7 +3626,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "anthropic.claude-3-5-sonnet-20241022-v2:0",
         temperature: float = 0.7,
-        max_tokens: int = 4000,
+        max_tokens: int = 8000,
         system_prompt: str = "",
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
@@ -3697,7 +3697,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "gemini-1.5-pro",
         temperature: float = 0.7,
-        max_tokens: int = 4000,
+        max_tokens: int = 8000,
         system_prompt: str = "",
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
@@ -3751,7 +3751,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "palmyra-x-003-instruct",
         temperature: float = 0.7,
-        max_tokens: int = 4000,
+        max_tokens: int = 8000,
         system_prompt: str = "",
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
@@ -3792,7 +3792,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "moonshot-v1-8k",
         temperature: float = 0.7,
-        max_tokens: int = 4000,
+        max_tokens: int = 8000,
         system_prompt: str = "",
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
@@ -3833,7 +3833,7 @@ Remember that you're working together with Claude and other AIs to provide the b
         prompt: str,
         model: str = "yi-lightning",
         temperature: float = 0.7,
-        max_tokens: int = 4000,
+        max_tokens: int = 8000,
         system_prompt: str = "",
         reset_conversation: bool = False
     ) -> Sequence[TextContent]:
@@ -3967,71 +3967,71 @@ Remember that you're working together with Claude and other AIs to provide the b
                 try:
                     if platform == "openai":
                         response = await self._get_openai_opinion(
-                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                            context_prompt, model=model, temperature=temperature, max_tokens=1000
                         )
                     elif platform == "gemini":
                         response = await self._get_gemini_opinion(
-                            context_prompt, model=model, temperature=temperature, max_output_tokens=500
+                            context_prompt, model=model, temperature=temperature, max_output_tokens=1000
                         )
                     elif platform == "grok":
                         response = await self._get_grok_opinion(
-                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                            context_prompt, model=model, temperature=temperature, max_tokens=1000
                         )
                     elif platform == "claude":
                         response = await self._get_claude_opinion(
-                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                            context_prompt, model=model, temperature=temperature, max_tokens=1000
                         )
                     elif platform == "huggingface":
                         response = await self._get_huggingface_opinion(
-                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                            context_prompt, model=model, temperature=temperature, max_tokens=1000
                         )
                     elif platform == "deepseek":
                         response = await self._get_deepseek_opinion(
-                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                            context_prompt, model=model, temperature=temperature, max_tokens=1000
                         )
                     elif platform == "openrouter":
                         response = await self._get_openrouter_opinion(
-                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                            context_prompt, model=model, temperature=temperature, max_tokens=1000
                         )
                     elif platform == "mistral":
                         response = await self._get_mistral_opinion(
-                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                            context_prompt, model=model, temperature=temperature, max_tokens=1000
                         )
                     elif platform == "together":
                         response = await self._get_together_opinion(
-                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                            context_prompt, model=model, temperature=temperature, max_tokens=1000
                         )
                     elif platform == "cohere":
                         response = await self._get_cohere_opinion(
-                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                            context_prompt, model=model, temperature=temperature, max_tokens=1000
                         )
                     elif platform == "groq_fast":
                         response = await self._get_groq_fast_opinion(
-                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                            context_prompt, model=model, temperature=temperature, max_tokens=1000
                         )
                     elif platform == "perplexity":
                         response = await self._get_perplexity_opinion(
-                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                            context_prompt, model=model, temperature=temperature, max_tokens=1000
                         )
                     elif platform == "replicate":
                         response = await self._get_replicate_opinion(
-                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                            context_prompt, model=model, temperature=temperature, max_tokens=1000
                         )
                     elif platform == "ai21":
                         response = await self._get_ai21_opinion(
-                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                            context_prompt, model=model, temperature=temperature, max_tokens=1000
                         )
                     elif platform == "stability":
                         response = await self._get_stability_opinion(
-                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                            context_prompt, model=model, temperature=temperature, max_tokens=1000
                         )
                     elif platform == "fireworks":
                         response = await self._get_fireworks_opinion(
-                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                            context_prompt, model=model, temperature=temperature, max_tokens=1000
                         )
                     elif platform == "anyscale":
                         response = await self._get_anyscale_opinion(
-                            context_prompt, model=model, temperature=temperature, max_tokens=500
+                            context_prompt, model=model, temperature=temperature, max_tokens=1000
                         )
                     
                     if response and len(response) > 0:
@@ -4128,7 +4128,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                     
                     config = genai_types.GenerateContentConfig(
                         temperature=temperature,
-                        max_output_tokens=2000,
+                        max_output_tokens=4000,
                         system_instruction=self.collaborative_system_prompt
                     )
                     
@@ -4161,7 +4161,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                             current_prompt,
                             generation_config={
                                 "temperature": temperature,
-                                "max_output_tokens": 2000
+                                "max_output_tokens": 4000
                             }
                         )
                     else:
@@ -4169,7 +4169,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                             current_prompt,
                             generation_config={
                                 "temperature": temperature,
-                                "max_output_tokens": 2000
+                                "max_output_tokens": 4000
                             }
                         )
                     result_text = response.text
@@ -4209,7 +4209,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                     "model": model,
                     "messages": messages,
                     "temperature": temperature,
-                    "max_tokens": 2000
+                    "max_tokens": 4000
                 }
                 
                 # Add reasoning_effort for thinking models
@@ -4260,7 +4260,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                 
                 response = self.claude_client.messages.create(
                     model=model,
-                    max_tokens=2000,
+                    max_tokens=4000,
                     temperature=temperature,
                     system=self.collaborative_system_prompt,
                     messages=messages
@@ -4336,7 +4336,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                     
                     config = genai_types.GenerateContentConfig(
                         temperature=temperature,
-                        max_output_tokens=2000,
+                        max_output_tokens=4000,
                         system_instruction=self.collaborative_system_prompt
                     )
                     
@@ -4369,7 +4369,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                             current_prompt,
                             generation_config={
                                 "temperature": temperature,
-                                "max_output_tokens": 2000
+                                "max_output_tokens": 4000
                             }
                         )
                     else:
@@ -4377,7 +4377,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                             current_prompt,
                             generation_config={
                                 "temperature": temperature,
-                                "max_output_tokens": 2000
+                                "max_output_tokens": 4000
                             }
                         )
                     result_text = response.text
@@ -4402,7 +4402,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                     "model": grok_model,
                     "messages": messages,
                     "temperature": temperature,
-                    "max_tokens": 2000
+                    "max_tokens": 4000
                 }
                 
                 # Add reasoning_effort for thinking models
@@ -4438,7 +4438,7 @@ Remember that you're working together with Claude and other AIs to provide the b
                 
                 claude_response = self.claude_client.messages.create(
                     model=claude_model,
-                    max_tokens=2000,
+                    max_tokens=4000,
                     temperature=temperature,
                     system=self.collaborative_system_prompt,
                     messages=messages
