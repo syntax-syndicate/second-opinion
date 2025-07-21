@@ -27,9 +27,24 @@ This MCP server allows Claude to consult other AI models for different perspecti
 * **Group discussions** - Host AI debates with multiple models
 * **Custom model access** - Use any HuggingFace model via Inference API
 
-## ✨ Version 4.0 Features & Improvements
+## ✨ Version 5.0 Features & Improvements
 
-### 🚀 Major New Platform Integrations
+### 🎭 **NEW: AI Personality System**
+- **5 Distinct Personalities**: `honest`, `gf`, `coach`, `wise`, `creative`
+- **Intelligent Model Matching**: Each personality uses models best suited for their character
+- **Always Available**: Works with any configured AI provider
+
+### 🧠 **NEW: Intelligent Model Selection**
+- **Quality-Based Ranking**: 34+ models ranked by capability (Grok-4 → Gemini Pro → GPT-4.1)
+- **Smart Defaults**: Automatically selects the best available model
+- **Personality Optimization**: Different models for different personality types
+
+### 🏗️ **NEW: Modular Architecture**
+- **5 Clean Files**: Replaced 51k+ token monolith with maintainable modules
+- **Professional Structure**: `client_manager.py`, `ai_providers.py`, `conversation_manager.py`, `mcp_server.py`, `main.py`
+- **JSON Configuration**: Easy model priority updates via `model_priority.json`
+
+### 🚀 Major Platform Integrations
 - **🎭 Replicate**: Access to open-source models including Llama 2, CodeLlama, Mistral, and more
 - **🌟 AI21 Labs**: Jamba 1.5 models with advanced reasoning capabilities
 - **🎨 Stability AI**: StableLM models including code-specialized variants
@@ -520,14 +535,30 @@ You should see `second-opinion` in the list of available MCP servers.
 <details>
 <summary>🎯 <strong>Quick Examples - Get Started Now!</strong></summary>
 
+### 🎭 **NEW: Personality Examples**
+
+```
+😤 "Give me an honest opinion about this code" (brutally frank feedback)
+
+💕 "I need some encouragement with this project" (supportive girlfriend mode)
+
+🏆 "Help me stay motivated to finish this task" (motivational coach)
+
+🧙 "What's the deeper meaning behind this design pattern?" (ancient wisdom)
+
+🎨 "Think of a creative solution to this problem" (innovative thinking)
+
+🤖 "Just give me the best available opinion" (automatic smart selection)
+```
+
 ### 🔥 **Popular Requests**
 
 ```
 💬 "Get a second opinion from GPT-4.1 on this coding approach"
 
-🤔 "What would Grok-3-thinking think about this solution?"
+🤔 "What would Grok-4 think about this solution?" (NEW: Latest model)
 
-⚖️ "Compare how Claude-4-opus and gemini-2.0-flash would solve this problem"
+⚖️ "Compare how Claude-4-opus and gemini-2.5-flash would solve this problem"
 
 🤗 "Get an opinion from meta-llama/Llama-3.1-70B-Instruct on HuggingFace"
 
@@ -590,6 +621,11 @@ You should see `second-opinion` in the list of available MCP servers.
 * **`compare_grok_models`** - Compare multiple Grok models
 * **`compare_claude_models`** - Compare multiple Claude models
 
+### 🎭 NEW: Personality & Smart Default Tools
+* **`get_personality_opinion`** - Get AI responses with specific personality (honest, gf, coach, wise, creative)
+* **`get_default_opinion`** - Automatically uses the best available model (Grok-4 → Gemini Pro → GPT-4.1)
+* **`list_personalities`** - See all available AI personalities and their descriptions
+
 ### Cross-Platform Features
 * **`cross_platform_comparison`** - Compare across all 16 AI platforms: OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek, Mistral, Together AI, Cohere, Groq Fast, Perplexity, Replicate, AI21 Labs, Stability AI, Fireworks AI & Anyscale
 * **`group_discussion`** - Multi-round discussions between AI models with shared context (supports all platforms)
@@ -644,18 +680,21 @@ Your API keys stay private on your machine. The MCP server only sends model resp
 
 **Model not available**: Check if the HuggingFace model supports text generation or chat completion
 
-## 🚀 What's New in v4.0
+## 🚀 What's New in v5.0
 
+- ✅ **🎭 AI Personality System**: 5 distinct personalities (honest, gf, coach, wise, creative) with optimized model selection
+- ✅ **🧠 Intelligent Model Selection**: Quality-ranked models with Grok-4 as top priority, smart defaults
+- ✅ **🏗️ Modular Architecture**: Refactored from 51k+ token monolith into 5 maintainable modules
+- ✅ **📊 JSON Configuration**: Easy model priority updates via configuration files
+- ✅ **🤖 Always-Available Tools**: Personality and default tools work with any provider setup
+- ✅ **⚡ Enhanced Performance**: Optimized model selection and better error handling
+- ✅ **🔄 Future-Proof**: Easy to add new models and update priorities
+
+### Previous Updates (v4.0)
 - ✅ **5 New Major AI Platforms**: Replicate, AI21 Labs, Stability AI, Fireworks AI, Anyscale
 - ✅ **16 Total Platforms**: Now supporting 16 different AI platforms and 800,000+ models
-- ✅ **Open-Source Model Access**: Replicate integration for accessing hosted open-source models
 - ✅ **Advanced Reasoning**: AI21 Labs' Jamba models with state-space architecture
-- ✅ **Specialized Code Models**: Stability AI's code-optimized StableLM variants
 - ✅ **Ultra-Fast Inference**: Fireworks AI for blazing-fast open model serving
-- ✅ **Enterprise Ray Serving**: Anyscale's production-grade LLM infrastructure
-- ✅ **Enhanced Model Selection**: More model options across existing platforms
-- ✅ **Improved Cross-Platform**: All new platforms work with comparison and group discussion tools
-- ✅ **Complete Integration**: New services fully integrated into all existing features
 
 ### Previous Improvements (v3.0)
 - ✅ **Major Bug Fixes**: Fixed HuggingFace empty responses and Gemini blank chat issues
