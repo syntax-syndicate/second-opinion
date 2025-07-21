@@ -4,7 +4,7 @@
 
 <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=22&duration=3000&pause=1000&color=6366F1&center=true&vCenter=true&width=600&lines=Get+instant+second+opinions;From+16+AI+platforms;800%2C000%2B+models+available;Directly+within+Claude+conversations" alt="Typing SVG" />
 
-[![License](https://img.shields.io/badge/License-CC--BY--ND--4.0-blue?style=for-the-badge&logo=creative-commons&logoColor=white)](https://creativecommons.org/licenses/by-nd/4.0/)
+[![License](https://img.shields.io/badge/License-CC--BY--NC--4.0-blue?style=for-the-badge&logo=creative-commons&logoColor=white)](https://creativecommons.org/licenses/by-nc/4.0/)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![MCP](https://img.shields.io/badge/MCP-Compatible-purple?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCA5TDEzLjA5IDE1Ljc0TDEyIDIyTDEwLjkxIDE1Ljc0TDQgOUwxMC45MSA4LjI2TDEyIDJaIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K)](https://modelcontextprotocol.io)
 
@@ -133,11 +133,11 @@ Start multi-AI discussions where models can see and respond to each other's inpu
    |----------|------|----------|
    | **OpenAI** | [platform.openai.com](https://platform.openai.com/api-keys) | ⭐ Popular |
    | **Gemini** | [aistudio.google.com](https://aistudio.google.com/app/apikey) | ⭐ Popular |
-   | **Grok** | [x.ai](https://x.ai/api) | 🔥 Thinking Models |
+   | **Grok** | [x.ai](https://x.ai/api) | 🔥 Best benchmarks |
    | **Claude** | [anthropic.com](https://console.anthropic.com/settings/keys) | 🧠 Advanced |
    | **HuggingFace** | [huggingface.co](https://huggingface.co/settings/tokens) | 🤗 800k+ Models |
    | **DeepSeek** | [deepseek.com](https://api-docs.deepseek.com/) | 🔬 Reasoning |
-   | **Mistral** | [console.mistral.ai](https://console.mistral.ai/) | 🇫🇷 European |
+   | **Mistral** | [console.mistral.ai](https://console.mistral.ai/) | 🇫🇷 European, fast  |
    | **Together AI** | [api.together.xyz](https://api.together.xyz/settings/api-keys) | 🔗 200+ Models |
    | **Cohere** | [dashboard.cohere.com](https://dashboard.cohere.com/api-keys) | 🏢 Enterprise |
    | **Groq** | [console.groq.com](https://console.groq.com/keys) | ⚡ Ultra-Fast |
@@ -341,10 +341,9 @@ You should see `second-opinion` in the list of available MCP servers.
 | Model | Description | Best For |
 |-------|-------------|----------|
 | `o4-mini` | Fast reasoning model | ⚡ Quick reasoning |
-| `gpt-4.1` | Latest flagship model | 🎯 General tasks |
+| `gpt-4.1` | Latest flagship non-reasoning model | 🎯 General tasks |
 | `gpt-4o` | Multimodal powerhouse | 🖼️ Vision + text |
 | `gpt-4o-mini` | Lightweight GPT-4o | 💰 Cost-effective |
-| `gpt-3.5-turbo` | Fast and efficient | 🏃 Speed |
 
 </details>
 
@@ -364,11 +363,9 @@ You should see `second-opinion` in the list of available MCP servers.
 
 | Model | Description | Best For |
 |-------|-------------|----------|
-| `grok-3` | Latest flagship model | 🎯 General excellence |
-| `grok-3-thinking` | Step-by-step reasoning | 🤔 Deep thinking |
-| `grok-3-mini` | Lightweight thinking model | 💡 Quick insights |
-| `grok-2` | Robust and reliable | 🛡️ Stability |
-| `grok-beta` | Experimental features | 🧪 Cutting edge |
+| `grok-4` | Latest flagship model | 🎯 General excellence, best |
+| `grok-3-thinking` | Step-by-step reasoning  | 🤔 Deep thinking (use grok 4) |
+| `grok-3-mini` | Lightweight model | 💡 Quick insights |
 
 </details>
 
