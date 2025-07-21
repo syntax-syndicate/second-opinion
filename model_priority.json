@@ -39,7 +39,7 @@
     {
       "platform": "grok",
       "model": "grok-3",
-      "description": "xAI's latest flagship model - excellent reasoning capabilities",
+      "description": "xAI's last-gen flagship model - meh",
       "quality_score": 91
     },
     {
@@ -63,19 +63,19 @@
     {
       "platform": "grok",
       "model": "grok-3-thinking",
-      "description": "xAI's step-by-step reasoning model - best for complex problems",
+      "description": "xAI's step-by-step reasoning model - best for complex problems, but older",
       "quality_score": 93
     },
     {
       "platform": "groq_fast",
       "model": "llama-3.1-70b-versatile",
-      "description": "Meta's large model via Groq - ultra-fast inference",
+      "description": "Meta's large model via Groq - ultra-fast inference with decent quality",
       "quality_score": 85
     },
     {
       "platform": "claude",
       "model": "claude-4-opus-20250522",
-      "description": "Anthropic's most powerful model - highest capability",
+      "description": "Anthropic's most powerful model - highest capability, but slow and sometimes errors",
       "quality_score": 95
     },
     {
