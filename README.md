@@ -8,9 +8,9 @@
 [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![MCP](https://img.shields.io/badge/MCP-Compatible-purple?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCA5TDEzLjA5IDE1Ljc0TDEyIDIyTDEwLjkxIDE1Ljc0TDQgOUwxMC45MSA4LjI2TDEyIDJaIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K)](https://modelcontextprotocol.io)
 
-**🎯 Get instant second opinions from 16 AI platforms and 800,000+ models**
+**🎯 Get instant second opinions from 17 AI platforms and 800,000+ models**
 
-*OpenAI • Gemini • Grok • Claude • HuggingFace • DeepSeek • Mistral • Together AI • Cohere • Groq • Perplexity • Replicate • AI21 Labs • Stability AI • Fireworks AI • Anyscale*
+*OpenAI • Gemini • Grok • Claude • HuggingFace • DeepSeek • OpenRouter • Mistral • Together AI • Cohere • Groq • Perplexity • Replicate • AI21 Labs • Stability AI • Fireworks AI • Anyscale*
 
 ---
 
@@ -137,6 +137,7 @@ Start multi-AI discussions where models can see and respond to each other's inpu
    | **Claude** | [anthropic.com](https://console.anthropic.com/settings/keys) | 🧠 Advanced |
    | **HuggingFace** | [huggingface.co](https://huggingface.co/settings/tokens) | 🤗 800k+ Models |
    | **DeepSeek** | [deepseek.com](https://api-docs.deepseek.com/) | 🔬 Reasoning |
+   | **OpenRouter** | [openrouter.ai](https://openrouter.ai/keys) | 🌍 200+ Models via One API |
    | **Mistral** | [console.mistral.ai](https://console.mistral.ai/) | 🇫🇷 European, fast  |
    | **Together AI** | [api.together.xyz](https://api.together.xyz/settings/api-keys) | 🔗 200+ Models |
    | **Cohere** | [dashboard.cohere.com](https://dashboard.cohere.com/api-keys) | 🏢 Enterprise |
@@ -174,6 +175,7 @@ Add this to your Claude Desktop MCP configuration:
         "CLAUDE_API_KEY": "your_claude_key_here",
         "HUGGINGFACE_API_KEY": "your_huggingface_key_here",
         "DEEPSEEK_API_KEY": "your_deepseek_key_here",
+        "OPENROUTER_API_KEY": "your_openrouter_key_here",
         "MISTRAL_API_KEY": "your_mistral_key_here",
         "TOGETHER_API_KEY": "your_together_key_here",
         "COHERE_API_KEY": "your_cohere_key_here",
@@ -235,6 +237,7 @@ claude mcp add second-opinion -s user \
   -e CLAUDE_API_KEY=your_claude_key_here \
   -e HUGGINGFACE_API_KEY=your_huggingface_key_here \
   -e DEEPSEEK_API_KEY=your_deepseek_key_here \
+  -e OPENROUTER_API_KEY=your_openrouter_key_here \
   -e MISTRAL_API_KEY=your_mistral_key_here \
   -e TOGETHER_API_KEY=your_together_key_here \
   -e COHERE_API_KEY=your_cohere_key_here \
@@ -277,6 +280,7 @@ Alternatively, you can manually add the server to your `.claude.json` file:
         "CLAUDE_API_KEY": "your_claude_key_here",
         "HUGGINGFACE_API_KEY": "your_huggingface_key_here",
         "DEEPSEEK_API_KEY": "your_deepseek_key_here",
+        "OPENROUTER_API_KEY": "your_openrouter_key_here",
         "MISTRAL_API_KEY": "your_mistral_key_here",
         "TOGETHER_API_KEY": "your_together_key_here",
         "COHERE_API_KEY": "your_cohere_key_here",
@@ -405,6 +409,22 @@ You should see `second-opinion` in the list of available MCP servers.
 |-------|-------------|----------|
 | `deepseek-chat` | DeepSeek-V3 general tasks | 💬 Conversations |
 | `deepseek-reasoner` | DeepSeek-R1 advanced reasoning | 🧠 Complex logic |
+
+</details>
+
+<details>
+<summary>🌍 <strong>OpenRouter (200+ Models via One API)</strong></summary>
+
+| Model | Description | Best For |
+|-------|-------------|----------|
+| `anthropic/claude-3-5-sonnet-20241022` | OpenRouter access to Claude 3.5 Sonnet | 🎯 Balanced excellence |
+| `openai/gpt-4-turbo` | OpenRouter access to GPT-4 Turbo | 🧠 Advanced reasoning |
+| `google/gemini-pro-1.5` | OpenRouter access to Gemini Pro 1.5 | 🔍 Long context |
+| `meta-llama/llama-3.1-405b-instruct` | OpenRouter access to largest Llama | 🦣 Massive scale |
+| `mistralai/mistral-large` | OpenRouter access to Mistral Large | 🇫🇷 European excellence |
+| `perplexity/llama-3.1-sonar-huge-128k-online` | Web-connected via OpenRouter | 🌐 Current information |
+
+> **🌟 Special**: Access to *200+ models from multiple providers* through a single OpenRouter API
 
 </details>
 
@@ -559,6 +579,8 @@ You should see `second-opinion` in the list of available MCP servers.
 
 🤗 "Get an opinion from meta-llama/Llama-3.1-70B-Instruct on HuggingFace"
 
+🌍 "Get an OpenRouter opinion from anthropic/claude-3-5-sonnet-20241022"
+
 🧠 "What does DeepSeek-reasoner think about this math problem?"
 
 🇫🇷 "Ask Mistral-large-latest to review my code architecture"
@@ -601,6 +623,7 @@ You should see `second-opinion` in the list of available MCP servers.
 * **`get_claude_opinion`** - Get opinion from any Claude model
 * **`get_huggingface_opinion`** - Get opinion from any HuggingFace model (enhanced with better reliability)
 * **`get_deepseek_opinion`** - Get opinion from DeepSeek models
+* **`get_openrouter_opinion`** - Get opinion from 200+ models via OpenRouter (NEW)
 * **`get_mistral_opinion`** - Get opinion from Mistral AI models (NEW)
 * **`get_together_opinion`** - Get opinion from Together AI's 200+ models (NEW)
 * **`get_cohere_opinion`** - Get opinion from Cohere enterprise models (NEW)
@@ -624,7 +647,7 @@ You should see `second-opinion` in the list of available MCP servers.
 * **`list_personalities`** - See all available AI personalities and their descriptions
 
 ### Cross-Platform Features
-* **`cross_platform_comparison`** - Compare across all 16 AI platforms: OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek, Mistral, Together AI, Cohere, Groq Fast, Perplexity, Replicate, AI21 Labs, Stability AI, Fireworks AI & Anyscale
+* **`cross_platform_comparison`** - Compare across all 17 AI platforms: OpenAI, Gemini, Grok, Claude, HuggingFace, DeepSeek, OpenRouter, Mistral, Together AI, Cohere, Groq Fast, Perplexity, Replicate, AI21 Labs, Stability AI, Fireworks AI & Anyscale
 * **`group_discussion`** - Multi-round discussions between AI models with shared context (supports all platforms)
 
 ### Conversation Management

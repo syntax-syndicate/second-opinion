@@ -539,6 +539,8 @@ class AIProviders:
                 return await self.get_perplexity_opinion(prompt, model, temperature, max_tokens, "", reset_conversation, personality)
             elif platform == "huggingface":
                 return await self.get_huggingface_opinion(prompt, model, temperature, max_tokens, reset_conversation, personality)
+            elif platform == "openrouter":
+                return await self.get_openrouter_opinion(prompt, model, temperature, max_tokens, "", reset_conversation, personality)
             elif platform == "ollama":
                 return [TextContent(type="text", text=f"Ollama integration not yet implemented in default selection. Platform: {platform}, Model: {model}")]
             else:
@@ -607,3 +609,47 @@ class AIProviders:
         except Exception as e:
             logger.error(f"Perplexity API Error: {str(e)}")
             return [TextContent(type="text", text=f"Perplexity API Error: {str(e)}")]
+    
+    async def get_openrouter_opinion(
+        self,
+        prompt: str,
+        model: str = "anthropic/claude-3-5-sonnet-20241022",
+        temperature: float = 0.7,
+        max_tokens: int = 8000,
+        system_prompt: str = "",
+        reset_conversation: bool = False,
+        personality: str = None
+    ) -> Sequence[TextContent]:
+        """Get opinion from OpenRouter model"""
+        if not self.clients.openrouter_client:
+            return [TextContent(type="text", text="OpenRouter client not configured. Please set OPENROUTER_API_KEY environment variable.")]
+        
+        try:
+            conversation_key = self.conv.get_conversation_key("openrouter", model)
+            
+            # Reset conversation if requested
+            if reset_conversation:
+                self.conv.reset_conversation(conversation_key)
+            
+            # Build messages with conversation history
+            messages = self.conv.get_openai_messages(conversation_key, prompt, system_prompt, personality)
+            
+            response = self.clients.openrouter_client.chat.completions.create(
+                model=model,
+                messages=messages,
+                temperature=temperature,
+                max_tokens=max_tokens
+            )
+            
+            response_content = response.choices[0].message.content
+            
+            # Add to conversation history
+            self.conv.add_to_conversation_history(conversation_key, "user", prompt)
+            self.conv.add_to_conversation_history(conversation_key, "assistant", response_content)
+            
+            result = f"**OpenRouter {model} Opinion:**\n\n{response_content}"
+            return [TextContent(type="text", text=result)]
+            
+        except Exception as e:
+            logger.error(f"OpenRouter API Error: {str(e)}")
+            return [TextContent(type="text", text=f"OpenRouter API Error: {str(e)}")]
