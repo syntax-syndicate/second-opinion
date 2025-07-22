@@ -58,6 +58,9 @@ class MCPServer:
             if self.client_manager.deepseek_client:
                 tools.extend(self._get_deepseek_tools())
             
+            if self.client_manager.openrouter_client:
+                tools.extend(self._get_openrouter_tools())
+            
             if self.client_manager.groq_client_fast:
                 tools.extend(self._get_groq_fast_tools())
             
@@ -103,6 +106,10 @@ class MCPServer:
                 # DeepSeek tools
                 elif name == "get_deepseek_opinion":
                     return await self.ai_providers.get_deepseek_opinion(**arguments)
+                
+                # OpenRouter tools
+                elif name == "get_openrouter_opinion":
+                    return await self.ai_providers.get_openrouter_opinion(**arguments)
                 
                 # Groq Fast tools
                 elif name == "get_groq_fast_opinion":
@@ -410,6 +417,58 @@ class MCPServer:
                             "description": "DeepSeek model to use",
                             "enum": ["deepseek-chat", "deepseek-reasoner"],
                             "default": "deepseek-chat"
+                        },
+                        "temperature": {
+                            "type": "number",
+                            "description": "Temperature for response randomness (0.0-2.0)",
+                            "minimum": 0.0,
+                            "maximum": 2.0,
+                            "default": 0.7
+                        },
+                        "max_tokens": {
+                            "type": "integer",
+                            "description": "Maximum tokens in response",
+                            "default": 8000
+                        },
+                        "system_prompt": {
+                            "type": "string",
+                            "description": "Optional system prompt to guide the response",
+                            "default": ""
+                        },
+                        "reset_conversation": {
+                            "type": "boolean",
+                            "description": "Reset conversation history for this model",
+                            "default": False
+                        },
+                        "personality": {
+                            "type": "string",
+                            "description": "Personality type for the AI response",
+                            "enum": ["honest", "gf", "coach", "wise", "creative"],
+                            "default": None
+                        }
+                    },
+                    "required": ["prompt"]
+                }
+            )
+        ]
+    
+    def _get_openrouter_tools(self) -> List[Tool]:
+        """Get OpenRouter tool definitions"""
+        return [
+            Tool(
+                name="get_openrouter_opinion",
+                description="Get opinions from 200+ models via OpenRouter - Access to Claude, GPT, Llama, Gemini, and many more through one API",
+                inputSchema={
+                    "type": "object",
+                    "properties": {
+                        "prompt": {
+                            "type": "string",
+                            "description": "The question or prompt to get an opinion on"
+                        },
+                        "model": {
+                            "type": "string",
+                            "description": "OpenRouter model to use",
+                            "default": "anthropic/claude-3-5-sonnet-20241022"
                         },
                         "temperature": {
                             "type": "number",

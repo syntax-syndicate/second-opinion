@@ -37,6 +37,18 @@
       "quality_score": 96
     },
     {
+      "platform": "openrouter",
+      "model": "anthropic/claude-3-5-sonnet-20241022",
+      "description": "OpenRouter access to Claude 3.5 Sonnet - excellent balanced performance",
+      "quality_score": 93
+    },
+    {
+      "platform": "openrouter",
+      "model": "openai/gpt-4-turbo",
+      "description": "OpenRouter access to GPT-4 Turbo - powerful OpenAI model",
+      "quality_score": 92
+    },
+    {
       "platform": "grok",
       "model": "grok-3",
       "description": "xAI's last-gen flagship model - meh",
@@ -209,6 +221,7 @@
     "gemini",
     "openai", 
     "grok",
+    "openrouter",
     "claude",
     "deepseek",
     "groq_fast",
