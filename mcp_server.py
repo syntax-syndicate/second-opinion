@@ -188,7 +188,7 @@ class MCPServer:
                         "personality": {
                             "type": "string",
                             "description": "Personality type for the AI response",
-                            "enum": ["honest", "gf", "coach", "wise", "creative"],
+                            "enum": ["honest", "friend", "coach", "wise", "creative"],
                             "default": None
                         }
                     },
@@ -236,7 +236,7 @@ class MCPServer:
                         "personality": {
                             "type": "string",
                             "description": "Personality type for the AI response",
-                            "enum": ["honest", "gf", "coach", "wise", "creative"],
+                            "enum": ["honest", "friend", "coach", "wise", "creative"],
                             "default": None
                         }
                     },
@@ -289,7 +289,7 @@ class MCPServer:
                         "personality": {
                             "type": "string",
                             "description": "Personality type for the AI response",
-                            "enum": ["honest", "gf", "coach", "wise", "creative"],
+                            "enum": ["honest", "friend", "coach", "wise", "creative"],
                             "default": None
                         },
                         "reasoning_effort": {
@@ -343,7 +343,7 @@ class MCPServer:
                         "personality": {
                             "type": "string",
                             "description": "Personality type for the AI response",
-                            "enum": ["honest", "gf", "coach", "wise", "creative"],
+                            "enum": ["honest", "friend", "coach", "wise", "creative"],
                             "default": None
                         }
                     },
@@ -390,7 +390,7 @@ class MCPServer:
                         "personality": {
                             "type": "string",
                             "description": "Personality type for the AI response",
-                            "enum": ["honest", "gf", "coach", "wise", "creative"],
+                            "enum": ["honest", "friend", "coach", "wise", "creative"],
                             "default": None
                         }
                     },
@@ -443,7 +443,7 @@ class MCPServer:
                         "personality": {
                             "type": "string",
                             "description": "Personality type for the AI response",
-                            "enum": ["honest", "gf", "coach", "wise", "creative"],
+                            "enum": ["honest", "friend", "coach", "wise", "creative"],
                             "default": None
                         }
                     },
@@ -495,7 +495,7 @@ class MCPServer:
                         "personality": {
                             "type": "string",
                             "description": "Personality type for the AI response",
-                            "enum": ["honest", "gf", "coach", "wise", "creative"],
+                            "enum": ["honest", "friend", "coach", "wise", "creative"],
                             "default": None
                         }
                     },
@@ -548,7 +548,7 @@ class MCPServer:
                         "personality": {
                             "type": "string",
                             "description": "Personality type for the AI response",
-                            "enum": ["honest", "gf", "coach", "wise", "creative"],
+                            "enum": ["honest", "friend", "coach", "wise", "creative"],
                             "default": None
                         }
                     },
@@ -601,7 +601,7 @@ class MCPServer:
                         "personality": {
                             "type": "string",
                             "description": "Personality type for the AI response",
-                            "enum": ["honest", "gf", "coach", "wise", "creative"],
+                            "enum": ["honest", "friend", "coach", "wise", "creative"],
                             "default": None
                         }
                     },
@@ -626,7 +626,7 @@ class MCPServer:
                         "personality": {
                             "type": "string",
                             "description": "Personality type for the AI response",
-                            "enum": ["honest", "gf", "coach", "wise", "creative"],
+                            "enum": ["honest", "friend", "coach", "wise", "creative"],
                             "default": "honest"
                         },
                         "temperature": {
@@ -689,7 +689,7 @@ class MCPServer:
                         "personality": {
                             "type": "string",
                             "description": "Personality type for the AI response",
-                            "enum": ["honest", "gf", "coach", "wise", "creative"],
+                            "enum": ["honest", "friend", "coach", "wise", "creative"],
                             "default": None
                         },
                         "reset_conversation": {
