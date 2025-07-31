@@ -242,7 +242,7 @@
       "preferred_models": ["grok-4", "gpt-4.1", "gemini-2.5-flash", "grok-3", "claude-4-sonnet-20250514", "deepseek-chat"],
       "reason": "These models tend to be more direct and factual"
     },
-    "gf": {
+    "friend": {
       "preferred_models": ["grok-4", "claude-4-sonnet-20250514", "gemini-2.5-flash", "gpt-4.1"],
       "reason": "These models are better at emotional and supportive responses"
     },
