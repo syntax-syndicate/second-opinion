@@ -129,6 +129,11 @@ class AIProviders:
                 token_param: max_tokens
             }
             
+            # Handle "thinking" models
+            if ":think" in model:
+                kwargs["model"] = model.replace(":think", "")
+                kwargs["reasoning_effort"] = "high"
+
             response = self.clients.openai_client.chat.completions.create(**kwargs)
             response_content = response.choices[0].message.content
             
