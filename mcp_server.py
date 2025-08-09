@@ -160,8 +160,8 @@ class MCPServer:
                         "model": {
                             "type": "string",
                             "description": "OpenAI model to use",
-                            "enum": ["o4-mini", "gpt-4.1", "gpt-4o", "gpt-4o-mini"],
-                            "default": "gpt-4.1"
+                            "enum": ["gpt-5:think", "gpt-5", "gpt-5-mini:think", "gpt-5-mini", "gpt-5-nano:think", "gpt-5-nano", "o4-mini", "gpt-4.1", "gpt-4o", "gpt-4o-mini"],
+                            "default": "gpt-5"
                         },
                         "temperature": {
                             "type": "number",
