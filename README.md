@@ -4,7 +4,7 @@
 
 <img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=22&duration=3000&pause=1000&color=6366F1&center=true&vCenter=true&width=600&lines=Get+instant+second+opinions;From+16+AI+platforms;800%2C000%2B+models+available;Directly+within+Claude+conversations" alt="Typing SVG" />
 
-[![License](https://img.shields.io/badge/License-CC--BY--NC--4.0-blue?style=for-the-badge&logo=creative-commons&logoColor=white)](https://creativecommons.org/licenses/by-nc/4.0/)
+[![License](https://img.shields.io/badge/License-CC--BY--4.0-blue?style=for-the-badge&logo=creative-commons&logoColor=white)](https://creativecommons.org/licenses/by/4.0/)
 [![Python](https://img.shields.io/badge/Python-3.8+-blue?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
 [![MCP](https://img.shields.io/badge/MCP-Compatible-purple?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTEyIDJMMTMuMDkgOC4yNkwyMCA5TDEzLjA5IDE1Ljc0TDEyIDIyTDEwLjkxIDE1Ljc0TDQgOUwxMC45MSA4LjI2TDEyIDJaIiBzdHJva2U9IndoaXRlIiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIvPgo8L3N2Zz4K)](https://modelcontextprotocol.io)
 
@@ -656,15 +656,13 @@ You should see `second-opinion` in the list of available MCP servers.
 
 ## 🧠 Advanced Features
 
-### Grok 3 Thinking Models
+### GPT 5 Thinking Models
 For deeper reasoning, use thinking models:
 ```
-> "Get a Grok-3-thinking opinion on this complex math problem with high reasoning effort"
+> "Get a GPT 5 thinking opinion on this complex math problem with high reasoning effort"
 ```
+This will use GPT 5 with reasoning effort set to high.
 
-The `reasoning_effort` parameter controls thinking depth:
-- `low` - Faster responses with basic reasoning
-- `high` - Deeper analysis with step-by-step thinking
 
 ### Group Discussions
 Create AI debates and collaborative problem-solving:
@@ -677,14 +675,14 @@ Each AI can see previous responses and build on the discussion.
 ### HuggingFace Model Access
 Access cutting-edge open source models:
 ```
-> "Get an opinion from microsoft/DialoGPT-large about chatbot design patterns"
+> "Get an opinion from Qwen/Qwen3-30B-A3B-Instruct-2507 about chatbot design patterns"
 ```
-
+*may be broken*
 Perfect for testing specialized models or comparing open source vs proprietary AI.
 
 ## 🔒 Security
 
-Your API keys stay private on your machine. The MCP server only sends model responses to Claude, never your credentials.
+Your API keys stay private on your machine. The MCP server only sends model responses to the client, never your credentials.
 
 ## 🛟 Troubleshooting
 
